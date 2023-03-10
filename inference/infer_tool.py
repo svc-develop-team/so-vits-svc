@@ -127,8 +127,9 @@ class Svc(object):
     def load_model(self):
         # 获取模型配置
         self.net_g_ms = SynthesizerTrn(
-            self.hps_ms
-        )
+            self.hps_ms.data.filter_length // 2 + 1,
+            self.hps_ms.train.segment_size // self.hps_ms.data.hop_length,
+            **self.hps_ms.model)
         _ = utils.load_checkpoint(self.net_g_path, self.net_g_ms, None)
         if "half" in self.net_g_path and torch.cuda.is_available():
             _ = self.net_g_ms.half().eval().to(self.dev)
@@ -173,7 +174,7 @@ class Svc(object):
             c = c.half()
         with torch.no_grad():
             start = time.time()
-            audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)[0][0,0].data.float()
+            audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)[0,0].data.float()
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1]
