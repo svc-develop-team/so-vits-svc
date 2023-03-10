@@ -1,43 +1,55 @@
 # SoftVC VITS Singing Voice Conversion
 
+## 简介
+本仓库fork自innnky/so-vits-svc，主要用于制作一些比较花里胡哨的功能（主要面向Onnx端-MoeSS）
+
 ## 使用规约
 1. 请自行解决数据集的授权问题，任何由于使用非授权数据集进行训练造成的问题，需自行承担全部责任和一切后果，与sovits无关！
 2. 任何发布到视频平台的基于sovits制作的视频，都必须要在简介明确指明用于变声器转换的输入源歌声、音频，例如：使用他人发布的视频/音频，通过分离的人声作为输入源进行转换的，必须要给出明确的原视频、音乐链接；若使用是自己的人声，或是使用其他歌声合成引擎合成的声音作为输入源进行转换的，也必须在简介加以说明。
 3. 由输入源造成的侵权问题需自行承担全部责任和一切后果。使用其他商用歌声合成软件作为输入源时，请确保遵守该软件的使用条例，注意，许多歌声合成引擎使用条例中明确指明不可用于输入源进行转换！
 
-## update
-> 更新了4.0-v2模型，全部流程同4.0，相比4.0在部分场景下有一定提升，但也有些情况有退步，在[4.0-v2分支](https://github.com/innnky/so-vits-svc/tree/4.0-v2) 这是sovits最后一次更新
 
 ## 模型简介
-歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
+歌声音色转换模型，使用[Content Vec](https://github.com/auspicious3000/contentvec) 提取内容特征，输入visinger2模型合成目标声音
 
-### 4.0版本更新内容
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 
-+ 采样率统一使用44100hz
-+ 由于更改了hop size等参数以及精简了部分模型结构，推理所需显存占用**大幅降低**，4.0版本44khz显存占用甚至小于3.0版本的32khz
-+ 调整了部分代码结构
-+ 数据集制作、训练过程和3.0保持一致，但模型完全不通用，数据集也需要全部重新预处理
-+ 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
-+ 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
+### 4.0 v2版本更新内容
++ 模型架构完全修改成[visinger2](https://github.com/zhangyongmao/VISinger2) 架构
++ 其他和4.0完全一致
+### 4.0 v2版本特点
++ 在部分场景下比4.0有一定提升（例如部分场景的呼吸音电流音问题）
++ 但也有部分场景效果也有一定倒退，例如在猫雷数据上训练出来效果并不如4.0，而且在部分情况会合成出很鬼畜的声音
++ 至于炼老的还是v2 可以自己尝试下面的demo和4.0分支上的demo后对比决定
++ 4.0-v2是sovits的最后一个版本，之后不会再有更新，在基本验证没有大的bug后sovits即将Archive
 
+在线demo：[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/innnky/sovits4.0-v2)
+
+## 注意
++ 4.0-v2全部流程与4.0相同，环境与4.0相同，4.0预处理完成的数据和环境可以直接用
++ 与4.0不同的地方在于：
+  + 模型**完全** 不通用，旧模型不可使用，底模也需要使用全新的底模, 请确保你加载了正确的底模否则训练时间会究极长！
+  + config文件结构很不一样，不要使用老的config，如果是使用4.0的数据集则只需要执行preprocess_flist_config.py这一步生成新的config
 
 ## 预先下载的模型文件
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   + 放在`hubert`目录下
-+ 预训练底模文件： [G_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth) 与 [D_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth)
++ 预训练底模文件： [G_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/G_0.pth) 与 [D_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/D_0.pth)
   + 放在`logs/44k`目录下
+  + 预训练底模训练数据集包含云灏 即霜 辉宇·星AI 派蒙 绫地宁宁，覆盖男女生常见音域，可以认为是相对通用的底模
 ```shell
 # 一键下载
 # contentvec
-http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
-# 也可手动下载放在hubert目录
+# 由于作者提供的网盘没有直链，所以需要手动下载放在hubert目录
 # G与D预训练模型:
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth
+wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/G_0.pth
+wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/D_0.pth
 
 ```
 
+[//]: # (## colab一键数据集制作、训练脚本)
 
+[//]: # ([![Open In Colab]&#40;https://colab.research.google.com/assets/colab-badge.svg&#41;]&#40;https://colab.research.google.com/drive/19fxpo-ZoL_ShEUeZIZi6Di-YioWrEyhR#scrollTo=0gQcIZ8RsOkn&#41;)
+
+后面部分的readme和4.0一样了，没有变化
 
 ## 数据集准备
 仅需要以以下文件结构将数据集放入dataset_raw目录即可
@@ -125,5 +137,6 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + 等待执行完毕，在你的项目文件夹下会生成一个`model.onnx`，即为导出的模型
    ### Onnx模型支持的UI
    + [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
++ 我去除了所有的训练用函数和一切复杂的转置，一行都没有保留，因为我认为只有去除了这些东西，才知道你用的是Onnx
 + 注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
 [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)

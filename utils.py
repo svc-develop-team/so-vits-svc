@@ -468,6 +468,21 @@ def repeat_expand_2d(content, target_len):
 
     return target
 
+def load_wav(wav_path, raw_sr, target_sr=16000, win_size=800, hop_size=200):
+    audio = librosa.core.load(wav_path, sr=raw_sr)[0]
+    if raw_sr != target_sr:
+        audio = librosa.core.resample(audio,
+                                      raw_sr,
+                                      target_sr,
+                                      res_type='kaiser_best')
+        target_length = (audio.size // hop_size +
+                         win_size // hop_size) * hop_size
+        pad_len = (target_length - audio.size) // 2
+        if audio.size % 2 == 0:
+            audio = np.pad(audio, (pad_len, pad_len), mode='reflect')
+        else:
+            audio = np.pad(audio, (pad_len, pad_len + 1), mode='reflect')
+    return audio
 
 class HParams():
   def __init__(self, **kwargs):
