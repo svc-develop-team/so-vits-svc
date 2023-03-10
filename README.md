@@ -35,7 +35,8 @@
 ```shell
 # 一键下载
 # contentvec
-# 由于作者提供的网盘没有直链，所以需要手动下载放在hubert目录
+wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+# 也可手动下载放在hubert目录
 # G与D预训练模型:
 wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/G_0.pth
 wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/D_0.pth
