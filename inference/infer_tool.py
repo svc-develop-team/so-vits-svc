@@ -167,7 +167,10 @@ class Svc(object):
               cluster_infer_ratio=0,
               auto_predict_f0=False,
               noice_scale=0.4):
-        speaker_id = self.spk2id[speaker]
+        speaker_id = self.spk2id.__dict__.get(speaker)
+        if not speaker_id and type(speaker) is int:
+            if len(self.spk2id.__dict__) >= speaker:
+                speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
         c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker)
         if "half" in self.net_g_path and torch.cuda.is_available():
