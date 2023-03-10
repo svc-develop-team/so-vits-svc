@@ -1,0 +1,14 @@
+Cython
+librosa
+matplotlib
+numpy
+phonemizer
+scipy
+tensorboard
+torch
+torchvision
+Unidecode
+torchaudio
+pyworld
+sacred
+tqdm
