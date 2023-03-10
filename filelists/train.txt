@@ -1,0 +1,15 @@
+./dataset/44k/taffy/000549.wav
+./dataset/44k/nyaru/000004.wav
+./dataset/44k/nyaru/000006.wav
+./dataset/44k/taffy/000551.wav
+./dataset/44k/nyaru/000009.wav
+./dataset/44k/taffy/000561.wav
+./dataset/44k/nyaru/000001.wav
+./dataset/44k/taffy/000553.wav
+./dataset/44k/nyaru/000002.wav
+./dataset/44k/taffy/000560.wav
+./dataset/44k/taffy/000557.wav
+./dataset/44k/nyaru/000005.wav
+./dataset/44k/taffy/000554.wav
+./dataset/44k/taffy/000550.wav
+./dataset/44k/taffy/000559.wav
