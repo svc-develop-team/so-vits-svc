@@ -29,7 +29,7 @@
 ```shell
 # 一键下载
 # contentvec
-http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # 也可手动下载放在hubert目录
 # G与D预训练模型:
 wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth
