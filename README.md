@@ -39,8 +39,7 @@ wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/s
 
 ```
 
-## colab一键数据集制作、训练脚本
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19fxpo-ZoL_ShEUeZIZi6Di-YioWrEyhR#scrollTo=0gQcIZ8RsOkn)
+
 
 ## 数据集准备
 仅需要以以下文件结构将数据集放入dataset_raw目录即可
