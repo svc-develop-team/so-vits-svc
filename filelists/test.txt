@@ -1,0 +1,12 @@
+./dataset/48k/nen/kne110_006.wav
+./dataset/48k/paimon/vo_ABLQ005_2_paimon_02.wav
+./dataset/48k/paimon/vo_ABLQ005_2_paimon_01.wav
+./dataset/48k/nen/kne110_001.wav
+./dataset/48k/nen/kne110_003.wav
+./dataset/48k/nen/kne110_002.wav
+./dataset/48k/paimon/vo_ABLQ004_6_paimon_01.wav
+./dataset/48k/paimon/vo_ABLQ004_6_paimon_02.wav
+./dataset/48k/paimon/vo_ABLQ004_5_paimon_02.wav
+./dataset/48k/nen/kne110_004.wav
+./dataset/48k/paimon/vo_ABLQ004_7_paimon_01.wav
+./dataset/48k/nen/kne110_005.wav

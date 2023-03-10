@@ -1,0 +1,4 @@
+./dataset/48k/paimon/vo_ABLQ004_7_paimon_01.wav
+./dataset/48k/nen/kne110_006.wav
+./dataset/48k/paimon/vo_ABLQ005_2_paimon_02.wav
+./dataset/48k/nen/kne110_003.wav
