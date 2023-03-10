@@ -8,11 +8,7 @@ assignees: ''
 ---
 
 body:
-  - type: input
-    id: platform
+  - type: markdown
     attributes:
-      label: 系统平台(Platform)
-      description: 您使用的时候所在的系统/平台
-      placeholder: ex. Windows
-    validations:
-      required: true
+      value: |
+        Thanks for taking the time to fill out this bug report!
