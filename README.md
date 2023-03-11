@@ -92,7 +92,7 @@ Note: During training, the old models will be automatically cleared and only the
 
 ## Inference
 
-Use [inference_main.py](https://chat.openai.com/inference_main.py)
+Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
 
 Up to this point, the usage of version 4.0 (training and inference) is exactly the same as version 3.0, with no changes (inference now has command line support).
 
@@ -140,22 +140,20 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ## Exporting to Onnx
 
-Use [onnx_export.py](https://chat.openai.com/onnx_export.py)
+Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 
 - Create a folder named `checkpoints` and open it
 - Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`
 - Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created
-- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://chat.openai.com/onnx_export.py) to your project name, `path = "aziplayer"`
-- Run [onnx_export.py](https://chat.openai.com/onnx_export.py)
+- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`
+- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 - Wait for it to finish running. A `model.onnx` will be generated in your project folder, which is the exported model.
 
 ### UI support for Onnx models
 
 - [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
 
-Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)
-
-[Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
 ## Some legal provisions for reference
 
