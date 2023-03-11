@@ -1,4 +1,5 @@
 # SoftVC VITS Singing Voice Conversion
+[**English**](./README.md) | 中文简体
 
 ## Terms of Use
 
@@ -173,7 +174,3 @@ Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently
 
 【作品侵害名誉权】行为人发表的文学、艺术作品以真人真事或者特定人为描述对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担民事责任。
 行为人发表的文学、艺术作品不以特定人为描述对象，仅其中的情节与该特定人的情况相似的，不承担民事责任。  
-
-
-
-中文README：[简体中文](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/doc/README_CN.md)
