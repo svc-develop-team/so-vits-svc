@@ -181,6 +181,10 @@ class Svc(object):
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1]
+    
+    def clear_empty(self):
+        # 清理显存
+        torch.cuda.empty_cache()
 
     def slice_inference(self,raw_audio_path, spk, tran, slice_db,cluster_infer_ratio, auto_predict_f0,noice_scale, pad_seconds=0.5):
         wav_path = raw_audio_path
