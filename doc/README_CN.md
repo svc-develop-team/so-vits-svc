@@ -81,7 +81,7 @@ python train.py -c configs/config.json -m 44k
 注：训练时会自动清除老的模型，只保留最新3个模型，如果想防止过拟合需要自己手动备份模型记录点,或修改配置文件keep_ckpts 0为永不清除
 
 ## 推理
-使用 [inference_main.py](inference_main.py)
+使用 [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
 
 截止此处，4.0使用方法（训练、推理）和3.0完全一致，没有任何变化（推理增加了命令行支持）
 
@@ -119,12 +119,12 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
   + inference_main中指定cluster_infer_ratio，0为完全不使用聚类，1为只使用聚类，通常设置0.5即可
 
 ## Onnx导出
-使用 [onnx_export.py](onnx_export.py)
+使用 [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 + 新建文件夹：`checkpoints` 并打开
 + 在`checkpoints`文件夹中新建一个文件夹作为项目文件夹，文件夹名为你的项目名称，比如`aziplayer`
 + 将你的模型更名为`model.pth`，配置文件更名为`config.json`，并放置到刚才创建的`aziplayer`文件夹下
-+ 将 [onnx_export.py](onnx_export.py) 中`path = "NyaruTaffy"` 的 `"NyaruTaffy"` 修改为你的项目名称，`path = "aziplayer"`
-+ 运行 [onnx_export.py](onnx_export.py) 
++ 将 [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) 中`path = "NyaruTaffy"` 的 `"NyaruTaffy"` 修改为你的项目名称，`path = "aziplayer"`
++ 运行 [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) 
 + 等待执行完毕，在你的项目文件夹下会生成一个`model.onnx`，即为导出的模型
    ### Onnx模型支持的UI
    + [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
