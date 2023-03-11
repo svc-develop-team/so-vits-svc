@@ -176,4 +176,4 @@ Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently
 
 
 
-[简体中文](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/doc/README_CN.md)
+中文README：[简体中文](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/doc/README_CN.md)
