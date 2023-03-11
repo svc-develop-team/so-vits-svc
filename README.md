@@ -1,5 +1,4 @@
-# SoftVC VITS Singing Voice Conversion
-[**English**](./README.md) | 中文简体
+# SoftVC VITS Singing Voice 
 
 ## Terms of Use
 
