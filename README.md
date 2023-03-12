@@ -1,5 +1,7 @@
 # SoftVC VITS Singing Voice 
 
+[**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
+
 ## Terms of Use
 
 1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.
@@ -29,20 +31,23 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 ## Pre-trained Model Files
 
+#### **Required**
+
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `hubert` directory
-- Pre-trained model files: [G_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth) and [D_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth)
-  - Place them under the `logs/44k` directory
 
 ```shell
-# One-click download
 # contentvec
 wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # Alternatively, you can manually download and place it in the hubert directory
-# Pre-trained G and D models:
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth
 ```
+
+#### **Optional(Strongly recommend)**
+
+- Pre-trained model files: `G_0.pth` `D_0.pth`
+  - Place them under the `logs/44k` directory
+
+Get them from svc-develop-team(TBD) or anywhere else.
 
 ## Dataset Preparation
 
@@ -161,13 +166,13 @@ Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently
 
 ##### 第一千零一十九条 
 
-任何组织或者个人**不得**以丑化、污损，或者利用信息技术手段伪造等方式侵害他人的肖像权。**未经**肖像权人同意，**不得**制作、使用、公开肖像权人的肖像，但是法律另有规定的除外。
-**未经**肖像权人同意，肖像作品权利人不得以发表、复制、发行、出租、展览等方式使用或者公开肖像权人的肖像。
+任何组织或者个人不得以丑化、污损，或者利用信息技术手段伪造等方式侵害他人的肖像权。未经肖像权人同意，不得制作、使用、公开肖像权人的肖像，但是法律另有规定的除外。
+未经肖像权人同意，肖像作品权利人不得以发表、复制、发行、出租、展览等方式使用或者公开肖像权人的肖像。
 对自然人声音的保护，参照适用肖像权保护的有关规定。
 
 #####  第一千零二十四条 
 
-【名誉权】民事主体享有名誉权。任何组织或者个人**不得**以侮辱、诽谤等方式侵害他人的名誉权。  
+【名誉权】民事主体享有名誉权。任何组织或者个人不得以侮辱、诽谤等方式侵害他人的名誉权。  
 
 #####  第一千零二十七条
 
