@@ -30,7 +30,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 + [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) and [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0) are almost identical in process, which include preprocessing and requirements.
 + The difference from 4.0 is: 
-  + The models is **completely different**. Check the version of the pretrained models if you are using them.
+  + The models are **completely different**. Check the version of the pretrained models if you are using them.
   + The structure of config file changed a lot. You can only run `python preprocess_flist_config.py` to generate new `config.json` if you are using preprocessed dataset from 4.0.
 
 ## Pre-trained Model Files
