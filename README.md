@@ -1,56 +1,65 @@
 # SoftVC VITS Singing Voice Conversion
 
-## 使用规约
-1. 请自行解决数据集的授权问题，任何由于使用非授权数据集进行训练造成的问题，需自行承担全部责任和一切后果，与sovits无关！
-2. 任何发布到视频平台的基于sovits制作的视频，都必须要在简介明确指明用于变声器转换的输入源歌声、音频，例如：使用他人发布的视频/音频，通过分离的人声作为输入源进行转换的，必须要给出明确的原视频、音乐链接；若使用是自己的人声，或是使用其他歌声合成引擎合成的声音作为输入源进行转换的，也必须在简介加以说明。
-3. 由输入源造成的侵权问题需自行承担全部责任和一切后果。使用其他商用歌声合成软件作为输入源时，请确保遵守该软件的使用条例，注意，许多歌声合成引擎使用条例中明确指明不可用于输入源进行转换！
+[**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
+## Terms of Use
 
-## 模型简介
-歌声音色转换模型，使用[Content Vec](https://github.com/auspicious3000/contentvec) 提取内容特征，输入visinger2模型合成目标声音
+1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.
+2. Any videos based on sovits that are published on video platforms must clearly indicate in the description that they are used for voice changing and specify the input source of the voice or audio, for example, using videos or audios published by others and separating the vocals as input source for conversion, which must provide clear original video or music links. If your own voice or other synthesized voices from other commercial vocal synthesis software are used as the input source for conversion, you must also explain it in the description.
+3. You shall be solely responsible for any infringement problems caused by the input source. When using other commercial vocal synthesis software as input source, please ensure that you comply with the terms of use of the software. Note that many vocal synthesis engines clearly state in their terms of use that they cannot be used for input source conversion.
+4. Continuing to use this project is deemed as agreeing to the relevant provisions stated in this repository README. This repository README has the obligation to persuade, and is not responsible for any subsequent problems that may arise.
+5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
+6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
-### 4.0 v2版本更新内容
-+ 模型架构完全修改成[visinger2](https://github.com/zhangyongmao/VISinger2) 架构
-+ 其他和4.0完全一致
-### 4.0 v2版本特点
-+ 在部分场景下比4.0有一定提升（例如部分场景的呼吸音电流音问题）
-+ 但也有部分场景效果也有一定倒退，例如在猫雷数据上训练出来效果并不如4.0，而且在部分情况会合成出很鬼畜的声音
-+ 至于炼老的还是v2 可以自己尝试下面的demo和4.0分支上的demo后对比决定
-+ 4.0-v2是sovits的最后一个版本，之后不会再有更新，在基本验证没有大的bug后sovits即将Archive
+## Model Introduction
 
-在线demo：[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/innnky/sovits4.0-v2)
+The singing voice conversion model uses [Content Vec](https://github.com/auspicious3000/contentvec) to extract content features and input them into the visinger2 model to synthesize the target sound.
 
-## 注意
-+ 4.0-v2全部流程与4.0相同，环境与4.0相同，4.0预处理完成的数据和环境可以直接用
-+ 与4.0不同的地方在于：
-  + 模型**完全** 不通用，旧模型不可使用，底模也需要使用全新的底模, 请确保你加载了正确的底模否则训练时间会究极长！
-  + config文件结构很不一样，不要使用老的config，如果是使用4.0的数据集则只需要执行preprocess_flist_config.py这一步生成新的config
+### Version 4.0 v2 Update
 
-## 预先下载的模型文件
-+ contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
-  + 放在`hubert`目录下
-+ 预训练底模文件： [G_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/G_0.pth) 与 [D_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/D_0.pth)
-  + 放在`logs/44k`目录下
-  + 预训练底模训练数据集覆盖男女生常见音域，可以认为是相对通用的底模
+- The model architecture has been completely modified to [visinger2](https://github.com/zhangyongmao/VISinger2) architecture.
+- Other than that, it is identical to version 4.0.
+
+### Version 4.0 v2 Features
+
+- It has some improvements in certain scenarios compared to version 4.0 (such as breathing and electric noise problems in some scenarios).
+- However, it also has some regression in certain scenarios. For example, the effect trained on the Meowth dataset is not as good as version 4.0, and sometimes it synthesizes very strange sounds.
+- Whether to use the old version or v2 is up to personal preference. You can try the demos below and compare the results to make a decision.
+- 4.0-v2 is the last version of sovits, and there will be no further updates. After basic validation without significant bugs, sovits will be archived.
+
+## Note
+
+- The entire process of 4.0-v2 is the same as 4.0, with the same environment and data preprocessed by 4.0 that can be directly used.
+- The difference between 4.0-v2 and 4.0 is that:
+  - The model is **completely** non-universal. The old model cannot be used, and a completely new pre-trained model is also required. Please make sure that you have loaded the correct pre-trained model, otherwise the training time will be extremely long!
+  - The structure of the config file is very different. Do not use the old config. If using the 4.0 dataset, only execute the "preprocess_flist_config.py" step to generate a new config.
+
+## Pre-trained Model Files
+
+#### **Required**
+
+- ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
+  - Place it under the `hubert` directory
+
 ```shell
-# 一键下载
 # contentvec
 wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
-# 也可手动下载放在hubert目录
-# G与D预训练模型:
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/G_0.pth
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4.0-v2/D_0.pth
-
+# Alternatively, you can manually download and place it in the hubert directory
 ```
 
-[//]: # (## colab一键数据集制作、训练脚本)
+#### **Optional(Strongly recommend)**
 
-[//]: # ([![Open In Colab]&#40;https://colab.research.google.com/assets/colab-badge.svg&#41;]&#40;https://colab.research.google.com/drive/19fxpo-ZoL_ShEUeZIZi6Di-YioWrEyhR#scrollTo=0gQcIZ8RsOkn&#41;)
+- Pre-trained model files: `G_0.pth` `D_0.pth`
+  - Place them under the `logs/44k` directory
 
-后面部分的readme和4.0一样了，没有变化
+Get them from svc-develop-team(TBD) or anywhere else.
 
-## 数据集准备
-仅需要以以下文件结构将数据集放入dataset_raw目录即可
+Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
+
+## Dataset Preparation
+
+Simply place the dataset in the `dataset_raw` directory with the following file structure.
+
 ```shell
 dataset_raw
 ├───speaker0
@@ -63,78 +72,118 @@ dataset_raw
     └───xxx7-xxx007.wav
 ```
 
+## Preprocessing
 
-## 数据预处理
-1. 重采样至 44100hz
+1. Resample to 44100hz
 
 ```shell
 python resample.py
- ```
-2. 自动划分训练集 验证集 测试集 以及自动生成配置文件
+```
+
+2. Automatically split the dataset into training, validation, and test sets, and generate configuration files
+
 ```shell
 python preprocess_flist_config.py
 ```
-3. 生成hubert与f0
+
+3. Generate hubert and f0
+
 ```shell
 python preprocess_hubert_f0.py
 ```
-执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除dataset_raw文件夹了
 
+After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
-## 训练
+## Training
+
 ```shell
 python train.py -c configs/config.json -m 44k
 ```
-注：训练时会自动清除老的模型，只保留最新3个模型，如果想防止过拟合需要自己手动备份模型记录点,或修改配置文件keep_ckpts 0为永不清除
 
-## 推理
-使用 [inference_main.py](inference_main.py)
+Note: During training, the old models will be automatically cleared and only the latest three models will be kept. If you want to prevent overfitting, you need to manually backup the model checkpoints, or modify the configuration file `keep_ckpts` to 0 to never clear them.
 
-截止此处，4.0使用方法（训练、推理）和3.0完全一致，没有任何变化（推理增加了命令行支持）
+## Inference
+
+Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
+
+Up to this point, the usage of version 4.0 (training and inference) is exactly the same as version 3.0, with no changes (inference now has command line support).
 
 ```shell
-# 例
+# Example
 python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "君の知らない物語-src.wav" -t 0 -s "nen"
 ```
-必填项部分
-+ -m, --model_path：模型路径。
-+ -c, --config_path：配置文件路径。
-+ -n, --clean_names：wav 文件名列表，放在 raw 文件夹下。
-+ -t, --trans：音高调整，支持正负（半音）。
-+ -s, --spk_list：合成目标说话人名称。
 
-可选项部分：见下一节
-+ -a, --auto_predict_f0：语音转换自动预测音高，转换歌声时不要打开这个会严重跑调。
-+ -cm, --cluster_model_path：聚类模型路径，如果没有训练聚类则随便填。
-+ -cr, --cluster_infer_ratio：聚类方案占比，范围 0-1，若没有训练聚类模型则填 0 即可。
+Required parameters:
 
-## 可选项
-如果前面的效果已经满意，或者没看明白下面在讲啥，那后面的内容都可以忽略，不影响模型使用。(这些可选项影响比较小，可能在某些特定数据上有点效果，但大部分情况似乎都感知不太明显)，
-### 自动f0预测
-4.0模型训练过程会训练一个f0预测器，对于语音转换可以开启自动音高预测，如果效果不好也可以使用手动的，但转换歌声时请不要启用此功能！！！会严重跑调！！
-+ 在inference_main中设置auto_predict_f0为true即可
-### 聚类音色泄漏控制
-介绍：聚类方案可以减小音色泄漏，使得模型训练出来更像目标的音色（但其实不是特别明显），但是单纯的聚类方案会降低模型的咬字（会口齿不清）（这个很明显），本模型采用了融合的方式，
-可以线性控制聚类方案与非聚类方案的占比，也就是可以手动在"像目标音色" 和 "咬字清晰" 之间调整比例，找到合适的折中点。
+- -m, --model_path: path to the model.
+- -c, --config_path: path to the configuration file.
+- -n, --clean_names: a list of wav file names located in the raw folder.
+- -t, --trans: pitch adjustment, supports positive and negative (semitone) values.
+- -s, --spk_list: target speaker name for synthesis.
 
-使用聚类前面的已有步骤不用进行任何的变动，只需要额外训练一个聚类模型，虽然效果比较有限，但训练成本也比较低
-+ 训练过程：
-  + 使用cpu性能较好的机器训练，据我的经验在腾讯云6核cpu训练每个speaker需要约4分钟即可完成训练
-  + 执行python cluster/train_cluster.py ，模型的输出会在 logs/44k/kmeans_10000.pt
-+ 推理过程：
-  + inference_main中指定cluster_model_path
-  + inference_main中指定cluster_infer_ratio，0为完全不使用聚类，1为只使用聚类，通常设置0.5即可
+Optional parameters: see the next section
 
-## Onnx导出
-使用 [onnx_export.py](onnx_export.py)
-+ 新建文件夹：`checkpoints` 并打开
-+ 在`checkpoints`文件夹中新建一个文件夹作为项目文件夹，文件夹名为你的项目名称，比如`aziplayer`
-+ 将你的模型更名为`model.pth`，配置文件更名为`config.json`，并放置到刚才创建的`aziplayer`文件夹下
-+ 将 [onnx_export.py](onnx_export.py) 中`path = "NyaruTaffy"` 的 `"NyaruTaffy"` 修改为你的项目名称，`path = "aziplayer"`
-+ 运行 [onnx_export.py](onnx_export.py) 
-+ 等待执行完毕，在你的项目文件夹下会生成一个`model.onnx`，即为导出的模型
-   ### Onnx模型支持的UI
-   + [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
-+ 我去除了所有的训练用函数和一切复杂的转置，一行都没有保留，因为我认为只有去除了这些东西，才知道你用的是Onnx
-+ 注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
-[Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+- -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
+- -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
+- -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
+
+## Optional Settings
+
+If the results from the previous section are satisfactory, or if you didn't understand what is being discussed in the following section, you can skip it, and it won't affect the model usage. (These optional settings have a relatively small impact, and they may have some effect on certain specific data, but in most cases, the difference may not be noticeable.)
+
+### Automatic f0 prediction
+
+During the 4.0 model training, an f0 predictor is also trained, which can be used for automatic pitch prediction during voice conversion. However, if the effect is not good, manual pitch prediction can be used instead. But please do not enable this feature when converting singing voice as it may cause serious pitch shifting!
+
+- Set "auto_predict_f0" to true in inference_main.
+
+### Cluster-based timbre leakage control
+
+Introduction: The clustering scheme can reduce timbre leakage and make the trained model sound more like the target's timbre (although this effect is not very obvious), but using clustering alone will lower the model's clarity (the model may sound unclear). Therefore, this model adopts a fusion method to linearly control the proportion of clustering and non-clustering schemes. In other words, you can manually adjust the ratio between "sounding like the target's timbre" and "being clear and articulate" to find a suitable trade-off point.
+
+The existing steps before clustering do not need to be changed. All you need to do is to train an additional clustering model, which has a relatively low training cost.
+
+- Training process:
+  - Train on a machine with a good CPU performance. According to my experience, it takes about 4 minutes to train each speaker on a Tencent Cloud 6-core CPU.
+  - Execute "python cluster/train_cluster.py". The output of the model will be saved in "logs/44k/kmeans_10000.pt".
+- Inference process:
+  - Specify "cluster_model_path" in inference_main.
+  - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
+
+### [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4 for colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
+
+## Exporting to Onnx
+
+Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
+
+- Create a folder named `checkpoints` and open it
+- Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`
+- Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created
+- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`
+- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
+- Wait for it to finish running. A `model.onnx` will be generated in your project folder, which is the exported model.
+
+### UI support for Onnx models
+
+- [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
+
+Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+
+## Some legal provisions for reference
+
+#### 《民法典》
+
+##### 第一千零一十九条 
+
+任何组织或者个人不得以丑化、污损，或者利用信息技术手段伪造等方式侵害他人的肖像权。未经肖像权人同意，不得制作、使用、公开肖像权人的肖像，但是法律另有规定的除外。
+未经肖像权人同意，肖像作品权利人不得以发表、复制、发行、出租、展览等方式使用或者公开肖像权人的肖像。
+对自然人声音的保护，参照适用肖像权保护的有关规定。
+
+#####  第一千零二十四条 
+
+【名誉权】民事主体享有名誉权。任何组织或者个人不得以侮辱、诽谤等方式侵害他人的名誉权。  
+
+#####  第一千零二十七条
+
+【作品侵害名誉权】行为人发表的文学、艺术作品以真人真事或者特定人为描述对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担民事责任。
+行为人发表的文学、艺术作品不以特定人为描述对象，仅其中的情节与该特定人的情况相似的，不承担民事责任。  
