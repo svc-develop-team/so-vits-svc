@@ -28,7 +28,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 ## Note
 
-+ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) and [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0) are almost identical in process, which include preprocessing and requirements
++ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) and [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0) are almost identical in process, which include preprocessing and requirements.
 + The difference from 4.0 is: 
   + The models is **completely different**. Check the version of the pretrained models if you are using them.
   + The structure of config file changed a lot. You can only run `python preprocess_flist_config.py` to generate new `config.json` if you are using preprocessed dataset from 4.0.
@@ -155,11 +155,11 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 
-- Create a folder named `checkpoints` and open it
-- Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`
-- Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created
-- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`
-- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
+- Create a folder named `checkpoints` and open it.
+- Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`.
+- Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created.
+- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`.
+- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py).
 - Wait for it to finish running. A `model.onnx` will be generated in your project folder, which is the exported model.
 
 ### UI support for Onnx models
