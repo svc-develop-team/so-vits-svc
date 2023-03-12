@@ -7,7 +7,7 @@ from random import shuffle
 import json
 import wave
 
-config_template = json.load(open("configs/config.json"))
+config_template = json.load(open("configs_template/config_template.json"))
 
 pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
 
