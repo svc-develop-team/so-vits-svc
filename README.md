@@ -13,26 +13,25 @@
 
 ## Model Introduction
 
-The singing voice conversion model uses [Content Vec](https://github.com/auspicious3000/contentvec) to extract content features and input them into the visinger2 model to synthesize the target sound.
+The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, and inputs them together with F0 to replace the original text input to achieve the effect of song conversion. At the same time, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### Version 4.0 v2 Update
+### 4.0 v2 update content
 
-- The model architecture has been completely modified to [visinger2](https://github.com/zhangyongmao/VISinger2) architecture.
-- Other than that, it is identical to version 4.0.
++ The model architecture is completely change to [visinger2](https://github.com/zhangyongmao/VISinger2)
++ Others are exactly the same as [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0).
 
-### Version 4.0 v2 Features
+### 4.0 v2 features
 
-- It has some improvements in certain scenarios compared to version 4.0 (such as breathing and electric noise problems in some scenarios).
-- However, it also has some regression in certain scenarios. For example, the effect trained on the Meowth dataset is not as good as version 4.0, and sometimes it synthesizes very strange sounds.
-- Whether to use the old version or v2 is up to personal preference. You can try the demos below and compare the results to make a decision.
-- 4.0-v2 is the last version of sovits, and there will be no further updates. After basic validation without significant bugs, sovits will be archived.
++ It is better than 4.0 in some scenes.（For example, the current sound in the breath sound）
++ But there is also a certain retrogression in some scene. For example, training with data from streaming of vtubers is not as good as [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0). Also in some cases it will turn out a terrible sound.
++ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) is the last version of sovits, there is no more update in the future.
 
 ## Note
 
-- The entire process of 4.0-v2 is the same as 4.0, with the same environment and data preprocessed by 4.0 that can be directly used.
-- The difference between 4.0-v2 and 4.0 is that:
-  - The model is **completely** non-universal. The old model cannot be used, and a completely new pre-trained model is also required. Please make sure that you have loaded the correct pre-trained model, otherwise the training time will be extremely long!
-  - The structure of the config file is very different. Do not use the old config. If using the 4.0 dataset, only execute the "preprocess_flist_config.py" step to generate a new config.
++ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) and [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0) are almost identical in process, which include preprocessing and requirements
++ The difference from 4.0 is: 
+  + The models is **completely different**. Check the version of the pretrained models if you are using them.
+  + The structure of config file changed a lot. You can only run `python preprocess_flist_config.py` to generate new `config.json` if you are using preprocessed dataset from 4.0.
 
 ## Pre-trained Model Files
 
@@ -150,7 +149,7 @@ The existing steps before clustering do not need to be changed. All you need to 
   - Specify "cluster_model_path" in inference_main.
   - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
 
-### [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4 for colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
+### [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2 for colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
 
 ## Exporting to Onnx
 
