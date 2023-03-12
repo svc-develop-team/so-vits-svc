@@ -49,6 +49,8 @@ wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_l
 
 Get them from svc-develop-team(TBD) or anywhere else.
 
+Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
+
 ## Dataset Preparation
 
 Simply place the dataset in the `dataset_raw` directory with the following file structure.
