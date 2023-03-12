@@ -27,24 +27,26 @@
 + 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
 + 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
 
-在线demo：[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/innnky/sovits4)
-
 ## 预先下载的模型文件
+
+#### **必须项**
+
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   + 放在`hubert`目录下
-+ 预训练底模文件： [G_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth) 与 [D_0.pth](https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth)
-  + 放在`logs/44k`目录下
-  + 预训练底模训练数据集包含云灏 即霜 辉宇·星AI等角色，覆盖男女生常见音域，可以认为是相对通用的底模
 ```shell
-# 一键下载
 # contentvec
 http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # 也可手动下载放在hubert目录
-# G与D预训练模型:
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/G_0.pth
-wget -P logs/44k/ https://huggingface.co/innnky/sovits_pretrained/resolve/main/sovits4/D_0.pth
-
 ```
+
+#### **可选项(强烈建议使用)**
+
++ 预训练底模文件： `G_0.pth` `D_0.pth`
+  + 放在`logs/44k`目录下
+
+从svc-develop-team(待定)或任何其他地方获取
+
+虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
 
 ## colab一键数据集制作、训练脚本
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19fxpo-ZoL_ShEUeZIZi6Di-YioWrEyhR#scrollTo=0gQcIZ8RsOkn)
