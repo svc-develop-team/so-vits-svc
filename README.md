@@ -145,6 +145,8 @@ The existing steps before clustering do not need to be changed. All you need to 
   - Specify "cluster_model_path" in inference_main.
   - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
 
+### [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4 for colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
+
 ## Exporting to Onnx
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
