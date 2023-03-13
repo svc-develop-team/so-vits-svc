@@ -148,7 +148,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
   + inference_main中指定cluster_model_path
   + inference_main中指定cluster_infer_ratio，0为完全不使用聚类，1为只使用聚类，通常设置0.5即可
 
-### [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2 for colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
+### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
 
 ## Onnx导出
 
