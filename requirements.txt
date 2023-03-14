@@ -1,7 +1,7 @@
 Flask
 Flask_Cors
 gradio
-numpy==1.20.3
+numpy
 pyworld==0.2.5
 scipy==1.7.3
 SoundFile==0.12.1
