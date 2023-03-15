@@ -14,24 +14,6 @@ def main(HubertExport,NetExport):
 
     path = "NyaruTaffy"
 
-    if(HubertExport):
-        device = torch.device("cuda")
-        hubert_soft = utils.get_hubert_model()
-        test_input = torch.rand(1, 1, 16000)
-        input_names = ["source"]
-        output_names = ["embed"]
-        torch.onnx.export(hubert_soft.to(device),
-                        test_input.to(device),
-                        "hubert3.0.onnx",
-                        dynamic_axes={
-                            "source": {
-                                2: "sample_length"
-                            }
-                        },
-                        verbose=False,
-                        opset_version=13,
-                        input_names=input_names,
-                        output_names=output_names)
     if(NetExport):
         device = torch.device("cuda")
         hps = utils.get_hparams_from_file(f"checkpoints/{path}/config.json")
