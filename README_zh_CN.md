@@ -11,23 +11,27 @@
 5. 如将本仓库代码二次分发，或将由此项目产出的任何结果公开发表 (包括但不限于视频网站投稿)，请注明原作者及代码来源 (此仓库)。
 6. 如果将此项目用于任何其他企划，请提前联系并告知本仓库作者，十分感谢。
 
-## update
-
-> 更新了4.0-v2模型，全部流程同4.0，相比4.0在部分场景下有一定提升，但也有些情况有退步，具体可移步[4.0-v2分支](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2)
-
 ## 模型简介
 
-歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
+歌声音色转换模型，使用[Content Vec](https://github.com/auspicious3000/contentvec) 提取内容特征，输入visinger2模型合成目标声音
 
-### 4.0版本更新内容
+### 4.0 v2版本更新内容
 
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 
-+ 采样率统一使用44100hz
-+ 由于更改了hop size等参数以及精简了部分模型结构，推理所需显存占用**大幅降低**，4.0版本44khz显存占用甚至小于3.0版本的32khz
-+ 调整了部分代码结构
-+ 数据集制作、训练过程和3.0保持一致，但模型完全不通用，数据集也需要全部重新预处理
-+ 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
-+ 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
++ 模型架构完全修改成[visinger2](https://github.com/zhangyongmao/VISinger2) 架构
++ 其他和4.0完全一致
+
+### 4.0 v2版本特点
+
++ 在部分场景下比4.0有一定提升（例如部分场景的呼吸音电流音问题）
++ 但也有部分场景效果也有一定倒退，例如在猫雷数据上训练出来效果并不如4.0，而且在部分情况会合成出很鬼畜的声音
++ 4.0-v2是sovits的最后一个版本，之后不会再有更新
+
+## 注意
+
++ 4.0-v2全部流程与4.0相同，环境与4.0相同，4.0预处理完成的数据和环境可以直接用
++ 与4.0不同的地方在于：
+  + 模型**完全** 不通用，旧模型不可使用，底模也需要使用全新的底模, 请确保你加载了正确的底模否则训练时间会究极长！
+  + config文件结构很不一样，不要使用老的config，如果是使用4.0的数据集则只需要执行preprocess_flist_config.py这一步生成新的config
 
 ## 预先下载的模型文件
 
@@ -50,6 +54,8 @@ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 从svc-develop-team(待定)或任何其他地方获取
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
+
+后面部分的readme和4.0一样了，没有变化
 
 ## 数据集准备
 
@@ -142,7 +148,9 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
   + inference_main中指定cluster_model_path
   + inference_main中指定cluster_infer_ratio，0为完全不使用聚类，1为只使用聚类，通常设置0.5即可
 
-### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
+### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
+
+#### [23/03/16] 不再需要手动下载hubert
 
 ## Onnx导出
 
