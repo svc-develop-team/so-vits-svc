@@ -150,6 +150,8 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
 
+#### [23/03/16] 不再需要手动下载hubert
+
 ## Onnx导出
 
 使用 [onnx_export.py](onnx_export.py)

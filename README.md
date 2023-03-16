@@ -151,6 +151,8 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
 
+#### [23/03/16] No longer need to download hubert manually
+
 ## Exporting to Onnx
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
