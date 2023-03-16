@@ -11,27 +11,23 @@
 5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
+## Update
+
+> Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
+
 ## Model Introduction
 
-The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, and inputs them together with F0 into VITS instead of the original text input to achieve the effect of song conversion. At the same time, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
+The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### 4.0 v2 update content
+### 4.0 Version Update Content
 
-+ The model architecture is completely change to [visinger2](https://github.com/zhangyongmao/VISinger2)
-+ Others are exactly the same as [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0).
-
-### 4.0 v2 features
-
-+ It is better than 4.0 in some scenes.（For example, the current sound in the breath sound）
-+ But there is also a certain retrogression in some scene. For example, training with data from streaming of vtubers is not as good as [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0). Also in some cases it will turn out a terrible sound.
-+ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) is the last version of sovits, there is no more update in the future.
-
-## Note
-
-+ [4.0-v2](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) and [4.0](https://github.com/svc-develop-team/so-vits-svc/tree/4.0) are almost identical in process, which include preprocessing and requirements.
-+ The difference from 4.0 is: 
-  + The models are **completely different**. Check the version of the pretrained models if you are using them.
-  + The structure of config file changed a lot. You can only run `python preprocess_flist_config.py` to generate new `config.json` if you are using preprocessed dataset from 4.0.
+- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec)
+- The sampling rate is unified to use 44100Hz
+- Due to the change of hop size and other parameters, as well as the streamlining of some model structures, the required GPU memory for inference is **significantly reduced**. The 44kHz GPU memory usage of version 4.0 is even smaller than the 32kHz usage of version 3.0.
+- Some code structures have been adjusted
+- The dataset creation and training process are consistent with version 3.0, but the model is completely non-universal, and the data set needs to be fully pre-processed again.
+- Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
+- Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
 
 ## Pre-trained Model Files
 
@@ -149,7 +145,7 @@ The existing steps before clustering do not need to be changed. All you need to 
   - Specify "cluster_model_path" in inference_main.
   - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
 
-### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/drive/18KxJs7FCPjlTY2l0QUbDNfZnLrS9hL4m?usp=sharing)
+### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
 
 #### [23/03/16] No longer need to download hubert manually
 
@@ -157,11 +153,11 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 
-- Create a folder named `checkpoints` and open it.
-- Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`.
-- Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created.
-- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`.
-- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py).
+- Create a folder named `checkpoints` and open it
+- Create a folder in the `checkpoints` folder as your project folder, naming it after your project, for example `aziplayer`
+- Rename your model as `model.pth`, the configuration file as `config.json`, and place them in the `aziplayer` folder you just created
+- Modify `"NyaruTaffy"` in `path = "NyaruTaffy"` in [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py) to your project name, `path = "aziplayer"`
+- Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 - Wait for it to finish running. A `model.onnx` will be generated in your project folder, which is the exported model.
 
 ### UI support for Onnx models
