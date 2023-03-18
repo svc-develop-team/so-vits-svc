@@ -1,5 +1,7 @@
 import logging
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
+numba_logger = logging.getLogger('numba')
+numba_logger.setLevel(logging.WARNING)
 import os
 import json
 import argparse
