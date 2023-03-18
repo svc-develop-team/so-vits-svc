@@ -3,6 +3,8 @@ import multiprocessing
 import time
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('numba').setLevel(logging.WARNING)
+
 import os
 import json
 import argparse
