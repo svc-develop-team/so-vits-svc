@@ -2,7 +2,9 @@
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
-## 使用规约
+#### ✨ 改善了交互的一个分支推荐：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
+
+## 📏 使用规约
 
 1. 本项目是基于学术交流目的建立，仅供交流与学习使用，并非为生产环境准备，请自行解决数据集的授权问题，任何由于使用非授权数据集进行训练造成的问题，需自行承担全部责任和一切后果！
 2. 任何发布到视频平台的基于 sovits 制作的视频，都必须要在简介明确指明用于变声器转换的输入源歌声、音频，例如：使用他人发布的视频 / 音频，通过分离的人声作为输入源进行转换的，必须要给出明确的原视频、音乐链接；若使用是自己的人声，或是使用其他歌声合成引擎合成的声音作为输入源进行转换的，也必须在简介加以说明。
@@ -11,17 +13,16 @@
 5. 如将本仓库代码二次分发，或将由此项目产出的任何结果公开发表 (包括但不限于视频网站投稿)，请注明原作者及代码来源 (此仓库)。
 6. 如果将此项目用于任何其他企划，请提前联系并告知本仓库作者，十分感谢。
 
-### 改善了交互的一个分支推荐：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
-## update
+## 🆕 Update!
 
 > 更新了4.0-v2模型，全部流程同4.0，相比4.0在部分场景下有一定提升，但也有些情况有退步，具体可移步[4.0-v2分支](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2)
 
-## 模型简介
+## 📝 模型简介
 
 歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
 
-### 4.0版本更新内容
+### 🆕 4.0 版本更新内容
 
 + 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 
 + 采样率统一使用44100hz
@@ -31,7 +32,7 @@
 + 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
 + 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
 
-## 预先下载的模型文件
+## 📥 预先下载的模型文件
 
 #### **必须项**
 
@@ -53,7 +54,7 @@ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
 
-## 数据集准备
+## 📊 数据集准备
 
 仅需要以以下文件结构将数据集放入dataset_raw目录即可
 
@@ -69,7 +70,7 @@ dataset_raw
     └───xxx7-xxx007.wav
 ```
 
-## 数据预处理
+## 🛠️ 数据预处理
 
 1. 重采样至 44100hz
 
@@ -91,14 +92,14 @@ python preprocess_hubert_f0.py
 
 执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除dataset_raw文件夹了
 
-## 训练
+## 🏋️‍♀️ 训练
 
 ```shell
 python train.py -c configs/config.json -m 44k
 ```
 注：训练时会自动清除老的模型，只保留最新3个模型，如果想防止过拟合需要自己手动备份模型记录点,或修改配置文件keep_ckpts 0为永不清除
 
-## 推理
+## 🤖 推理
 
 使用 [inference_main.py](inference_main.py)
 
@@ -121,7 +122,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + -cm, --cluster_model_path：聚类模型路径，如果没有训练聚类则随便填。
 + -cr, --cluster_infer_ratio：聚类方案占比，范围 0-1，若没有训练聚类模型则填 0 即可。
 
-## 可选项
+## 🤔 可选项
 
 如果前面的效果已经满意，或者没看明白下面在讲啥，那后面的内容都可以忽略，不影响模型使用(这些可选项影响比较小，可能在某些特定数据上有点效果，但大部分情况似乎都感知不太明显)
 
@@ -148,7 +149,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 #### [23/03/16] 不再需要手动下载hubert
 
-## Onnx导出
+## 📤 Onnx导出
 
 使用 [onnx_export.py](onnx_export.py)
 + 新建文件夹：`checkpoints` 并打开
@@ -165,7 +166,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + 注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
 [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
-## 一些法律条例参考
+## 📚 一些法律条例参考
 
 #### 《民法典》
 
