@@ -102,6 +102,10 @@ def pad_array(arr, target_length):
         pad_right = pad_width - pad_left
         padded_arr = np.pad(arr, (pad_left, pad_right), 'constant', constant_values=(0, 0))
         return padded_arr
+    
+def split_list_by_n(list_collection, n):
+    for i in range(0, len(list_collection), n):
+        yield list_collection[i: i + n]
 
 
 class Svc(object):

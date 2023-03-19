@@ -25,6 +25,7 @@ def main():
     # 一定要设置的部分
     parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_0.pth", help='模型路径')
     parser.add_argument('-c', '--config_path', type=str, default="configs/config.json", help='配置文件路径')
+    parser.add_argument('-cl', '--clip', type=int, default=10, help='音频自动切片，0为不切片，单位为秒/s')
     parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"], help='wav文件名列表，放在raw文件夹下')
     parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0], help='音高调整，支持正负（半音）')
     parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'], help='合成目标说话人名称')
@@ -55,6 +56,7 @@ def main():
     cluster_infer_ratio = args.cluster_infer_ratio
     noice_scale = args.noice_scale
     pad_seconds = args.pad_seconds
+    clip = args.clip
 
     infer_tool.fill_a_to_b(trans, clean_names)
     for clean_name, tran in zip(clean_names, trans):
@@ -65,22 +67,28 @@ def main():
         wav_path = Path(raw_audio_path).with_suffix('.wav')
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
         audio_data, audio_sr = slicer.chunks2audio(wav_path, chunks)
+        per_size = clip*audio_sr
 
         for spk in spk_list:
             audio = []
             for (slice_tag, data) in audio_data:
                 print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
-
                 length = int(np.ceil(len(data) / audio_sr * svc_model.target_sample))
                 if slice_tag:
                     print('jump empty segment')
                     _audio = np.zeros(length)
+                    audio.extend(list(infer_tool.pad_array(_audio, length)))
+                    continue
+                if per_size != 0:
+                    datas = infer_tool.split_list_by_n(data, per_size)
                 else:
-                    # padd
+                    datas = [data]
+                for dat in datas:
+                    if clip!=0: print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
                     pad_len = int(audio_sr * pad_seconds)
-                    data = np.concatenate([np.zeros([pad_len]), data, np.zeros([pad_len])])
+                    dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])
                     raw_path = io.BytesIO()
-                    soundfile.write(raw_path, data, audio_sr, format="wav")
+                    soundfile.write(raw_path, dat, audio_sr, format="wav")
                     raw_path.seek(0)
                     out_audio, out_sr = svc_model.infer(spk, tran, raw_path,
                                                         cluster_infer_ratio=cluster_infer_ratio,
@@ -90,8 +98,7 @@ def main():
                     _audio = out_audio.cpu().numpy()
                     pad_len = int(svc_model.target_sample * pad_seconds)
                     _audio = _audio[pad_len:-pad_len]
-
-                audio.extend(list(infer_tool.pad_array(_audio, length)))
+                    audio.extend(list(infer_tool.pad_array(_audio, length)))
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             res_path = f'./results/{clean_name}_{key}_{spk}{cluster_name}.{wav_format}'
