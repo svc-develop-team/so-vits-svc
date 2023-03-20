@@ -43,6 +43,7 @@ def main():
     parser.add_argument('-ns', '--noice_scale', type=float, default=0.4, help='噪音级别，会影响咬字和音质，较为玄学')
     parser.add_argument('-p', '--pad_seconds', type=float, default=0.5, help='推理音频pad秒数，由于未知原因开头结尾会有异响，pad一小段静音段后就不会出现')
     parser.add_argument('-wf', '--wav_format', type=str, default='flac', help='音频输出格式')
+    parser.add_argument('-lgr', '--linear_gradient_retain', type=float, default=0.75, help='自动音频切片后，需要舍弃每段切片的头尾。该参数设置交叉长度保留的比例，范围0-1,左开右闭')
 
     args = parser.parse_args()
 
@@ -59,6 +60,7 @@ def main():
     pad_seconds = args.pad_seconds
     clip = args.clip
     lg = args.linear_gradient
+    lgr = args.linear_gradient_retain
 
     infer_tool.fill_a_to_b(trans, clean_names)
     for clean_name, tran in zip(clean_names, trans):
@@ -71,12 +73,16 @@ def main():
         audio_data, audio_sr = slicer.chunks2audio(wav_path, chunks)
         per_size = int(clip*audio_sr)
         lg_size = int(lg*audio_sr)
-        lg = np.linspace(0,1,lg_size) if lg_size!=0 else 0
+        lg_size_r = int(lg_size*lgr)
+        lg_size_c_l = (lg_size-lg_size_r)//2
+        lg_size_c_r = lg_size-lg_size_r-lg_size_c_l
+        lg = np.linspace(0,1,lg_size_r) if lg_size!=0 else 0
 
         for spk in spk_list:
             audio = []
             for (slice_tag, data) in audio_data:
                 print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
+                
                 length = int(np.ceil(len(data) / audio_sr * svc_model.target_sample))
                 if slice_tag:
                     print('jump empty segment')
@@ -106,12 +112,12 @@ def main():
                     _audio = _audio[pad_len:-pad_len]
                     _audio = infer_tool.pad_array(_audio, per_length)
                     if lg_size!=0 and k!=0:
-                        lg1 = audio[-lg_size:]
-                        lg2 = _audio[0:lg_size]
+                        lg1 = audio[-(lg_size_r+lg_size_c_r):-lg_size_c_r] if lgr != 1 else audio[-lg_size:]
+                        lg2 = _audio[lg_size_c_l:lg_size_c_l+lg_size_r]  if lgr != 1 else _audio[0:lg_size]
                         lg_pre = lg1*(1-lg)+lg2*lg
-                        audio = audio[0:-lg_size]
+                        audio = audio[0:-(lg_size_r+lg_size_c_r)] if lgr != 1 else audio[0:-lg_size]
                         audio.extend(lg_pre)
-                        _audio = _audio[lg_size:]
+                        _audio = _audio[lg_size_c_l+lg_size_r:] if lgr != 1 else _audio[lg_size:]
                     audio.extend(list(_audio))
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
