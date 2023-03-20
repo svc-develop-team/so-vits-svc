@@ -2,26 +2,30 @@
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
-## Terms of Use
+#### ✨ A fork with a greatly improved interface: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
-1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.The repository and its maintainer, svc develop team, have nothing to do with the consequences!
+#### ✨ A client supports real-time conversion: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
+
+## 📏 Terms of Use
+
+# Warning: Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.The repository and its maintainer, svc develop team, have nothing to do with the consequences!
+
+1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. 
 2. Any videos based on sovits that are published on video platforms must clearly indicate in the description that they are used for voice changing and specify the input source of the voice or audio, for example, using videos or audios published by others and separating the vocals as input source for conversion, which must provide clear original video or music links. If your own voice or other synthesized voices from other commercial vocal synthesis software are used as the input source for conversion, you must also explain it in the description.
 3. You shall be solely responsible for any infringement problems caused by the input source. When using other commercial vocal synthesis software as input source, please ensure that you comply with the terms of use of the software. Note that many vocal synthesis engines clearly state in their terms of use that they cannot be used for input source conversion.
 4. Continuing to use this project is deemed as agreeing to the relevant provisions stated in this repository README. This repository README has the obligation to persuade, and is not responsible for any subsequent problems that may arise.
 5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
-### A fork with a greatly improved interface：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
-
-## Update
+## 🆕 Update!
 
 > Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
 
-## Model Introduction
+## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### 4.0 Version Update Content
+### 🆕 4.0 Version Update Content
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec)
 - The sampling rate is unified to use 44100Hz
@@ -31,7 +35,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
 - Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
 
-## Pre-trained Model Files
+## 📥 Pre-trained Model Files
 
 #### **Required**
 
@@ -53,7 +57,7 @@ Get them from svc-develop-team(TBD) or anywhere else.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
-## Dataset Preparation
+## 📊 Dataset Preparation
 
 Simply place the dataset in the `dataset_raw` directory with the following file structure.
 
@@ -69,7 +73,7 @@ dataset_raw
     └───xxx7-xxx007.wav
 ```
 
-## Preprocessing
+## 🛠️ Preprocessing
 
 1. Resample to 44100hz
 
@@ -91,7 +95,7 @@ python preprocess_hubert_f0.py
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
-## Training
+## 🏋️‍♀️ Training
 
 ```shell
 python train.py -c configs/config.json -m 44k
@@ -99,7 +103,7 @@ python train.py -c configs/config.json -m 44k
 
 Note: During training, the old models will be automatically cleared and only the latest three models will be kept. If you want to prevent overfitting, you need to manually backup the model checkpoints, or modify the configuration file `keep_ckpts` to 0 to never clear them.
 
-## Inference
+## 🤖 Inference
 
 Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
 
@@ -111,7 +115,6 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ```
 
 Required parameters:
-
 - -m, --model_path: path to the model.
 - -c, --config_path: path to the configuration file.
 - -n, --clean_names: a list of wav file names located in the raw folder.
@@ -119,19 +122,17 @@ Required parameters:
 - -s, --spk_list: target speaker name for synthesis.
 
 Optional parameters: see the next section
-
 - -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
 - -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
 
-## Optional Settings
+## 🤔 Optional Settings
 
 If the results from the previous section are satisfactory, or if you didn't understand what is being discussed in the following section, you can skip it, and it won't affect the model usage. (These optional settings have a relatively small impact, and they may have some effect on certain specific data, but in most cases, the difference may not be noticeable.)
 
 ### Automatic f0 prediction
 
 During the 4.0 model training, an f0 predictor is also trained, which can be used for automatic pitch prediction during voice conversion. However, if the effect is not good, manual pitch prediction can be used instead. But please do not enable this feature when converting singing voice as it may cause serious pitch shifting!
-
 - Set "auto_predict_f0" to true in inference_main.
 
 ### Cluster-based timbre leakage control
@@ -151,7 +152,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 #### [23/03/16] No longer need to download hubert manually
 
-## Exporting to Onnx
+## 📤 Exporting to Onnx
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 
@@ -168,7 +169,7 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 
 Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
-## Some legal provisions for reference
+## 📚 Some legal provisions for reference
 
 #### 《民法典》
 
