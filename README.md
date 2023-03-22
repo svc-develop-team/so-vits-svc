@@ -120,7 +120,7 @@ Required parameters:
 - -n, --clean_names: a list of wav file names located in the raw folder.
 - -t, --trans: pitch adjustment, supports positive and negative (semitone) values.
 - -s, --spk_list: target speaker name for synthesis.
-- -cl, --clip：voice auto-split,set to 0 to turn off,duration in seconds.
+- -cl, --clip: voice auto-split,set to 0 to turn off,duration in seconds.
 
 Optional parameters: see the next section
 - -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
