@@ -30,7 +30,6 @@ body:
     attributes:
       value: |
         # 请根据实际使用环境填写以下信息
-        ---
 
   - type: input
     id: System
