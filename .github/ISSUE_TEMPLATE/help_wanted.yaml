@@ -8,10 +8,12 @@ body:
     attributes:
       value: |
         #### 提问前建议先自己去尝试解决，可以借助一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issues，在提issues之前，请先仔细阅读《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》
+        ---
         ### 什么样的issues会被close
         1. 伸手党
         2. 一键包/环境包相关
         3. 提供的信息不全
+        4. 低级的如缺少依赖而导致无法运行的问题
         4. 所用的数据集是无授权数据集(游戏角色/二次元人物暂不归为此类，但是训练时候也要小心谨慎。如果能联系到官方，必须先和官方联系并核实清楚)
         ---
   - type: checkboxes
