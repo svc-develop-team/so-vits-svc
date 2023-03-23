@@ -106,7 +106,7 @@ body:
   - type: textarea
     id: ValidOneClick
     attributes:
-      label: 截图`so-vits-svc/`文件夹并粘贴到此处
+      label: 截图`so-vits-svc`文件夹并粘贴到此处
     validations:
       required: true
 
