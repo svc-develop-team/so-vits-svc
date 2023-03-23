@@ -1,7 +1,7 @@
 name: 请求帮助
 description: 遇到了无法自行解决的错误
-title: '[Bug]: '
-labels: [ "bug?" ]
+title: '[Help]: '
+labels: [ "help wanted" ]
 
 body:
   - type: markdown
