@@ -16,3 +16,4 @@ onnxoptimizer
 fairseq==0.12.2
 librosa==0.8.1
 tensorboard
+tensorboardX
