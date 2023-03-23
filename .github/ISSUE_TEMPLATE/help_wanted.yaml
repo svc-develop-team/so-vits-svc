@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        #### 提问前建议先自己去尝试解决，可以借助一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issues，在提issues之前，请先仔细阅读《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》
+        #### 提问前请先自己去尝试解决，可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》
         ---
         ### 什么样的issues会被close
         1. 伸手党
@@ -16,6 +16,7 @@ body:
         4. 低级的如缺少依赖而导致无法运行的问题
         4. 所用的数据集是无授权数据集(游戏角色/二次元人物暂不归为此类，但是训练时候也要小心谨慎。如果能联系到官方，必须先和官方联系并核实清楚)
         ---
+
   - type: checkboxes
     id: Clause
     attributes:
@@ -37,7 +38,7 @@ body:
     id: System
     attributes:
       label: 系统平台版本号
-      description: Windows请执行`winver`，Linux请执行`uname -a`
+      description: Windows请执行`winver` | Linux请执行`uname -a`
     validations:
       required: true
 
@@ -62,7 +63,7 @@ body:
     attributes:
       label: sovits分支
       options:
-        - 4.0(Default)
+        - 4.0(默认)
         - 4.0-v2
         - 3.0-32k
         - 3.0-48k
@@ -105,7 +106,7 @@ body:
   - type: textarea
     id: ValidOneClick
     attributes:
-      label: 截图so-vits-svc/文件夹并粘贴到此处
+      label: 截图`so-vits-svc/`文件夹并粘贴到此处
     validations:
       required: true
 
