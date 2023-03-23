@@ -101,6 +101,13 @@ body:
       required: true
 
   - type: textarea
+    id: ValidOneClick
+    attributes:
+      label: 截图so-vits-svc/文件夹并粘贴到此处
+    validations:
+      required: true
+
+  - type: textarea
     id: Supplementary
     attributes:
       label: 补充说明
