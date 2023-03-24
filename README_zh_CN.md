@@ -221,3 +221,6 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 #### 《[中华人民共和国刑法](http://gongbao.court.gov.cn/Details/f8e30d0689b23f57bfc782d21035c3.html?sw=中华人民共和国刑法)》
 
 #### 《[中华人民共和国民法典](http://gongbao.court.gov.cn/Details/51eb6750b8361f79be8f90d09bc202.html)》
+
+## 💪 感谢所有的贡献者
+![contributors](https://github.com/svc-develop-team/so-vits-svc/graphs/contributors)
