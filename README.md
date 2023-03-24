@@ -61,7 +61,7 @@ Although the pretrained model generally does not cause any copyright problems, p
 
 Simply place the dataset in the `dataset_raw` directory with the following file structure.
 
-```shell
+```
 dataset_raw
 ├───speaker0
 │   ├───xxx1-xxx1.wav
@@ -71,6 +71,16 @@ dataset_raw
     ├───xx2-0xxx2.wav
     ├───...
     └───xxx7-xxx007.wav
+```
+
+You can customize the speaker name.
+
+```
+dataset_raw
+└───suijiSUI
+    ├───1.wav
+    ├───...
+    └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
 ```
 
 ## 🛠️ Preprocessing
@@ -170,7 +180,7 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 
 Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
-## Previous contributors
+## ☀️ Previous contributors
 
 For some reason the author deleted the original repository. Because of the negligence of the organization members, the contributor list was cleared because all files were directly reuploaded to this repository at the beginning of the reconstruction of this repository. Now add a previous contributor list to README.md.
 
