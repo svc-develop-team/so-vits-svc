@@ -47,6 +47,8 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         audio_norm = audio / self.max_wav_value
         audio_norm = audio_norm.unsqueeze(0)
         spec_filename = filename.replace(".wav", ".spec.pt")
+
+        # Ideally, all data generated after Mar 25 should have .spec.pt
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:
