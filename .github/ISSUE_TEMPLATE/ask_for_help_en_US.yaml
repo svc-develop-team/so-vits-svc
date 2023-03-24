@@ -106,7 +106,7 @@ body:
   - type: textarea
     id: ValidOneClick
     attributes:
-      label: Screenshot `so-vits-svc` folder and paste here
+      label: Screenshot `so-vits-svc` and `logs/44k` folders and paste here
     validations:
       required: true
 
