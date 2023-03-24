@@ -22,7 +22,7 @@ body:
     attributes:
       label: Please check the checkboxes below.
       options:
-        - label: "I have readed README.md carefully."
+        - label: "I have read README.md carefully."
           required: true
         - label: "I have been troubleshooting issues through various search engines. The questions I want to ask are not common."
           required: true
