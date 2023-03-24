@@ -226,4 +226,6 @@ For some reason the author deleted the original repository. Because of the negli
 #### 《[中华人民共和国民法典](http://gongbao.court.gov.cn/Details/51eb6750b8361f79be8f90d09bc202.html)》
 
 ## 💪 Thanks to all contributors for their efforts
-![contributors](https://github.com/svc-develop-team/so-vits-svc/graphs/contributors)
+<a href="https://github.com/svc-develop-team/so-vits-svc/graphs/contributors" target="_blank">
+  <img src="https://contrib.rocks/image?repo=svc-develop-team/so-vits-svc" />
+</a>
