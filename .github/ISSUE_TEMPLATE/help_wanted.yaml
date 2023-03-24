@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        #### 提问前请先自己去尝试解决，可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》
+        #### 提问前请先自己去尝试解决，可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》。
         ---
         ### 什么样的issues会被close
         1. 伸手党
@@ -22,11 +22,11 @@ body:
     attributes:
       label: 请勾选下方的确认框。
       options:
-        - label: "我已仔细阅读README.md"
+        - label: "我已仔细阅读README.md。"
           required: true
-        - label: "我已通过各种搜索引擎排查问题，我要提出的问题并不常见"
+        - label: "我已通过各种搜索引擎排查问题，我要提出的问题并不常见。"
           required: true
-        - label: "我未在使用由第三方用户提供的一键包/环境包"
+        - label: "我未在使用由第三方用户提供的一键包/环境包。"
           required: true
 
   - type: markdown
@@ -98,7 +98,7 @@ body:
     id: Log
     attributes:
       label: 日志
-      description: 从执行命令到执行完毕输出的所有信息
+      description: 从执行命令到执行完毕输出的所有信息（包括你所执行的命令）
       render: python
     validations:
       required: true

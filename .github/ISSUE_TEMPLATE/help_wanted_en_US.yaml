@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        #### Please try to solve the problem yourself before asking for help，You can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance
+        #### Please try to solve the problem yourself before asking for help. You can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance.
         ---
         ### What kind of issue will be close immediately
         1. Beggars or Free Riders
@@ -22,17 +22,17 @@ body:
     attributes:
       label: Please check the checkboxes below.
       options:
-        - label: "I have read README.md carefully"
+        - label: "I have readed README.md carefully."
           required: true
-        - label: "I have been troubleshooting issues through various search engines. The questions I want to ask are not common"
+        - label: "I have been troubleshooting issues through various search engines. The questions I want to ask are not common."
           required: true
-        - label: "I am NOT using one click package / environment package"
+        - label: "I am NOT using one click package / environment package."
           required: true
 
   - type: markdown
     attributes:
       value: |
-        # Please fill in the following information according to your actual environment
+        # Please fill in the following information according to your actual environment.
 
   - type: input
     id: System
@@ -74,7 +74,7 @@ body:
     id: DatasetSource
     attributes:
       label: Dataset source (Used to judge the dataset quality)
-      description: Like UVR-processed streaming audio / Recorded in recording studio
+      description: Such as UVR-processed streaming audio / Recorded in recording studio
     validations:
       required: true
 
@@ -82,7 +82,7 @@ body:
     id: WhereOccurs
     attributes:
       label: Where thr problem occurs or what command you executed
-      description: Like Preprocessing / Training / `python preprocess_hubert_f0.py`
+      description: Such as Preprocessing / Training / `python preprocess_hubert_f0.py`
     validations:
       required: true
 
@@ -98,7 +98,7 @@ body:
     id: Log
     attributes:
       label: Log
-      description: All information output from the command you executed to the end of execution
+      description: All information output from the command you executed to the end of execution (include the command)
       render: python
     validations:
       required: true
