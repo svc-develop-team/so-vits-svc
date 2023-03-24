@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        #### 提问前请先自己去尝试解决，可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》。
+        #### 提问前请先自己去尝试解决，比如查看[本仓库wiki中的Quick solution](https://github.com/svc-develop-team/so-vits-svc/wiki/Quick-solution)，也可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》。
         ---
         ### 什么样的issue会被直接close
         1. 伸手党
@@ -22,7 +22,7 @@ body:
     attributes:
       label: 请勾选下方的确认框。
       options:
-        - label: "我已仔细阅读README.md。"
+        - label: "我已仔细阅读[README.md](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/README_zh_CN.md)和[wiki中的Quick solution](https://github.com/svc-develop-team/so-vits-svc/wiki/Quick-solution)。"
           required: true
         - label: "我已通过各种搜索引擎排查问题，我要提出的问题并不常见。"
           required: true
