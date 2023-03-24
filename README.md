@@ -75,13 +75,13 @@ dataset_raw
 
 ## 🛠️ Preprocessing
 
-1. Resample to 44100hz
+1. Resample to 44100Hz and mono
 
 ```shell
 python resample.py
 ```
 
-2. Automatically split the dataset into training, validation, and test sets, and generate configuration files
+2. Automatically split the dataset into training and validation sets, and generate configuration files
 
 ```shell
 python preprocess_flist_config.py

@@ -75,13 +75,13 @@ dataset_raw
 
 ## 🛠️ 数据预处理
 
-1. 重采样至 44100hz
+1. 重采样至44100Hz单声道
 
 ```shell
 python resample.py
 ```
 
-2. 自动划分训练集 验证集 测试集 以及自动生成配置文件
+2. 自动划分训练集、验证集，以及自动生成配置文件
 
 ```shell
 python preprocess_flist_config.py
