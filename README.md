@@ -35,6 +35,10 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
 - Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
 
+## 💬 About Python Version
+
+After conducting tests, we believe that the project runs stably on Python version 3.8.9.
+
 ## 📥 Pre-trained Model Files
 
 #### **Required**
