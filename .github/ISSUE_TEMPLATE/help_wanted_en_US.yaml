@@ -9,7 +9,7 @@ body:
       value: |
         #### Please try to solve the problem yourself before asking for help. You can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance.
         ---
-        ### What kind of issue will be close immediately
+        ### What kind of issue will be closed immediately
         1. Beggars or Free Riders
         2. One click package / Environment package (Not using `pip install -r requirement.txt`)
         3. Incomplete information
@@ -32,7 +32,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        # Please fill in the following information according to your actual environment.
+        # Please fill in the following information according to your actual environment
 
   - type: input
     id: System

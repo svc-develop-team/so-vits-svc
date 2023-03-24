@@ -9,7 +9,7 @@ body:
       value: |
         #### 提问前请先自己去尝试解决，可以借助chatgpt或一些搜索引擎（谷歌/必应/New Bing/StackOverflow等等）。如果实在无法自己解决再发issue，在提issue之前，请先了解《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)》。
         ---
-        ### 什么样的issues会被close
+        ### 什么样的issue会被直接close
         1. 伸手党
         2. 一键包/环境包相关
         3. 提供的信息不全
