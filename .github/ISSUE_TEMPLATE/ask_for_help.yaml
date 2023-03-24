@@ -38,14 +38,15 @@ body:
     id: System
     attributes:
       label: 系统平台版本号
-      description: Windows请执行`winver` | Linux请执行`uname -a`
+      description: Windows执行`winver` | Linux执行`uname -a`
     validations:
       required: true
+
   - type: input
     id: GPU
     attributes:
       label: GPU 型号
-      description: 请执行`nvidia-smi`
+      description: 执行`nvidia-smi`
     validations:
       required: true
 
@@ -53,7 +54,7 @@ body:
     id: PythonVersion
     attributes:
       label: Python版本
-      description: 执行`python -V`以查看
+      description: 执行`python -V`
     validations:
       required: true
 
@@ -61,7 +62,7 @@ body:
     id: PyTorchVersion
     attributes:
       label: PyTorch版本
-      description: 执行`pip show torch`以查看  
+      description: 执行`pip show torch`
     validations:
       required: true
 
@@ -105,7 +106,7 @@ body:
     id: Log
     attributes:
       label: 日志
-      description: 将从执行命令到执行完毕输出的所有信息（包括你所执行的命令）粘贴到 https://pastebin.com/ 并把剪贴板链接贴到这里
+      description: 将从执行命令到执行完毕输出的所有信息（包括你所执行的命令）粘贴到[pastebin.com](https://pastebin.com/)并把剪贴板链接贴到这里
       render: python
     validations:
       required: true

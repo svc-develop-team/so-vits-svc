@@ -14,7 +14,7 @@ body:
         2. One click package / Environment package (Not using `pip install -r requirement.txt`)
         3. Incomplete information
         4. Stupid issues such as miss a dependency package
-        4. Using unauthorized dataset (Game characters / anime characters are not included in this category temporarily but you still need to pay attention. If you can contact the official, you must contact the official and verify it at first.)
+        4. Using unlicenced dataset (Game characters / anime characters are not included in this category temporarily but you still need to pay attention. If you can contact the official, you must contact the official and verify it at first.)
         ---
 
   - type: checkboxes
@@ -43,10 +43,18 @@ body:
       required: true
 
   - type: input
+    id: GPU
+    attributes:
+      label: GPU
+      description: Run `nvidia-smi`
+    validations:
+      required: true
+
+  - type: input
     id: PythonVersion
     attributes:
       label: Python version
-      description: Run `python -V` to check
+      description: Run `python -V`
     validations:
       required: true
 
@@ -54,7 +62,7 @@ body:
     id: PyTorchVersion
     attributes:
       label: PyTorch version
-      description: Run `pip show torch` to check
+      description: Run `pip show torch`
     validations:
       required: true
 
