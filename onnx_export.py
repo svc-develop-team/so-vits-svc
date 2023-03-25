@@ -16,11 +16,12 @@ def main(NetExport):
         for i in SVCVITS.parameters():
             i.requires_grad = False
         
-        test_hidden_unit = torch.rand(1, 10, 256)
-        test_pitch = torch.rand(1, 10)
-        test_mel2ph = torch.LongTensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).unsqueeze(0)
-        test_uv = torch.ones(1, 10, dtype=torch.float32)
-        test_noise = torch.randn(1, 192, 10)
+        n_frame = 10
+        test_hidden_unit = torch.rand(1, n_frame, 256)
+        test_pitch = torch.rand(1, n_frame)
+        test_mel2ph = torch.arange(0, n_frame, dtype=torch.int64)[None] # torch.LongTensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).unsqueeze(0)
+        test_uv = torch.ones(1, n_frame, dtype=torch.float32)
+        test_noise = torch.randn(1, 192, n_frame)
         test_sid = torch.LongTensor([0])
         input_names = ["c", "f0", "mel2ph", "uv", "noise", "sid"]
         output_names = ["audio", ]
