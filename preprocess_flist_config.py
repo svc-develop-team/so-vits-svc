@@ -25,13 +25,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--train_list", type=str, default="./filelists/train.txt", help="path to train list")
     parser.add_argument("--val_list", type=str, default="./filelists/val.txt", help="path to val list")
-    parser.add_argument("--test_list", type=str, default="./filelists/test.txt", help="path to test list")
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     args = parser.parse_args()
     
     train = []
     val = []
-    test = []
     idx = 0
     spk_dict = {}
     spk_id = 0
@@ -51,13 +49,11 @@ if __name__ == "__main__":
             new_wavs.append(file)
         wavs = new_wavs
         shuffle(wavs)
-        train += wavs[2:-2]
+        train += wavs[2:]
         val += wavs[:2]
-        test += wavs[-2:]
 
     shuffle(train)
     shuffle(val)
-    shuffle(test)
             
     print("Writing", args.train_list)
     with open(args.train_list, "w") as f:
@@ -70,14 +66,10 @@ if __name__ == "__main__":
         for fname in tqdm(val):
             wavpath = fname
             f.write(wavpath + "\n")
-            
-    print("Writing", args.test_list)
-    with open(args.test_list, "w") as f:
-        for fname in tqdm(test):
-            wavpath = fname
-            f.write(wavpath + "\n")
 
     config_template["spk"] = spk_dict
+    config_template["model"]["n_speakers"] = spk_id
+	
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
         json.dump(config_template, f, indent=2)

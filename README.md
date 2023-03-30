@@ -2,24 +2,30 @@
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
-## Terms of Use
+#### ✨ A fork with a greatly improved interface: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
-1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.
+#### ✨ A client supports real-time conversion: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
+
+## 📏 Terms of Use
+
+# Warning: Please solve the authorization problem of the dataset on your own. You shall be solely responsible for any problems caused by the use of non-authorized datasets for training and all consequences thereof.The repository and its maintainer, svc develop team, have nothing to do with the consequences!
+
+1. This project is established for academic exchange purposes only and is intended for communication and learning purposes. It is not intended for production environments. 
 2. Any videos based on sovits that are published on video platforms must clearly indicate in the description that they are used for voice changing and specify the input source of the voice or audio, for example, using videos or audios published by others and separating the vocals as input source for conversion, which must provide clear original video or music links. If your own voice or other synthesized voices from other commercial vocal synthesis software are used as the input source for conversion, you must also explain it in the description.
 3. You shall be solely responsible for any infringement problems caused by the input source. When using other commercial vocal synthesis software as input source, please ensure that you comply with the terms of use of the software. Note that many vocal synthesis engines clearly state in their terms of use that they cannot be used for input source conversion.
 4. Continuing to use this project is deemed as agreeing to the relevant provisions stated in this repository README. This repository README has the obligation to persuade, and is not responsible for any subsequent problems that may arise.
 5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
-## Update
+## 🆕 Update!
 
 > Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
 
-## Model Introduction
+## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### 4.0 Version Update Content
+### 🆕 4.0 Version Update Content
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec)
 - The sampling rate is unified to use 44100Hz
@@ -29,7 +35,11 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
 - Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
 
-## Pre-trained Model Files
+## 💬 About Python Version
+
+After conducting tests, we believe that the project runs stably on Python version 3.8.9.
+
+## 📥 Pre-trained Model Files
 
 #### **Required**
 
@@ -51,11 +61,11 @@ Get them from svc-develop-team(TBD) or anywhere else.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
-## Dataset Preparation
+## 📊 Dataset Preparation
 
 Simply place the dataset in the `dataset_raw` directory with the following file structure.
 
-```shell
+```
 dataset_raw
 ├───speaker0
 │   ├───xxx1-xxx1.wav
@@ -67,15 +77,25 @@ dataset_raw
     └───xxx7-xxx007.wav
 ```
 
-## Preprocessing
+You can customize the speaker name.
 
-1. Resample to 44100hz
+```
+dataset_raw
+└───suijiSUI
+    ├───1.wav
+    ├───...
+    └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
+```
+
+## 🛠️ Preprocessing
+
+1. Resample to 44100Hz and mono
 
 ```shell
 python resample.py
 ```
 
-2. Automatically split the dataset into training, validation, and test sets, and generate configuration files
+2. Automatically split the dataset into training and validation sets, and generate configuration files
 
 ```shell
 python preprocess_flist_config.py
@@ -89,7 +109,7 @@ python preprocess_hubert_f0.py
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
-## Training
+## 🏋️‍♀️ Training
 
 ```shell
 python train.py -c configs/config.json -m 44k
@@ -97,7 +117,7 @@ python train.py -c configs/config.json -m 44k
 
 Note: During training, the old models will be automatically cleared and only the latest three models will be kept. If you want to prevent overfitting, you need to manually backup the model checkpoints, or modify the configuration file `keep_ckpts` to 0 to never clear them.
 
-## Inference
+## 🤖 Inference
 
 Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
 
@@ -109,27 +129,25 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ```
 
 Required parameters:
-
 - -m, --model_path: path to the model.
 - -c, --config_path: path to the configuration file.
 - -n, --clean_names: a list of wav file names located in the raw folder.
 - -t, --trans: pitch adjustment, supports positive and negative (semitone) values.
 - -s, --spk_list: target speaker name for synthesis.
+- -cl, --clip: voice auto-split,set to 0 to turn off,duration in seconds.
 
 Optional parameters: see the next section
-
 - -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
 - -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
 
-## Optional Settings
+## 🤔 Optional Settings
 
 If the results from the previous section are satisfactory, or if you didn't understand what is being discussed in the following section, you can skip it, and it won't affect the model usage. (These optional settings have a relatively small impact, and they may have some effect on certain specific data, but in most cases, the difference may not be noticeable.)
 
 ### Automatic f0 prediction
 
 During the 4.0 model training, an f0 predictor is also trained, which can be used for automatic pitch prediction during voice conversion. However, if the effect is not good, manual pitch prediction can be used instead. But please do not enable this feature when converting singing voice as it may cause serious pitch shifting!
-
 - Set "auto_predict_f0" to true in inference_main.
 
 ### Cluster-based timbre leakage control
@@ -149,7 +167,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 #### [23/03/16] No longer need to download hubert manually
 
-## Exporting to Onnx
+## 📤 Exporting to Onnx
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 
@@ -166,7 +184,27 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 
 Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
-## Some legal provisions for reference
+## ☀️ Previous contributors
+
+For some reason the author deleted the original repository. Because of the negligence of the organization members, the contributor list was cleared because all files were directly reuploaded to this repository at the beginning of the reconstruction of this repository. Now add a previous contributor list to README.md.
+
+*Some members have not listed according to their personal wishes.*
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/MistEO"><img src="https://avatars.githubusercontent.com/u/18511905?v=4" width="100px;" alt=""/><br /><sub><b>MistEO</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/XiaoMiku01"><img src="https://avatars.githubusercontent.com/u/54094119?v=4" width="100px;" alt=""/><br /><sub><b>XiaoMiku01</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/ForsakenRei"><img src="https://avatars.githubusercontent.com/u/23041178?v=4" width="100px;" alt=""/><br /><sub><b>しぐれ</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/TomoGaSukunai"><img src="https://avatars.githubusercontent.com/u/25863522?v=4" width="100px;" alt=""/><br /><sub><b>TomoGaSukunai</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Plachtaa"><img src="https://avatars.githubusercontent.com/u/112609742?v=4" width="100px;" alt=""/><br /><sub><b>Plachtaa</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/zdxiaoda"><img src="https://avatars.githubusercontent.com/u/45501959?v=4" width="100px;" alt=""/><br /><sub><b>zd小达</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Archivoice"><img src="https://avatars.githubusercontent.com/u/107520869?v=4" width="100px;" alt=""/><br /><sub><b>凍聲響世</b></sub></a><br /></td>
+  </tr>
+</table>
+
+## 📚 Some legal provisions for reference
+
+#### Any country, region, organization, or individual using this project must comply with the following laws.
 
 #### 《民法典》
 
@@ -184,3 +222,14 @@ Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently
 
 【作品侵害名誉权】行为人发表的文学、艺术作品以真人真事或者特定人为描述对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担民事责任。
 行为人发表的文学、艺术作品不以特定人为描述对象，仅其中的情节与该特定人的情况相似的，不承担民事责任。  
+
+#### 《[中华人民共和国宪法](http://www.gov.cn/guoqing/2018-03/22/content_5276318.htm)》
+
+#### 《[中华人民共和国刑法](http://gongbao.court.gov.cn/Details/f8e30d0689b23f57bfc782d21035c3.html?sw=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E5%88%91%E6%B3%95)》
+
+#### 《[中华人民共和国民法典](http://gongbao.court.gov.cn/Details/51eb6750b8361f79be8f90d09bc202.html)》
+
+## 💪 Thanks to all contributors for their efforts
+<a href="https://github.com/svc-develop-team/so-vits-svc/graphs/contributors" target="_blank">
+  <img src="https://contrib.rocks/image?repo=svc-develop-team/so-vits-svc" />
+</a>

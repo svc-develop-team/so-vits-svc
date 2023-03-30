@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 讨论区 / Discussions
+    url: https://github.com/svc-develop-team/so-vits-svc/discussions
+    about: 简单的询问/讨论请转至讨论区或发起一个低优先级的Default issue / For simple inquiries / discussions, please go to the discussions or raise a low priority Default issue

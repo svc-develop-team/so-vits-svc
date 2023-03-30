@@ -1,0 +1,124 @@
+name: Ask for help
+description: Encountered an error cannot be resolved by self
+title: '[Help]: '
+labels: [ "help wanted" ]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        #### Please try to solve the problem yourself before asking for help. At first you can read *[Quick solution in wiki](https://github.com/svc-develop-team/so-vits-svc/wiki/Quick-solution)*. Then you can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance.
+        ---
+        ### What kind of issue will be closed immediately
+        1. Beggars or Free Riders
+        2. One click package / Environment package (Not using `pip install -r requirement.txt`)
+        3. Incomplete information
+        4. Stupid issues such as miss a dependency package
+        4. Using unlicenced dataset (Game characters / anime characters are not included in this category temporarily but you still need to pay attention. If you can contact the official, you must contact the official and verify it at first.)
+        ---
+
+  - type: checkboxes
+    id: Clause
+    attributes:
+      label: Please check the checkboxes below.
+      options:
+        - label: "I have read *[README.md](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/README.md)* and *[Quick solution in wiki](https://github.com/svc-develop-team/so-vits-svc/wiki/Quick-solution)* carefully."
+          required: true
+        - label: "I have been troubleshooting issues through various search engines. The questions I want to ask are not common."
+          required: true
+        - label: "I am NOT using one click package / environment package."
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        # Please fill in the following information according to your actual environment
+
+  - type: input
+    id: System
+    attributes:
+      label: OS version
+      description: Windows run `winver` | Linux run `uname -a`
+    validations:
+      required: true
+
+  - type: input
+    id: GPU
+    attributes:
+      label: GPU
+      description: Run `nvidia-smi`
+    validations:
+      required: true
+
+  - type: input
+    id: PythonVersion
+    attributes:
+      label: Python version
+      description: Run `python -V`
+    validations:
+      required: true
+
+  - type: input
+    id: PyTorchVersion
+    attributes:
+      label: PyTorch version
+      description: Run `pip show torch`
+    validations:
+      required: true
+
+  - type: dropdown
+    id: Branch
+    attributes:
+      label: Branch of sovits
+      options:
+        - 4.0(Default)
+        - 4.0-v2
+        - 3.0-32k
+        - 3.0-48k
+    validations:
+      required: true
+
+  - type: input
+    id: DatasetSource
+    attributes:
+      label: Dataset source (Used to judge the dataset quality)
+      description: Such as UVR-processed streaming audio / Recorded in recording studio
+    validations:
+      required: true
+
+  - type: input
+    id: WhereOccurs
+    attributes:
+      label: Where thr problem occurs or what command you executed
+      description: Such as Preprocessing / Training / `python preprocess_hubert_f0.py`
+    validations:
+      required: true
+
+  - type: textarea
+    id: Description
+    attributes:
+      label: Problem description
+      description: Describe your problem here, the more detailed the better.
+    validations:
+      required: true
+
+  - type: textarea
+    id: Log
+    attributes:
+      label: Log
+      description: All information output from the command you executed to the end of execution (include the command)
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: ValidOneClick
+    attributes:
+      label: Screenshot `so-vits-svc` and `logs/44k` folders and paste here
+    validations:
+      required: true
+
+  - type: textarea
+    id: Supplementary
+    attributes:
+      label: Supplementary description
