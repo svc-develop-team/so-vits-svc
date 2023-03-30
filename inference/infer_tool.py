@@ -179,6 +179,7 @@ class Svc(object):
               auto_predict_f0=False,
               noice_scale=0.4,
               f0_filter=False):
+
         speaker_id = self.spk2id.__dict__.get(speaker)
         if not speaker_id and type(speaker) is int:
             if len(self.spk2id.__dict__) >= speaker:
@@ -265,11 +266,6 @@ class RealTimeVC:
                 auto_predict_f0=False,
                 noice_scale=0.4,
                 f0_filter=False):
-
-        cluster_infer_ratio = cluster_infer_ratio
-        auto_predict_f0 = auto_predict_f0
-        noice_scale = noice_scale
-        f0_filter = f0_filter
 
         import maad
         audio, sr = torchaudio.load(input_wav_path)
