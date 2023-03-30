@@ -31,7 +31,7 @@ def voice_change_model():
     # 模型推理
     if raw_infer:
         # out_audio, out_sr = svc_model.infer(speaker_id, f_pitch_change, input_wav_path)
-        out_audio, _ = svc_model.infer(speaker_id, f_pitch_change, input_wav_path, cluster_infer_ratio=0,
+        out_audio, out_sr = svc_model.infer(speaker_id, f_pitch_change, input_wav_path, cluster_infer_ratio=0,
                                        auto_predict_f0=False, noice_scale=0.4, f0_filter=False)
         tar_audio = torchaudio.functional.resample(out_audio, svc_model.target_sample, daw_sample)
     else:
