@@ -20,3 +20,4 @@ onnx
 onnxsim
 onnxoptimizer
 tensorboardX
+edge_tts
