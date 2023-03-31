@@ -118,7 +118,7 @@ class Slicer:
 
 
 def cut(audio_path, db_thresh=-30, min_len=5000):
-    audio, sr = librosa.load(audio_path, sr=None)
+    audio, sr = librosa.load(audio_path, sr=32000)
     slicer = Slicer(
         sr=sr,
         threshold=db_thresh,
@@ -130,10 +130,9 @@ def cut(audio_path, db_thresh=-30, min_len=5000):
 
 def chunks2audio(audio_path, chunks):
     chunks = dict(chunks)
-    audio, sr = torchaudio.load(audio_path)
+    audio, sr = librosa.load(audio_path, sr=32000)
     if len(audio.shape) == 2 and audio.shape[1] >= 2:
         audio = torch.mean(audio, dim=0).unsqueeze(0)
-    audio = audio.cpu().numpy()[0]
     result = []
     for k, v in chunks.items():
         tag = v["split_time"].split(",")

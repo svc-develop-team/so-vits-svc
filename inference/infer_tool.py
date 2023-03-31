@@ -143,9 +143,9 @@ def mkdir(paths: list):
         if not os.path.exists(path):
             os.mkdir(path)
 
-def split_list_by_n(list_collection, n):
+def split_list_by_n(list_collection, n, pre=0):
     for i in range(0, len(list_collection), n):
-        yield list_collection[i: i + n]
+        yield list_collection[i-pre if i-pre>=0 else i: i + n]
 
 
 class Svc(object):
@@ -329,3 +329,4 @@ class RealTimeVC:
             self.last_chunk = audio[-self.pre_len:]
             self.last_o = audio
             return ret[self.chunk_len:2 * self.chunk_len]
+
