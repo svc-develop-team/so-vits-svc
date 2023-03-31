@@ -17,23 +17,13 @@
 5. 如将本仓库代码二次分发，或将由此项目产出的任何结果公开发表 (包括但不限于视频网站投稿)，请注明原作者及代码来源 (此仓库)。
 6. 如果将此项目用于任何其他企划，请提前联系并告知本仓库作者，十分感谢。
 
-## 🆕 Update!
-
-> 更新了4.0-v2模型，全部流程同4.0，相比4.0在部分场景下有一定提升，但也有些情况有退步，具体可移步[4.0-v2分支](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2)
-
 ## 📝 模型简介
 
 歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
 
-### 🆕 4.0 版本更新内容
+### 🆕 4.0 - Enhance版本更新内容
 
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 
-+ 采样率统一使用44100hz
-+ 由于更改了hop size等参数以及精简了部分模型结构，推理所需显存占用**大幅降低**，4.0版本44khz显存占用甚至小于3.0版本的32khz
-+ 调整了部分代码结构
-+ 数据集制作、训练过程和3.0保持一致，但模型完全不通用，数据集也需要全部重新预处理
-+ 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
-+ 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
++ 相比于4.0增加了[NFS-HIFIGAN增强器](https://github.com/yxlllc/DDSP-SVC)，在高频部分会增加部分细节，提升不是很大
 
 ## 💬 关于 Python 版本问题
 
@@ -50,6 +40,16 @@
 # contentvec
 http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # 也可手动下载放在hubert目录
+```
+
++ 预训练的NSF-HIFIGAN声码器 ：[nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
+  + 解压后，将四个文件放在`pretrain/nsf_hifigan`目录下
+
+```shell
+# contentvec
+https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+# 也可手动下载放在pretrain/nsf_hifigan目录
+# 地址：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
 
 #### **可选项(强烈建议使用)**

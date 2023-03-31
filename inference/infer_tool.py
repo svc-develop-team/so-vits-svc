@@ -133,6 +133,7 @@ class Svc(object):
         self.net_g_ms = SynthesizerTrn(
             self.hps_ms.data.filter_length // 2 + 1,
             self.hps_ms.train.segment_size // self.hps_ms.data.hop_length,
+            dev=self.dev,
             **self.hps_ms.model)
         _ = utils.load_checkpoint(self.net_g_path, self.net_g_ms, None)
         if "half" in self.net_g_path and torch.cuda.is_available():
@@ -140,7 +141,57 @@ class Svc(object):
         else:
             _ = self.net_g_ms.eval().to(self.dev)
 
+    def compute_f0_torchcrepe(self,wav_numpy, p_len=None, sampling_rate=44100, hop_length=512):
+        import torchcrepe
+        x = torch.FloatTensor(wav_numpy).to(self.dev)
+        if p_len is None:
+            p_len = x.size(0)//hop_length
+        else:
+            assert abs(p_len-x.size(0)//hop_length) < 4, "pad length error"
+        time_step = hop_length / sampling_rate * 1000
+        f0_min = 50
+        f0_max = 1100
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        f0, _ = torchcrepe.predict(x[None,:], sampling_rate, hop_length, f0_min, f0_max, pad=False, model='full', batch_size=512, device=device, return_periodicity=True)
+        return f0[0]
 
+    def torch_interpolate_f0(self,f0):
+        '''
+        对F0进行插值处理
+        '''
+
+        data = f0[:,None]
+
+        vuv_vector = torch.zeros_like(data, dtype=torch.float32)
+        vuv_vector[data > 0.0] = 1.0
+        vuv_vector[data <= 0.0] = 0.0
+
+        ip_data = data
+
+        frame_number = data.size(0)
+        last_value = 0.0
+        for i in range(frame_number):
+            if data[i] <= 0.0:
+                j = i + 1
+                for j in range(i + 1, frame_number):
+                    if data[j] > 0.0:
+                        break
+                if j < frame_number - 1:
+                    if last_value > 0.0:
+                        step = (data[j] - data[i - 1]) / float(j - i)
+                        for k in range(i, j):
+                            ip_data[k] = data[i - 1] + step * (k - i + 1)
+                    else:
+                        for k in range(i, j):
+                            ip_data[k] = data[j]
+                else:
+                    for k in range(i, frame_number):
+                        ip_data[k] = last_value
+            else:
+                ip_data[i] = data[i]
+                last_value = data[i]
+
+        return ip_data[:,0], vuv_vector[:,0]
 
     def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker):
 
@@ -170,7 +221,10 @@ class Svc(object):
     def infer(self, speaker, tran, raw_path,
               cluster_infer_ratio=0,
               auto_predict_f0=False,
-              noice_scale=0.4):
+              noice_scale=0.4,
+              enhance=True,
+              enhancer_adaptive_key = 0
+              ):
         speaker_id = self.spk2id.__dict__.get(speaker)
         if not speaker_id and type(speaker) is int:
             if len(self.spk2id.__dict__) >= speaker:
@@ -181,7 +235,7 @@ class Svc(object):
             c = c.half()
         with torch.no_grad():
             start = time.time()
-            audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)[0,0].data.float()
+            audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale,enhance=enhance,enhancer_adaptive_key=enhancer_adaptive_key)[0,0].data.float()
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1]

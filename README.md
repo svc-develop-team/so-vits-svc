@@ -17,23 +17,13 @@
 5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
-## 🆕 Update!
-
-> Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
-
 ## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
 ### 🆕 4.0 Version Update Content
 
-- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec)
-- The sampling rate is unified to use 44100Hz
-- Due to the change of hop size and other parameters, as well as the streamlining of some model structures, the required GPU memory for inference is **significantly reduced**. The 44kHz GPU memory usage of version 4.0 is even smaller than the 32kHz usage of version 3.0.
-- Some code structures have been adjusted
-- The dataset creation and training process are consistent with version 3.0, but the model is completely non-universal, and the data set needs to be fully pre-processed again.
-- Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
-- Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
+- Compared to 4.0 adds [NFS-HIFIGAN Enhancer](https://github.com/yxlllc/DDSP-SVC), in the high frequency parts will increase details, ascension is not very big
 
 ## 💬 About Python Version
 
@@ -50,6 +40,16 @@ After conducting tests, we believe that the project runs stably on Python versio
 # contentvec
 wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # Alternatively, you can manually download and place it in the hubert directory
+```
+
+- Pre-trained NSF-HIFIGAN Vocoder: [nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
+  - After unzipping, place putting the four files in the 'pretrain/nsf_hifigan' directory
+
+```shell
+# contentvec
+https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+# Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
+# URL：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
 
 #### **Optional(Strongly recommend)**

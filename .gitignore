@@ -151,3 +151,7 @@ configs/config.json
 filelists/test.txt
 filelists/train.txt
 filelists/val.txt
+pretrain/nsf_hifigan/config.json
+pretrain/nsf_hifigan/model
+pretrain/nsf_hifigan/NOTICE.txt
+pretrain/nsf_hifigan/NOTICE.zh-CN.txt

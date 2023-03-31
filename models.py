@@ -15,6 +15,7 @@ import utils
 from modules.commons import init_weights, get_padding
 from vdecoder.hifigan.models import Generator
 from utils import f0_to_coarse
+from enhancer import Enhancer
 
 class ResidualCouplingBlock(nn.Module):
   def __init__(self,
@@ -319,6 +320,7 @@ class SynthesizerTrn(nn.Module):
     ssl_dim,
     n_speakers,
     sampling_rate=44100,
+    dev = None,
     **kwargs):
 
     super().__init__()
@@ -339,7 +341,9 @@ class SynthesizerTrn(nn.Module):
     self.segment_size = segment_size
     self.gin_channels = gin_channels
     self.ssl_dim = ssl_dim
+    self.dev = dev
     self.emb_g = nn.Embedding(n_speakers, gin_channels)
+    self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
 
     self.pre = nn.Conv1d(ssl_dim, hidden_channels, kernel_size=5, padding=2)
 
@@ -352,7 +356,7 @@ class SynthesizerTrn(nn.Module):
         kernel_size=kernel_size,
         p_dropout=p_dropout
     )
-    hps = {
+    self.hps = {
         "sampling_rate": sampling_rate,
         "inter_channels": inter_channels,
         "resblock": resblock,
@@ -363,7 +367,7 @@ class SynthesizerTrn(nn.Module):
         "upsample_kernel_sizes": upsample_kernel_sizes,
         "gin_channels": gin_channels,
     }
-    self.dec = Generator(h=hps)
+    self.dec = Generator(h=self.hps)
     self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
     self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
     self.f0_decoder = F0Decoder(
@@ -402,7 +406,7 @@ class SynthesizerTrn(nn.Module):
 
     return o, ids_slice, spec_mask, (z, z_p, m_p, logs_p, m_q, logs_q), pred_lf0, norm_lf0, lf0
 
-  def infer(self, c, f0, uv, g=None, noice_scale=0.35, predict_f0=False):
+  def infer(self, c, f0, uv, g=None, noice_scale=0.35, predict_f0=False,enhance=True,enhancer_adaptive_key = 0):
     c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
     g = self.emb_g(g).transpose(1,2)
     x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
@@ -417,4 +421,12 @@ class SynthesizerTrn(nn.Module):
     z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0), noice_scale=noice_scale)
     z = self.flow(z_p, c_mask, g=g, reverse=True)
     o = self.dec(z * c_mask, g=g, f0=f0)
+    if enhance:
+        o, output_sample_rate = self.enhancer.enhance(
+                                                                o[0], 
+                                                                self.hps["sampling_rate"], 
+                                                                f0[:,:,None], 
+                                                                512, 
+                                                                adaptive_key = enhancer_adaptive_key)
+        o = o[None,None,:]
     return o
