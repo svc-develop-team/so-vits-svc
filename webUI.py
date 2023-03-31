@@ -141,10 +141,11 @@ with app:
             vc_output2 = gr.Audio(label="Output Audio")
             def modelAnalysis(model_path,config_path,cluster_model_path,device):
                 global model
-                debug=True
+                debug=False
                 if debug:
                     model = Svc(model_path.name, config_path.name,device=device if device!="Auto" else None,cluster_model_path= cluster_model_path.name if cluster_model_path!=None else "")
                     spks = list(model.spk2id.keys())
+                    device_name = torch.cuda.get_device_properties(model.dev).name if "cuda" in str(model.dev) else str(model.dev)
                     return sid.update(choices = spks,value=spks[0]),"ok,模型被加载到了设备{}之上".format(device_name)
                 else:
                     try:
