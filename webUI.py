@@ -124,7 +124,7 @@ with app:
             sid = gr.Dropdown(label="音色（说话人）")
             sid_output = gr.Textbox(label="Output Message")
 
-            text2tts=gr.Textbox(label="在此输入要转译的文字。注意，使用该功能建议打开F0预测，不然会跟怪")
+            text2tts=gr.Textbox(label="在此输入要转译的文字。注意，使用该功能建议打开F0预测，不然会很怪")
             tts_rate = gr.Number(label="tts语速", value=0)
 
             vc_input3 = gr.Audio(label="上传音频")
