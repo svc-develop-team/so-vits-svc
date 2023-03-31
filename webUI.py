@@ -92,6 +92,8 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     vc_input=(sample_rate, data)
 
     a,b=vc_fn(sid, vc_input, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num)
+    os.remove(output_file)
+    os.remove(save_path2)
     return a,b
 
 app = gr.Blocks()
