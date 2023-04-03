@@ -48,9 +48,9 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
         _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num)
         model.clear_empty()
         os.remove(temp_path)
-        #构建保存文件的路径，并保存到raw文件夹内
+        #构建保存文件的路径，并保存到results文件夹内
         timestamp = str(int(time.time()))
-        output_file = os.path.join("raw", sid + "_" + timestamp + ".wav")
+        output_file = os.path.join("results", sid + "_" + timestamp + ".wav")
         soundfile.write(output_file, _audio, model.target_sample, format="wav")
         return "Success", (model.target_sample, _audio)
     except Exception as e:
