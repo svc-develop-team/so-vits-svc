@@ -92,7 +92,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if self.all_in_mem:
-            return self.cache[i]
+            return self.cache[index]
         else:
             return self.get_audio(self.audiopaths[index][0])
 
