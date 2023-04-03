@@ -16,6 +16,7 @@ import asyncio
 from scipy.io import wavfile
 import librosa
 import torch
+import time
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -47,6 +48,10 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
         _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num)
         model.clear_empty()
         os.remove(temp_path)
+        #构建保存文件的路径，并保存到raw文件夹内
+        timestamp = str(int(time.time()))
+        output_file = os.path.join("raw", sid + "_" + timestamp + ".wav")
+        soundfile.write(output_file, _audio, model.target_sample, format="wav")
         return "Success", (model.target_sample, _audio)
     except Exception as e:
         return "异常信息:"+str(e)+"\n请排障后重试",None
@@ -54,6 +59,7 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
 def tts_func(_text,_rate):
     #使用edge-tts把文字转成音频
     # voice = "zh-CN-XiaoyiNeural"#女性，较高音
+    # voice = "zh-CN-YunxiNeural"#男性
     voice = "zh-CN-YunxiNeural"#男性
     output_file = _text[0:10]+".wav"
     # communicate = edge_tts.Communicate(_text, voice)
@@ -161,6 +167,5 @@ with app:
         vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate], [vc_output1, vc_output2])
         model_analysis_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device],[sid,sid_output])
     app.launch()
-
 
 
