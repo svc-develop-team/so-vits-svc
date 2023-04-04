@@ -1,4 +1,4 @@
-librosa==0.9.2
+librosa==0.9.1
 fairseq==0.12.2
 Flask==2.1.2
 Flask_Cors==3.0.10
