@@ -145,18 +145,24 @@ class Svc(object):
 
 
 
-    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter):
+    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
-        f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
+        if F0_mean_pooling == True:
+            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size)
+            if f0_filter and sum(f0) == 0:
+                raise F0FilterException("未检测到人声")
+            f0 = torch.from_numpy(f0).float()
+            uv = torch.from_numpy(uv).float()
+        if F0_mean_pooling == False:
+            f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
+            if f0_filter and sum(f0) == 0:
+                raise F0FilterException("未检测到人声")
+            f0, uv = utils.interpolate_f0(f0)
+            f0 = torch.FloatTensor(f0)
+            uv = torch.FloatTensor(uv)
 
-        if f0_filter and sum(f0) == 0:
-            raise F0FilterException("未检测到人声")
-
-        f0, uv = utils.interpolate_f0(f0)
-        f0 = torch.FloatTensor(f0)
-        uv = torch.FloatTensor(uv)
         f0 = f0 * 2 ** (tran / 12)
         f0 = f0.unsqueeze(0).to(self.dev)
         uv = uv.unsqueeze(0).to(self.dev)
@@ -178,14 +184,16 @@ class Svc(object):
               cluster_infer_ratio=0,
               auto_predict_f0=False,
               noice_scale=0.4,
-              f0_filter=False):
+              f0_filter=False,
+              F0_mean_pooling=False
+              ):
 
         speaker_id = self.spk2id.__dict__.get(speaker)
         if not speaker_id and type(speaker) is int:
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
-        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter)
+        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling)
         if "half" in self.net_g_path and torch.cuda.is_available():
             c = c.half()
         with torch.no_grad():
@@ -210,7 +218,9 @@ class Svc(object):
                         pad_seconds=0.5,
                         clip_seconds=0,
                         lg_num=0,
-                        lgr_num =0.75):
+                        lgr_num =0.75,
+                        F0_mean_pooling = False
+                        ):
         wav_path = raw_audio_path
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
         audio_data, audio_sr = slicer.chunks2audio(wav_path, chunks)
@@ -247,7 +257,8 @@ class Svc(object):
                 out_audio, out_sr = self.infer(spk, tran, raw_path,
                                                     cluster_infer_ratio=cluster_infer_ratio,
                                                     auto_predict_f0=auto_predict_f0,
-                                                    noice_scale=noice_scale
+                                                    noice_scale=noice_scale,
+                                                    F0_mean_pooling = F0_mean_pooling
                                                     )
                 _audio = out_audio.cpu().numpy()
                 pad_len = int(self.target_sample * pad_seconds)

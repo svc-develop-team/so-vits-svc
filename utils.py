@@ -6,7 +6,9 @@ import argparse
 import logging
 import json
 import subprocess
+import warnings
 import random
+import functools
 
 import librosa
 import numpy as np
@@ -15,6 +17,8 @@ import torch
 from torch.nn import functional as F
 from modules.commons import sequence_mask
 from hubert import hubert_model
+from modules.crepe import CrepePitchExtractor
+
 MATPLOTLIB_FLAG = False
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -46,6 +50,21 @@ f0_mel_max = 1127 * np.log(1 + f0_max / 700)
 #         factor = torch.ones(f0.shape[0], 1, 1).to(f0.device)
 #     f0_norm = (f0 - means.unsqueeze(-1)) * factor.unsqueeze(-1)
 #     return f0_norm
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used."""
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
+        warnings.warn("Call to deprecated function {}.".format(func.__name__),
+                      category=DeprecationWarning,
+                      stacklevel=2)
+        warnings.simplefilter('default', DeprecationWarning)  # reset filter
+        return func(*args, **kwargs)
+    return new_func
+
 def normalize_f0(f0, x_mask, uv, random_scale=True):
     # calculate means based on x_mask
     uv_sum = torch.sum(uv, dim=1, keepdim=True)
@@ -62,6 +81,18 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
         exit(0)
     return f0_norm * x_mask
 
+def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512):
+    x = wav_numpy
+    if p_len is None:
+        p_len = x.shape[0]//hop_length
+    else:
+        assert abs(p_len-x.shape[0]//hop_length) < 4, "pad length error"
+    
+    f0_min = 50
+    f0_max = 1100
+    F0Creper = CrepePitchExtractor(hop_length=hop_length,f0_min=f0_min,f0_max=f0_max)
+    f0,uv = F0Creper(x[None,:].float(),sampling_rate,pad_to=p_len)
+    return f0,uv
 
 def plot_data_to_numpy(x, y):
     global MATPLOTLIB_FLAG

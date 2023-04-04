@@ -36,6 +36,7 @@ def main():
     parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt", help='聚类模型路径，如果没有训练聚类则随便填')
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则填0即可')
     parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果自动切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒/s')
+    parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False, help='是否对F0使用均值滤波器(池化)，对部分哑音可能有改善。注意，启动该选项会导致推理速度下降，默认关闭')
 
     # 不用动的部分
     parser.add_argument('-sd', '--slice_db', type=int, default=-40, help='默认-40，嘈杂的音频可以-30，干声保留呼吸可以-50')
@@ -61,6 +62,7 @@ def main():
     clip = args.clip
     lg = args.linear_gradient
     lgr = args.linear_gradient_retain
+    F0_mean_pooling = args.f0_mean_pooling
 
     infer_tool.fill_a_to_b(trans, clean_names)
     for clean_name, tran in zip(clean_names, trans):
@@ -105,7 +107,8 @@ def main():
                     out_audio, out_sr = svc_model.infer(spk, tran, raw_path,
                                                         cluster_infer_ratio=cluster_infer_ratio,
                                                         auto_predict_f0=auto_predict_f0,
-                                                        noice_scale=noice_scale
+                                                        noice_scale=noice_scale,
+                                                        F0_mean_pooling = F0_mean_pooling
                                                         )
                     _audio = out_audio.cpu().numpy()
                     pad_len = int(svc_model.target_sample * pad_seconds)
