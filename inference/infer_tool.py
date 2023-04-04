@@ -153,8 +153,8 @@ class Svc(object):
             f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev)
             if f0_filter and sum(f0) == 0:
                 raise F0FilterException("未检测到人声")
-            f0 = torch.from_numpy(f0).float()
-            uv = torch.from_numpy(uv).float()
+            f0 = torch.FloatTensor(list(f0))
+            uv = torch.FloatTensor(list(uv))
         if F0_mean_pooling == False:
             f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
             if f0_filter and sum(f0) == 0:
