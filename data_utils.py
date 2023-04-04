@@ -98,7 +98,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         if self.all_in_mem:
             return self.random_slice(*self.cache[index])
         else:
-            return self.random_slice(self.get_audio(self.audiopaths[index][0]))
+            return self.random_slice(*self.get_audio(self.audiopaths[index][0]))
 
     def __len__(self):
         return len(self.audiopaths)
