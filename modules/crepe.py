@@ -89,7 +89,7 @@ class BasePitchExtractor:
         if self.keep_zeros:
             return f0
         
-        vuv_vector = np.zeros_like(f0)
+        vuv_vector = torch.zeros_like(f0)
         vuv_vector[f0 > 0.0] = 1.0
         vuv_vector[f0 <= 0.0] = 0.0
         
@@ -107,6 +107,7 @@ class BasePitchExtractor:
     
         # 大概可以用 torch 重写?
         f0 = np.interp(time_frame, time_org, f0, left=f0[0], right=f0[-1])
+        vuv_vector = vuv_vector.cpu().numpy()
         vuv_vector = np.ceil(scipy.ndimage.zoom(vuv_vector,pad_to/len(vuv_vector),order = 0))
         
         return f0,vuv_vector
@@ -225,11 +226,11 @@ class MaskedMedianPool1d(nn.Module):
         mask = mask.unfold(2, self.kernel_size, self.stride)
 
         x = x.contiguous().view(x.size()[:3] + (-1,))
-        mask = mask.contiguous().view(mask.size()[:3] + (-1,))
+        mask = mask.contiguous().view(mask.size()[:3] + (-1,)).to(x.device)
 
         # Combine the mask with the input tensor
         #x_masked = torch.where(mask.bool(), x, torch.fill_(torch.zeros_like(x),float("inf")))
-        x_masked = torch.where(mask.bool(), x, torch.FloatTensor([float("inf")]))
+        x_masked = torch.where(mask.bool(), x, torch.FloatTensor([float("inf")]).to(x.device))
 
         # Sort the masked tensor along the last dimension
         x_sorted, _ = torch.sort(x_masked, dim=-1)
@@ -260,6 +261,7 @@ class CrepePitchExtractor(BasePitchExtractor):
         f0_max: float = 1100.0,
         threshold: float = 0.05,
         keep_zeros: bool = False,
+        device = None,
         model: Literal["full", "tiny"] = "full",
         use_fast_filters: bool = True,
     ):
@@ -269,10 +271,13 @@ class CrepePitchExtractor(BasePitchExtractor):
         self.model = model
         self.use_fast_filters = use_fast_filters
         self.hop_length = hop_length
-
+        if device is None:
+            self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.dev = torch.device(device)
         if self.use_fast_filters:
-            self.median_filter = MaskedMedianPool1d(3, 1, 1)
-            self.mean_filter = MaskedAvgPool1d(3, 1, 1)
+            self.median_filter = MaskedMedianPool1d(3, 1, 1).to(device)
+            self.mean_filter = MaskedAvgPool1d(3, 1, 1).to(device)
 
     def __call__(self, x, sampling_rate=44100, pad_to=None):
         """Extract pitch using crepe.
@@ -290,7 +295,7 @@ class CrepePitchExtractor(BasePitchExtractor):
         assert x.ndim == 2, f"Expected 2D tensor, got {x.ndim}D tensor."
         assert x.shape[0] == 1, f"Expected 1 channel, got {x.shape[0]} channels."
 
-
+        x = x.to(self.dev)
         f0, pd = torchcrepe.predict(
             x,
             sampling_rate,

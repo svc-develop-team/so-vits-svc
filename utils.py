@@ -81,7 +81,7 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
         exit(0)
     return f0_norm * x_mask
 
-def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512):
+def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512,device=None):
     x = wav_numpy
     if p_len is None:
         p_len = x.shape[0]//hop_length
@@ -90,7 +90,7 @@ def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_len
     
     f0_min = 50
     f0_max = 1100
-    F0Creper = CrepePitchExtractor(hop_length=hop_length,f0_min=f0_min,f0_max=f0_max)
+    F0Creper = CrepePitchExtractor(hop_length=hop_length,f0_min=f0_min,f0_max=f0_max,device=device)
     f0,uv = F0Creper(x[None,:].float(),sampling_rate,pad_to=p_len)
     return f0,uv
 

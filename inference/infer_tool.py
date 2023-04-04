@@ -150,7 +150,7 @@ class Svc(object):
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
         if F0_mean_pooling == True:
-            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size)
+            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev)
             if f0_filter and sum(f0) == 0:
                 raise F0FilterException("未检测到人声")
             f0 = torch.from_numpy(f0).float()
