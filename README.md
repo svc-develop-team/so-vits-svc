@@ -134,9 +134,11 @@ Required parameters:
 - -n, --clean_names: a list of wav file names located in the raw folder.
 - -t, --trans: pitch adjustment, supports positive and negative (semitone) values.
 - -s, --spk_list: target speaker name for synthesis.
-- -cl, --clip: voice auto-split,set to 0 to turn off,duration in seconds.
+- -cl, --clip: voice forced slicing, set to 0 to turn off(default), duration in seconds.
 
 Optional parameters: see the next section
+- -lg, --linear_gradient：The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
+- -fmp, --f0_mean_pooling：是否对F0使用均值滤波器(池化)，对部分哑音可能有改善。注意，启动该选项会导致推理速度下降，默认关闭
 - -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
 - -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
@@ -148,7 +150,7 @@ If the results from the previous section are satisfactory, or if you didn't unde
 ### Automatic f0 prediction
 
 During the 4.0 model training, an f0 predictor is also trained, which can be used for automatic pitch prediction during voice conversion. However, if the effect is not good, manual pitch prediction can be used instead. But please do not enable this feature when converting singing voice as it may cause serious pitch shifting!
-- Set "auto_predict_f0" to true in inference_main.
+- Set `auto_predict_f0` to true in inference_main.
 
 ### Cluster-based timbre leakage control
 
@@ -210,9 +212,7 @@ For some reason the author deleted the original repository. Because of the negli
 
 ##### 第一千零一十九条 
 
-任何组织或者个人不得以丑化、污损，或者利用信息技术手段伪造等方式侵害他人的肖像权。未经肖像权人同意，不得制作、使用、公开肖像权人的肖像，但是法律另有规定的除外。
-未经肖像权人同意，肖像作品权利人不得以发表、复制、发行、出租、展览等方式使用或者公开肖像权人的肖像。
-对自然人声音的保护，参照适用肖像权保护的有关规定。
+任何组织或者个人不得以丑化、污损，或者利用信息技术手段伪造等方式侵害他人的肖像权。未经肖像权人同意，不得制作、使用、公开肖像权人的肖像，但是法律另有规定的除外。未经肖像权人同意，肖像作品权利人不得以发表、复制、发行、出租、展览等方式使用或者公开肖像权人的肖像。对自然人声音的保护，参照适用肖像权保护的有关规定。
 
 #####  第一千零二十四条 
 
@@ -220,8 +220,7 @@ For some reason the author deleted the original repository. Because of the negli
 
 #####  第一千零二十七条
 
-【作品侵害名誉权】行为人发表的文学、艺术作品以真人真事或者特定人为描述对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担民事责任。
-行为人发表的文学、艺术作品不以特定人为描述对象，仅其中的情节与该特定人的情况相似的，不承担民事责任。  
+【作品侵害名誉权】行为人发表的文学、艺术作品以真人真事或者特定人为描述对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担民事责任。行为人发表的文学、艺术作品不以特定人为描述对象，仅其中的情节与该特定人的情况相似的，不承担民事责任。  
 
 #### 《[中华人民共和国宪法](http://www.gov.cn/guoqing/2018-03/22/content_5276318.htm)》
 

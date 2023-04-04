@@ -25,17 +25,16 @@ def main():
     # 一定要设置的部分
     parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_0.pth", help='模型路径')
     parser.add_argument('-c', '--config_path', type=str, default="configs/config.json", help='配置文件路径')
-    parser.add_argument('-cl', '--clip', type=float, default=0, help='音频自动切片，0为不切片，单位为秒/s')
+    parser.add_argument('-cl', '--clip', type=float, default=0, help='音频强制切片，默认0为自动切片，单位为秒/s')
     parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"], help='wav文件名列表，放在raw文件夹下')
     parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0], help='音高调整，支持正负（半音）')
     parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'], help='合成目标说话人名称')
 
     # 可选项部分
-    parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False,
-                        help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
+    parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False,help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
     parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt", help='聚类模型路径，如果没有训练聚类则随便填')
-    parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则填0即可')
-    parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果自动切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒/s')
+    parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可')
+    parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒')
     parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False, help='是否对F0使用均值滤波器(池化)，对部分哑音可能有改善。注意，启动该选项会导致推理速度下降，默认关闭')
 
     # 不用动的部分
