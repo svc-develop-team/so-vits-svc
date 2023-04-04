@@ -3,7 +3,6 @@ try:
     from typing import Literal
 except Exception as e:
     from typing_extensions import Literal
-import resampy
 import numpy as np
 import torch
 import torchcrepe
