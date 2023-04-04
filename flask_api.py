@@ -30,10 +30,13 @@ def voice_change_model():
 
     # 模型推理
     if raw_infer:
-        out_audio, out_sr = svc_model.infer(speaker_id, f_pitch_change, input_wav_path)
+        # out_audio, out_sr = svc_model.infer(speaker_id, f_pitch_change, input_wav_path)
+        out_audio, out_sr = svc_model.infer(speaker_id, f_pitch_change, input_wav_path, cluster_infer_ratio=0,
+                                            auto_predict_f0=False, noice_scale=0.4, f0_filter=False)
         tar_audio = torchaudio.functional.resample(out_audio, svc_model.target_sample, daw_sample)
     else:
-        out_audio = svc.process(svc_model, speaker_id, f_pitch_change, input_wav_path)
+        out_audio = svc.process(svc_model, speaker_id, f_pitch_change, input_wav_path, cluster_infer_ratio=0,
+                                auto_predict_f0=False, noice_scale=0.4, f0_filter=False)
         tar_audio = torchaudio.functional.resample(torch.from_numpy(out_audio), svc_model.target_sample, daw_sample)
     # 返回音频
     out_wav_path = io.BytesIO()
@@ -50,7 +53,8 @@ if __name__ == '__main__':
     # 每个模型和config是唯一对应的
     model_name = "logs/32k/G_174000-Copy1.pth"
     config_name = "configs/config.json"
-    svc_model = Svc(model_name, config_name)
+    cluster_model_path = "logs/44k/kmeans_10000.pt"
+    svc_model = Svc(model_name, config_name, cluster_model_path=cluster_model_path)
     svc = RealTimeVC()
     # 此处与vst插件对应，不建议更改
     app.run(port=6842, host="0.0.0.0", debug=False, threaded=False)
