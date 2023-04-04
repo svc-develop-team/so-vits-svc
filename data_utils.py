@@ -79,6 +79,10 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         assert abs(audio_norm.shape[1]-lmin * self.hop_length) < 3 * self.hop_length
         spec, c, f0, uv = spec[:, :lmin], c[:, :lmin], f0[:lmin], uv[:lmin]
         audio_norm = audio_norm[:, :lmin * self.hop_length]
+
+        return c, f0, spec, audio_norm, spk, uv
+
+    def random_slice(self, c, f0, spec, audio_norm, spk, uv):
         # if spec.shape[1] < 30:
         #     print("skip too short audio:", filename)
         #     return None
@@ -92,9 +96,9 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if self.all_in_mem:
-            return self.cache[index]
+            return self.random_slice(*self.cache[index])
         else:
-            return self.get_audio(self.audiopaths[index][0])
+            return self.random_slice(self.get_audio(self.audiopaths[index][0]))
 
     def __len__(self):
         return len(self.audiopaths)
