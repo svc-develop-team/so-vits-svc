@@ -144,7 +144,6 @@ Optional parameters: see the next section
 - `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
 - `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
-- `-fmp` | `--f0_mean_pooling`: Whether the mean filter (pooling) is used for F0 to improve some matte sounds. Note that enabling this option causes reasoning to slow down.
 
 ## 🤔 Optional Settings
 
