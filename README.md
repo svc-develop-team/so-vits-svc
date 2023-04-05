@@ -131,19 +131,19 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ```
 
 Required parameters:
-- -m, --model_path: path to the model.
-- -c, --config_path: path to the configuration file.
-- -n, --clean_names: a list of wav file names located in the raw folder.
-- -t, --trans: pitch adjustment, supports positive and negative (semitone) values.
-- -s, --spk_list: target speaker name for synthesis.
-- -cl, --clip: voice forced slicing, set to 0 to turn off(default), duration in seconds.
+- `-m` | `--model_path`: path to the model.
+- `-c` | `--config_path`: path to the configuration file.
+- `-n` | `--clean_names`: a list of wav file names located in the raw folder.
+- `-t` | `--trans`: pitch adjustment, supports positive and negative (semitone) values.
+- `-s` | `--spk_list`: target speaker name for synthesis.
+- `-cl` | `--clip`: voice forced slicing, set to 0 to turn off(default), duration in seconds.
 
 Optional parameters: see the next section
-- -lg, --linear_gradient: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
-- -fmp, --f0_mean_pooling: Apply mean filter (pooling) to f0，which may improve some hoarse sounds. Enabling this option will reduce inference speed.
-- -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
-- -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
-- -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
+- `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
+- `-fmp` | `--f0_mean_pooling`: Apply mean filter (pooling) to f0，which may improve some hoarse sounds. Enabling this option will reduce inference speed.
+- `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
+- `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
+- `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
 
 ## 🤔 Optional Settings
 
