@@ -1,0 +1,92 @@
+name: Bug report
+description: Encountered an bug?!
+title: '[Bug]: '
+labels: [ "bug?" ]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Please fill in the following information according to your actual environment
+
+  - type: input
+    id: System
+    attributes:
+      label: OS version
+      description: Windows run `winver` | Linux run `uname -a`
+    validations:
+      required: true
+
+  - type: input
+    id: GPU
+    attributes:
+      label: GPU
+      description: Run `nvidia-smi`
+    validations:
+      required: true
+
+  - type: input
+    id: PythonVersion
+    attributes:
+      label: Python version
+      description: Run `python -V`
+    validations:
+      required: true
+
+  - type: input
+    id: PyTorchVersion
+    attributes:
+      label: PyTorch version
+      description: Run `pip show torch`
+    validations:
+      required: true
+
+  - type: dropdown
+    id: Branch
+    attributes:
+      label: Branch of sovits
+      options:
+        - 4.0(Default)
+        - 4.0-v2
+        - 3.0-32k
+        - 3.0-48k
+    validations:
+      required: true
+
+  - type: input
+    id: DatasetSource
+    attributes:
+      label: Dataset source (Used to judge the dataset quality)
+      description: Such as UVR-processed streaming audio / Recorded in recording studio
+    validations:
+      required: true
+
+  - type: input
+    id: WhereOccurs
+    attributes:
+      label: Where thr problem occurs or what command you executed
+      description: Such as Preprocessing / Training / `python preprocess_hubert_f0.py`
+    validations:
+      required: true
+
+  - type: textarea
+    id: Description
+    attributes:
+      label: Situation description
+      description: Describe your situation here, the more detailed the better.
+    validations:
+      required: true
+
+  - type: textarea
+    id: Log
+    attributes:
+      label: Log
+      description: All information output from the command you executed to the end of execution (include the command). You can paste them to [pastebin.com](https://pastebin.com/) then paste the short link here.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: Supplementary
+    attributes:
+      label: Supplementary description
