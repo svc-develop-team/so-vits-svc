@@ -107,7 +107,13 @@ python preprocess_flist_config.py
 python preprocess_hubert_f0.py
 ```
 
-执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除dataset_raw文件夹了
+执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除 dataset_raw 文件夹了
+
+#### 此时可以在生成的config.json修改部分参数
+
+* `keep_ckpts`：训练时保留最后几个模型，`0`为保留所有，默认只保留最后`3`个
+
+* `all_in_mem`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量*远大于*数据集体积时可以启用
 
 ## 🏋️‍♀️ 训练
 
@@ -115,13 +121,9 @@ python preprocess_hubert_f0.py
 python train.py -c configs/config.json -m 44k
 ```
 
-注：训练时会自动清除老的模型，只保留最新3个模型，如果想防止过拟合需要自己手动备份模型记录点,或修改配置文件keep_ckpts 0为永不清除
-
 ## 🤖 推理
 
 使用 [inference_main.py](inference_main.py)
-
-截止此处，4.0使用方法（训练、推理）和3.0完全一致，没有任何变化（推理增加了命令行支持）
 
 ```shell
 # 例

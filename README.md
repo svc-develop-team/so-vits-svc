@@ -109,19 +109,21 @@ python preprocess_hubert_f0.py
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
+#### You can modify some parameters in the generated config.json
+
+* `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
+
+* `all_in_mem`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is much larger than your dataset.
+
 ## 🏋️‍♀️ Training
 
 ```shell
 python train.py -c configs/config.json -m 44k
 ```
 
-Note: During training, the old models will be automatically cleared and only the latest three models will be kept. If you want to prevent overfitting, you need to manually backup the model checkpoints, or modify the configuration file `keep_ckpts` to 0 to never clear them.
-
 ## 🤖 Inference
 
 Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
-
-Up to this point, the usage of version 4.0 (training and inference) is exactly the same as version 3.0, with no changes (inference now has command line support).
 
 ```shell
 # Example
