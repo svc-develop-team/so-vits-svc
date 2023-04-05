@@ -21,7 +21,8 @@
     "use_sr": true,
     "max_speclen": 512,
     "port": "8001",
-    "keep_ckpts": 3
+    "keep_ckpts": 3,
+    "all_in_mem": false
   },
   "data": {
     "training_files": "filelists/train.txt",
