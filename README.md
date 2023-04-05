@@ -139,8 +139,8 @@ Required parameters:
 - -cl, --clip: voice forced slicing, set to 0 to turn off(default), duration in seconds.
 
 Optional parameters: see the next section
-- -lg, --linear_gradient：The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
-- -fmp, --f0_mean_pooling：是否对F0使用均值滤波器(池化)，对部分哑音可能有改善。注意，启动该选项会导致推理速度下降，默认关闭
+- -lg, --linear_gradient: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
+- -fmp, --f0_mean_pooling: Apply mean filter (pooling) to f0，which may improve some hoarse sounds. Enabling this option will reduce inference speed.
 - -a, --auto_predict_f0: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - -cm, --cluster_model_path: path to the clustering model, fill in any value if clustering is not trained.
 - -cr, --cluster_infer_ratio: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
