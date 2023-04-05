@@ -113,7 +113,7 @@ After completing the above steps, the dataset directory will contain the preproc
 
 * `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
 
-* `all_in_mem`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is much larger than your dataset.
+* `all_in_mem`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
 
 ## 🏋️‍♀️ Training
 
