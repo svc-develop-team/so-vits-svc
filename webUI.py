@@ -31,7 +31,7 @@ if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
         cuda.append("cuda:{}".format(i))
 
-def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num):
+def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling):
     global model
     try:
         if input_audio is None:
@@ -45,7 +45,7 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             audio = librosa.to_mono(audio.transpose(1, 0))
         temp_path = "temp.wav"
         soundfile.write(temp_path, audio, sampling_rate, format="wav")
-        _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num)
+        _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling)
         model.clear_empty()
         os.remove(temp_path)
         #构建保存文件的路径，并保存到results文件夹内
@@ -80,7 +80,7 @@ def tts_func(_text,_rate):
     p.wait() 
     return output_file
 
-def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate):
+def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling):
     #使用edge-tts把文字转成音频
     output_file=tts_func(text2tts,tts_rate)
 
@@ -97,7 +97,7 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     sample_rate, data=gr_pu.audio_from_file(save_path2)
     vc_input=(sample_rate, data)
 
-    a,b=vc_fn(sid, vc_input, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num)
+    a,b=vc_fn(sid, vc_input, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling)
     os.remove(output_file)
     os.remove(save_path2)
     return a,b
@@ -137,6 +137,7 @@ with app:
             vc_transform = gr.Number(label="变调（整数，可以正负，半音数量，升高八度就是12）", value=0)
             cluster_ratio = gr.Number(label="聚类模型混合比例，0-1之间，默认为0不启用聚类，能提升音色相似度，但会导致咬字下降（如果使用建议0.5左右）", value=0)
             auto_f0 = gr.Checkbox(label="自动f0预测，配合聚类模型f0预测效果更好,会导致变调功能失效（仅限转换语音，歌声不要勾选此项会究极跑调）", value=False)
+            F0_mean_pooling = gr.Checkbox(label="是否对F0使用均值滤波器(池化)，对部分哑音有改善。注意，启动该选项会导致推理速度下降，默认关闭", value=False)
             slice_db = gr.Number(label="切片阈值", value=-40)
             noise_scale = gr.Number(label="noise_scale 建议不要动，会影响音质，玄学参数", value=0.4)
             cl_num = gr.Number(label="音频自动切片，0为不切片，单位为秒/s", value=0)
@@ -163,8 +164,8 @@ with app:
                         return sid.update(choices = spks,value=spks[0]),"ok,模型被加载到了设备{}之上".format(device_name)
                     except Exception as e:
                         return "","异常信息:"+str(e)+"\n请排障后重试"
-        vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num], [vc_output1, vc_output2])
-        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate], [vc_output1, vc_output2])
+        vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling], [vc_output1, vc_output2])
+        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling], [vc_output1, vc_output2])
         model_analysis_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device],[sid,sid_output])
     app.launch()
 
