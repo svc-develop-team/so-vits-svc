@@ -49,10 +49,13 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
         model.clear_empty()
         os.remove(temp_path)
         #构建保存文件的路径，并保存到results文件夹内
-        timestamp = str(int(time.time()))
-        output_file = os.path.join("results", sid + "_" + timestamp + ".wav")
-        soundfile.write(output_file, _audio, model.target_sample, format="wav")
-        return "Success", (model.target_sample, _audio)
+        try:
+            timestamp = str(int(time.time()))
+            output_file = os.path.join("./results", sid + "_" + timestamp + ".wav")
+            soundfile.write(output_file, _audio, model.target_sample, format="wav")
+            return "Success", (model.target_sample, _audio)
+        except Exception as e:
+            return "自动保存失败，请手动保存，音乐输出见下", (model.target_sample, _audio)    
     except Exception as e:
         return "异常信息:"+str(e)+"\n请排障后重试",None
     
