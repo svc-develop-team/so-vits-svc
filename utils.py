@@ -17,7 +17,6 @@ import torch
 from torch.nn import functional as F
 from modules.commons import sequence_mask
 from hubert import hubert_model
-from modules.crepe import CrepePitchExtractor
 
 MATPLOTLIB_FLAG = False
 
@@ -82,6 +81,7 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
     return f0_norm * x_mask
 
 def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512,device=None):
+    from modules.crepe import CrepePitchExtractor
     x = wav_numpy
     if p_len is None:
         p_len = x.shape[0]//hop_length
