@@ -169,7 +169,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 ### F0均值滤波
 
-介绍：对F0进行均值滤波，可以有效的减少因音高推测波动造成的哑音（由于混响或和声等造成的哑音暂时不能消除）。该功能在部分歌曲上提升巨大，如果歌曲推理后出现哑音可以考虑开启。
+介绍：对F0进行均值滤波，可以有效的减少因音高推测波动造成的哑音（由于混响或和声等造成的哑音暂时不能消除）。该功能在部分歌曲上提升巨大，但是在部分歌曲上会出现跑调的问题。如果歌曲推理后出现哑音可以考虑开启。
 + 在inference_main中设置f0_mean_pooling为true即可
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
