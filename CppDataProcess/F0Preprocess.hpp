@@ -32,3 +32,5 @@ private:
 	double* rf0 = nullptr;
 	int64_t f0Len = 0;
 };
+
+std::vector<long long> getAligments(size_t specLen, size_t hubertLen);
