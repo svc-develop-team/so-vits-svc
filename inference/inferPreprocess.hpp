@@ -173,3 +173,20 @@ std::vector<long long> F0PreProcess::GetF0AndOtherInput(const double* audio, int
     delete[] O0f;
 	return Of0;
 }
+
+inline std::vector<long long> getAligments(size_t specLen, size_t hubertLen)
+{
+	std::vector<long long> mel2ph(specLen + 1, 0);
+
+	size_t startFrame = 0;
+	const double ph_durs = static_cast<double>(specLen) / static_cast<double>(hubertLen);
+	for (size_t iph = 0; iph < hubertLen; ++iph)
+	{
+		const auto endFrame = static_cast<size_t>(round(static_cast<double>(iph) * ph_durs + ph_durs));
+		for (auto j = startFrame; j < endFrame + 1; ++j)
+			mel2ph[j] = static_cast<long long>(iph) + 1;
+		startFrame = endFrame + 1;
+	}
+
+	return mel2ph;
+}
