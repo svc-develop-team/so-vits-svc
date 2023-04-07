@@ -30,7 +30,7 @@ public:
 	long long* f0Log();
 	int64_t getLen()const { return f0Len; }
 	std::vector<long long> GetF0AndOtherInput(const double* audio, int64_t audioLen, int64_t hubLen, int64_t tran);
-	
+	std::vector<float> GetF0AndOtherInputF0(const double* audio, int64_t audioLen, int64_t tran);
 private:
 	double* rf0 = nullptr;
 	int64_t f0Len = 0;
