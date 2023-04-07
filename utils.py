@@ -151,7 +151,7 @@ def interpolate_f0(f0):
                 for k in range(i, frame_number):
                     ip_data[k] = last_value
         else:
-            ip_data[i] = data[i]
+            ip_data[i] = data[i] #这里可能存在一个没有必要的拷贝
             last_value = data[i]
 
     return ip_data[:,0], vuv_vector[:,0]
