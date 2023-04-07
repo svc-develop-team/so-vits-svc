@@ -2,6 +2,13 @@
 #include "World/src/world/stonemask.h"
 #include "World/src/world/matlabfunctions.h"
 
+struct SliceResult
+{
+	std::vector<unsigned long long>	SliceOffset;
+	std::vector<bool> SliceTag;
+	cutResult(std::vector<unsigned long long>&& O, std::vector<bool>&& T) :SliceOffset(O), SliceTag(T) {}
+};
+
 class F0PreProcess
 {
 public:
