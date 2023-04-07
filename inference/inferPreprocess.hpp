@@ -190,3 +190,59 @@ inline std::vector<long long> getAligments(size_t specLen, size_t hubertLen)
 
 	return mel2ph;
 }
+
+std::vector<float> F0PreProcess::GetF0AndOtherInputF0(const double* audio, int64_t audioLen, int64_t tran)
+{
+	compute_f0(audio, audioLen);
+	for (int64_t i = 0; i < f0Len; ++i)
+	{
+		rf0[i] = log2(rf0[i] * pow(2.0, static_cast<double>(tran) / 12.0));
+		if (rf0[i] < 0.001)
+			rf0[i] = NAN;
+	}
+	const int64_t specLen = audioLen / hop;
+	InterPf0(specLen);
+
+    std::vector<float> Of0(specLen, 0.0);
+
+    double last_value = 0.0;
+    for (int64_t i = 0; i < specLen; ++i)
+    {
+        if (rf0[i] <= 0.0)
+        {
+            int64_t j = i + 1;
+            for (; j < specLen; ++j)
+            {
+                if (rf0[j] > 0.0)
+                    break;
+            }
+            if (j < specLen - 1)
+            {
+                if (last_value > 0.0)
+                {
+                    const auto step = (rf0[j] - rf0[i - 1]) / double(j - i);
+                    for (int64_t k = i; k < j; ++k)
+                        Of0[k] = float(rf0[i - 1] + step * double(k - i + 1));
+                }
+                else
+                    for (int64_t k = i; k < j; ++k)
+                        Of0[k] = float(rf0[j]);
+                i = j;
+            }
+            else
+            {
+                for (int64_t k = i; k < specLen; ++k)
+                    Of0[k] = float(last_value);
+                i = specLen;
+            }
+        }
+        else
+        {
+            Of0[i] = float(rf0[i - 1]);
+            last_value = rf0[i];
+        }
+    }
+    delete[] rf0;
+    rf0 = nullptr;
+	return Of0;
+}
