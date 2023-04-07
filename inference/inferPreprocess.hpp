@@ -27,6 +27,24 @@ private:
 	int64_t f0Len = 0;
 };
 
+void F0PreProcess::compute_f0(const double* audio, int64_t len)
+{
+	DioOption Doption;
+	InitializeDioOption(&Doption);
+	Doption.f0_ceil = 800;
+	Doption.frame_period = 1000.0 * hop / fs;
+	f0Len = GetSamplesForDIO(fs, (int)len, Doption.frame_period);
+	const auto tp = new double[f0Len];
+	const auto tmpf0 = new double[f0Len];
+	rf0 = new double[f0Len];
+	Dio(audio, (int)len, fs, &Doption, tp, tmpf0);
+	StoneMask(audio, (int)len, fs, tp, tmpf0, (int)f0Len, rf0);
+	delete[] tmpf0;
+	delete[] tp;
+}
+
+std::vector<double> arange(double start,double end,double step = 1.0,double div = 1.0)
+
 void F0PreProcess::InterPf0(int64_t len)
 {
 	const auto xi = arange(0.0, (double)f0Len * (double)len, (double)f0Len, (double)len);
