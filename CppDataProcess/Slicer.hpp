@@ -9,6 +9,17 @@ struct SliceResult
 	cutResult(std::vector<unsigned long long>&& O, std::vector<bool>&& T) :SliceOffset(O), SliceTag(T) {}
 };
 
+double getAvg(const short* start, const short* end)
+{
+	const auto size = end - start + 1;
+	auto avg = (double)(*start);
+	for (auto i = 1; i < size; i++)
+	{
+		avg = avg + (abs((double)start[i]) - avg) / (double)(i + 1ull);
+	}
+	return avg;
+}
+
 inline SliceResult SliceWav(Wav& input, double threshold, unsigned long minLen, unsigned short frame_len, unsigned short frame_shift)
 {
 	const auto header = input.getHeader();
@@ -68,3 +79,4 @@ inline SliceResult SliceWav(Wav& input, double threshold, unsigned long minLen, 
 	}
 	return { std::move(output),std::move(tag) };
 }
+
