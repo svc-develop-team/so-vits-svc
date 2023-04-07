@@ -158,3 +158,18 @@ inline SliceResult SliceWav(Wav& input, double threshold, unsigned long minLen, 
 	return { std::move(output),std::move(tag) };
 }
 
+std::vector<long long> F0PreProcess::GetF0AndOtherInput(const double* audio, int64_t audioLen, int64_t hubLen, int64_t tran)
+{
+	compute_f0(audio, audioLen);
+	for (int64_t i = 0; i < f0Len; ++i)
+	{
+		rf0[i] = rf0[i] * pow(2.0, static_cast<double>(tran) / 12.0);
+		if (rf0[i] < 0.001)
+			rf0[i] = NAN;
+	}
+	InterPf0(hubLen);
+	const auto O0f = f0Log();
+	std::vector<long long> Of0(O0f, O0f + f0Len);
+    delete[] O0f;
+	return Of0;
+}
