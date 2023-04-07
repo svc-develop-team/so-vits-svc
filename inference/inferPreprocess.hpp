@@ -29,6 +29,8 @@ public:
 	void InterPf0(int64_t len);
 	long long* f0Log();
 	int64_t getLen()const { return f0Len; }
+	std::vector<long long> GetF0AndOtherInput(const double* audio, int64_t audioLen, int64_t hubLen, int64_t tran);
+	
 private:
 	double* rf0 = nullptr;
 	int64_t f0Len = 0;
@@ -155,3 +157,4 @@ inline SliceResult SliceWav(Wav& input, double threshold, unsigned long minLen, 
 	}
 	return { std::move(output),std::move(tag) };
 }
+
