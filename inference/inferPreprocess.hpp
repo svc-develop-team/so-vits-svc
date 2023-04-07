@@ -44,6 +44,15 @@ void F0PreProcess::compute_f0(const double* audio, int64_t len)
 }
 
 std::vector<double> arange(double start,double end,double step = 1.0,double div = 1.0)
+{
+	std::vector<double> output;
+	while(start<end)
+	{
+		output.push_back(start / div);
+		start += step;
+	}
+	return output;
+}
 
 void F0PreProcess::InterPf0(int64_t len)
 {
