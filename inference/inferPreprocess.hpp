@@ -1,7 +1,10 @@
 #include "World/src/world/dio.h"
 #include "World/src/world/stonemask.h"
 #include "World/src/world/matlabfunctions.h"
+#include <string>
+#include <vector>
 
+//Cpp F0 Preprocess
 struct SliceResult
 {
 	std::vector<unsigned long long>	SliceOffset;
