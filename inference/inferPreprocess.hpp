@@ -1,6 +1,6 @@
-#include "World/src/world/dio.h"
-#include "World/src/world/stonemask.h"
-#include "World/src/world/matlabfunctions.h"
+#include "world/dio.h"
+#include "world/stonemask.h"
+#include "world/matlabfunctions.h"
 #include <string>
 #include <vector>
 
