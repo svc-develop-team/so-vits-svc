@@ -191,7 +191,7 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 
 - [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
 
-Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)。CppDataProcess are some functions to preprocess data used in MoeSS
 
 ## ☀️ Previous contributors
 
