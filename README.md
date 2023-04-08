@@ -34,7 +34,8 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - The dataset creation and training process are consistent with version 3.0, but the model is completely non-universal, and the data set needs to be fully pre-processed again.
 - Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
 - Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
-
+- Added option 3: Added [NFS-HIFIGAN Enhancer](https://github.com/yxlllc/DDSP-SVC), which has certain sound quality enhancement effect on some models with few train-sets, but has negative effect on well-trained models, so it is closed by default
+  
 ## 💬 About Python Version
 
 After conducting tests, we believe that the project runs stably on Python version 3.8.9.
@@ -60,6 +61,20 @@ wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_l
 Get them from svc-develop-team(TBD) or anywhere else.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
+
+#### **Optional(Select as Required)**
+
+If you are using the NSF-HIFIGAN enhancer, you will need to download the pre-trained NSF-HIFIGAN model, or not if you do not need to download.
+
+- Pre-trained NSF-HIFIGAN Vocoder: [nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
+  - After unzipping, place putting the four files in the 'pretrain/nsf_hifigan' directory
+
+```shell
+# nsf_hifigan
+https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+# Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
+# URL：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
+```
 
 ## 📊 Dataset Preparation
 
@@ -144,6 +159,7 @@ Optional parameters: see the next section
 - `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
 - `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
+- `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default
 
 ## 🤔 Optional Settings
 

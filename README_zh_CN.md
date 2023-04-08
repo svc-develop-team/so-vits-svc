@@ -34,6 +34,7 @@
 + 数据集制作、训练过程和3.0保持一致，但模型完全不通用，数据集也需要全部重新预处理
 + 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
 + 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
++ 增加了可选项 3：增加了[NFS-HIFIGAN增强器](https://github.com/yxlllc/DDSP-SVC)，对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭
 
 ## 💬 关于 Python 版本问题
 
@@ -60,6 +61,20 @@ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 从svc-develop-team(待定)或任何其他地方获取
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
+
+#### **可选项(根据情况选择)**
+
+如果使用NSF-HIFIGAN增强器的话，需要下载预训练的NSF-HIFIGAN模型，如果不需要可以不下载
+
++ 预训练的NSF-HIFIGAN声码器 ：[nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
+  + 解压后，将四个文件放在`pretrain/nsf_hifigan`目录下
+
+```shell
+# nsf_hifigan
+https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+# 也可手动下载放在pretrain/nsf_hifigan目录
+# 地址：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
+```
 
 ## 📊 数据集准备
 
@@ -144,6 +159,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + `-a` | `--auto_predict_f0`：语音转换自动预测音高，转换歌声时不要打开这个会严重跑调
 + `-cm` | `--cluster_model_path`：聚类模型路径，如果没有训练聚类则随便填
 + `-cr` | `--cluster_infer_ratio`：聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可
++ `-eh` | `--enhance`：是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭
 
 ## 🤔 可选项
 
@@ -170,6 +186,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ### F0均值滤波
 
 介绍：对F0进行均值滤波，可以有效的减少因音高推测波动造成的哑音（由于混响或和声等造成的哑音暂时不能消除）。该功能在部分歌曲上提升巨大，但是在部分歌曲上会出现跑调的问题。如果歌曲推理后出现哑音可以考虑开启。
+
 + 在inference_main中设置f0_mean_pooling为true即可
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
