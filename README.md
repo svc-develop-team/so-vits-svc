@@ -169,7 +169,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ### F0 mean filtering
 
-Introduction: The mean filtering of F0 can effectively reduce the hoarse sound caused by the predicted fluctuation of pitch (the hoarse sound caused by reverb or harmony can not be eliminated temporarily). This function has been greatly improved on some songs. If the song appears dumb after reasoning, it can be considered to open.
+Introduction: The mean filtering of F0 can effectively reduce the hoarse sound caused by the predicted fluctuation of pitch (the hoarse sound caused by reverb or harmony can not be eliminated temporarily). This function has been greatly improved on some songs. However, some songs are out of tune. If the song appears dumb after reasoning, it can be considered to open.
 - Set f0_mean_pooling to true in inference_main
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
@@ -191,7 +191,7 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 
 - [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
 
-Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)。CppDataProcess are some functions to preprocess data used in MoeSS
 
 ## ☀️ Previous contributors
 
