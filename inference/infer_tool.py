@@ -114,7 +114,9 @@ class F0FilterException(Exception):
 class Svc(object):
     def __init__(self, net_g_path, config_path,
                  device=None,
-                 cluster_model_path="logs/44k/kmeans_10000.pt"):
+                 cluster_model_path="logs/44k/kmeans_10000.pt",
+                 nsf_hifigan_enhance = False
+                 ):
         self.net_g_path = net_g_path
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -125,11 +127,15 @@ class Svc(object):
         self.target_sample = self.hps_ms.data.sampling_rate
         self.hop_size = self.hps_ms.data.hop_length
         self.spk2id = self.hps_ms.spk
+        self.nsf_hifigan_enhance = nsf_hifigan_enhance
         # 加载hubert
         self.hubert_model = utils.get_hubert_model().to(self.dev)
         self.load_model()
         if os.path.exists(cluster_model_path):
             self.cluster_model = cluster.get_cluster_model(cluster_model_path)
+        if self.nsf_hifigan_enhance:
+            from modules.enhancer import Enhancer
+            self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
 
     def load_model(self):
         # 获取模型配置
@@ -185,7 +191,8 @@ class Svc(object):
               auto_predict_f0=False,
               noice_scale=0.4,
               f0_filter=False,
-              F0_mean_pooling=False
+              F0_mean_pooling=False,
+              enhancer_adaptive_key = 0
               ):
 
         speaker_id = self.spk2id.__dict__.get(speaker)
@@ -199,6 +206,13 @@ class Svc(object):
         with torch.no_grad():
             start = time.time()
             audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)[0,0].data.float()
+            if self.nsf_hifigan_enhance:
+                audio, _ = self.enhancer.enhance(
+                                                                        audio[None,:], 
+                                                                        self.target_sample, 
+                                                                        f0[:,:,None], 
+                                                                        self.hps_ms.data.hop_length, 
+                                                                        adaptive_key = enhancer_adaptive_key)
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1]
@@ -219,7 +233,8 @@ class Svc(object):
                         clip_seconds=0,
                         lg_num=0,
                         lgr_num =0.75,
-                        F0_mean_pooling = False
+                        F0_mean_pooling = False,
+                        enhancer_adaptive_key = 0
                         ):
         wav_path = raw_audio_path
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
@@ -258,7 +273,8 @@ class Svc(object):
                                                     cluster_infer_ratio=cluster_infer_ratio,
                                                     auto_predict_f0=auto_predict_f0,
                                                     noice_scale=noice_scale,
-                                                    F0_mean_pooling = F0_mean_pooling
+                                                    F0_mean_pooling = F0_mean_pooling,
+                                                    enhancer_adaptive_key = enhancer_adaptive_key
                                                     )
                 _audio = out_audio.cpu().numpy()
                 pad_len = int(self.target_sample * pad_seconds)

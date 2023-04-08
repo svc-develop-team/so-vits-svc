@@ -9,6 +9,7 @@ import numpy as np
 import soundfile
 from inference.infer_tool import Svc
 import logging
+import traceback
 
 import subprocess
 import edge_tts
@@ -26,12 +27,14 @@ logging.getLogger('multipart').setLevel(logging.WARNING)
 
 model = None
 spk = None
+debug=False
+
 cuda = []
 if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
         cuda.append("cuda:{}".format(i))
 
-def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling):
+def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key):
     global model
     try:
         if input_audio is None:
@@ -45,7 +48,7 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             audio = librosa.to_mono(audio.transpose(1, 0))
         temp_path = "temp.wav"
         soundfile.write(temp_path, audio, sampling_rate, format="wav")
-        _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling)
+        _audio = model.slice_inference(temp_path, sid, vc_transform, slice_db, cluster_ratio, auto_f0, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key)
         model.clear_empty()
         os.remove(temp_path)
         #构建保存文件的路径，并保存到results文件夹内
@@ -55,8 +58,10 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             soundfile.write(output_file, _audio, model.target_sample, format="wav")
             return "Success", (model.target_sample, _audio)
         except Exception as e:
+            if debug:traceback.print_exc()
             return "自动保存失败，请手动保存，音乐输出见下", (model.target_sample, _audio)    
     except Exception as e:
+        if debug:traceback.print_exc()
         return "异常信息:"+str(e)+"\n请排障后重试",None
     
 def tts_func(_text,_rate):
@@ -83,7 +88,7 @@ def tts_func(_text,_rate):
     p.wait() 
     return output_file
 
-def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling):
+def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key):
     #使用edge-tts把文字转成音频
     output_file=tts_func(text2tts,tts_rate)
 
@@ -100,7 +105,7 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     sample_rate, data=gr_pu.audio_from_file(save_path2)
     vc_input=(sample_rate, data)
 
-    a,b=vc_fn(sid, vc_input, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling)
+    a,b=vc_fn(sid, vc_input, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key)
     os.remove(output_file)
     os.remove(save_path2)
     return a,b
@@ -126,10 +131,12 @@ with app:
                 """)
             cluster_model_path = gr.File(label="聚类模型文件")
             device = gr.Dropdown(label="推理设备，默认为自动选择cpu和gpu",choices=["Auto",*cuda,"cpu"],value="Auto")
+            enhance = gr.Checkbox(label="是否使用NSF_HIFIGAN增强,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭", value=False)
             gr.Markdown(value="""
                 <font size=3>全部上传完毕后(全部文件模块显示download),点击模型解析进行解析：</font>
                 """)
             model_analysis_button = gr.Button(value="模型解析")
+            model_unload_button = gr.Button(value="模型卸载")
             sid = gr.Dropdown(label="音色（说话人）")
             sid_output = gr.Textbox(label="Output Message")
 
@@ -147,29 +154,33 @@ with app:
             pad_seconds = gr.Number(label="推理音频pad秒数，由于未知原因开头结尾会有异响，pad一小段静音段后就不会出现", value=0.5)
             lg_num = gr.Number(label="两端音频切片的交叉淡入长度，如果自动切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，注意，该设置会影响推理速度，单位为秒/s", value=0)
             lgr_num = gr.Number(label="自动音频切片后，需要舍弃每段切片的头尾。该参数设置交叉长度保留的比例，范围0-1,左开右闭", value=0.75,interactive=True)
+            enhancer_adaptive_key = gr.Number(label="使增强器适应更高的音域(单位为半音数)|默认为0", value=0,interactive=True)
             vc_submit = gr.Button("音频直接转换", variant="primary")
             vc_submit2 = gr.Button("文字转音频+转换", variant="primary")
             vc_output1 = gr.Textbox(label="Output Message")
             vc_output2 = gr.Audio(label="Output Audio")
-            def modelAnalysis(model_path,config_path,cluster_model_path,device):
+            def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance):
                 global model
-                debug=False
-                if debug:
-                    model = Svc(model_path.name, config_path.name,device=device if device!="Auto" else None,cluster_model_path= cluster_model_path.name if cluster_model_path!=None else "")
+                try:
+                    model = Svc(model_path.name, config_path.name,device=device if device!="Auto" else None,cluster_model_path= cluster_model_path.name if cluster_model_path!=None else "",nsf_hifigan_enhance=enhance)
                     spks = list(model.spk2id.keys())
                     device_name = torch.cuda.get_device_properties(model.dev).name if "cuda" in str(model.dev) else str(model.dev)
                     return sid.update(choices = spks,value=spks[0]),"ok,模型被加载到了设备{}之上".format(device_name)
+                except Exception as e:
+                    if debug:traceback.print_exc()
+                    return "","异常信息:"+str(e)+"\n请排障后重试"
+            def modelUnload():
+                global model
+                if model is None:
+                    return sid.update(choices = [],value=""),"没有模型需要卸载!"
                 else:
-                    try:
-                        model = Svc(model_path.name, config_path.name,device=device if device!="Auto" else None,cluster_model_path= cluster_model_path.name if cluster_model_path!=None else "")
-                        spks = list(model.spk2id.keys())
-                        device_name = torch.cuda.get_device_properties(model.dev).name if "cuda" in str(model.dev) else str(model.dev)
-                        return sid.update(choices = spks,value=spks[0]),"ok,模型被加载到了设备{}之上".format(device_name)
-                    except Exception as e:
-                        return "","异常信息:"+str(e)+"\n请排障后重试"
-        vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling], [vc_output1, vc_output2])
-        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling], [vc_output1, vc_output2])
-        model_analysis_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device],[sid,sid_output])
+                    model = None
+                    torch.cuda.empty_cache()
+                    return sid.update(choices = [],value=""),"模型卸载完毕!"
+        vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        model_analysis_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance],[sid,sid_output])
+        model_unload_button.click(modelUnload,[],[sid,sid_output])
     app.launch()
 
 

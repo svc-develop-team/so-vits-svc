@@ -36,7 +36,8 @@ def main():
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可')
     parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒')
     parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False, help='是否对F0使用均值滤波器(池化)，对部分哑音有改善。注意，启动该选项会导致推理速度下降，默认关闭')
-
+    parser.add_argument('-eh', '--enhance', type=bool, default=False, help='是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭')
+ 
     # 不用动的部分
     parser.add_argument('-sd', '--slice_db', type=int, default=-40, help='默认-40，嘈杂的音频可以-30，干声保留呼吸可以-50')
     parser.add_argument('-d', '--device', type=str, default=None, help='推理设备，None则为自动选择cpu和gpu')
@@ -44,11 +45,10 @@ def main():
     parser.add_argument('-p', '--pad_seconds', type=float, default=0.5, help='推理音频pad秒数，由于未知原因开头结尾会有异响，pad一小段静音段后就不会出现')
     parser.add_argument('-wf', '--wav_format', type=str, default='flac', help='音频输出格式')
     parser.add_argument('-lgr', '--linear_gradient_retain', type=float, default=0.75, help='自动音频切片后，需要舍弃每段切片的头尾。该参数设置交叉长度保留的比例，范围0-1,左开右闭')
-
+    parser.add_argument('-eak', '--enhancer_adaptive_key', type=int, default=0, help='使增强器适应更高的音域(单位为半音数)|默认为0')
+    
     args = parser.parse_args()
 
-    svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path)
-    infer_tool.mkdir(["raw", "results"])
     clean_names = args.clean_names
     trans = args.trans
     spk_list = args.spk_list
@@ -62,6 +62,11 @@ def main():
     lg = args.linear_gradient
     lgr = args.linear_gradient_retain
     F0_mean_pooling = args.f0_mean_pooling
+    enhance = args.enhance
+    enhancer_adaptive_key = args.enhancer_adaptive_key
+
+    svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance)
+    infer_tool.mkdir(["raw", "results"])
 
     infer_tool.fill_a_to_b(trans, clean_names)
     for clean_name, tran in zip(clean_names, trans):
@@ -107,7 +112,8 @@ def main():
                                                         cluster_infer_ratio=cluster_infer_ratio,
                                                         auto_predict_f0=auto_predict_f0,
                                                         noice_scale=noice_scale,
-                                                        F0_mean_pooling = F0_mean_pooling
+                                                        F0_mean_pooling = F0_mean_pooling,
+                                                        enhancer_adaptive_key = enhancer_adaptive_key
                                                         )
                     _audio = out_audio.cpu().numpy()
                     pad_len = int(svc_model.target_sample * pad_seconds)
@@ -125,6 +131,7 @@ def main():
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             res_path = f'./results/{clean_name}_{key}_{spk}{cluster_name}.{wav_format}'
             soundfile.write(res_path, audio, svc_model.target_sample, format=wav_format)
-
+            svc_model.clear_empty()
+            
 if __name__ == '__main__':
     main()
