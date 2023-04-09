@@ -104,7 +104,7 @@ dataset_raw
 
 ## 🛠️ 数据预处理
 
-0. 音频切片
+### 0. 音频切片
 
 将音频切片至`5s - 15s`, 稍微长点也无伤大雅，实在太长可能会导致训练中途甚至预处理就爆显存。
 
@@ -114,19 +114,19 @@ dataset_raw
 
 切完之后手动删除过长过短的音频
 
-1. 重采样至44100Hz单声道
+### 1. 重采样至44100Hz单声道
 
 ```shell
 python resample.py
 ```
 
-2. 自动划分训练集、验证集，以及自动生成配置文件
+### 2. 自动划分训练集、验证集，以及自动生成配置文件
 
 ```shell
 python preprocess_flist_config.py
 ```
 
-3. 生成hubert与f0
+### 3. 生成hubert与f0
 
 ```shell
 python preprocess_hubert_f0.py

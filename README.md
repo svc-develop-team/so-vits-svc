@@ -104,29 +104,29 @@ dataset_raw
 
 ## 🛠️ Preprocessing
 
-0. Slice audio
+### 0. Slice audio
 
 Slice to `5s - 15s`, a bit longer is no problem. Too long may lead to `torch.cuda.OutOfMemoryError` during training or even pre-processing.
 
 By using [audio-slicer-GUI](https://github.com/flutydeer/audio-slicer) or [audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
 
-In general, only the `Minimum Interval` needs to be adjusted. For statement audio it usually remains default. For singing materials it can be adjusted to `100` or even `50`.
+In general, only the `Minimum Interval` needs to be adjusted. For statement audio it usually remains default. For singing audio it can be adjusted to `100` or even `50`.
 
 After slicing, delete audio that is too long and too short.
 
-1. Resample to 44100Hz and mono
+### 1. Resample to 44100Hz and mono
 
 ```shell
 python resample.py
 ```
 
-2. Automatically split the dataset into training and validation sets, and generate configuration files.
+### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
 python preprocess_flist_config.py
 ```
 
-3. Generate hubert and f0
+### 3. Generate hubert and f0
 
 ```shell
 python preprocess_hubert_f0.py
