@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        #### Please try to solve the problem yourself before asking for help. At first you can read *[Quick solution in wiki](https://github.com/svc-develop-team/so-vits-svc/wiki/Quick-solution)*. Then you can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance.
+        #### Please try to solve the problem yourself before asking for help. At first you can read *[repo wiki](https://github.com/svc-develop-team/so-vits-svc/wiki)*. Then you can use chatgpt or some search engines like google, bing, new bing and StackOverflow until you really find that you can't solve it by yourself. And before you raise an issue, please understand *[How To Ask Questions The Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html)* in advance.
         ---
         ### What kind of issue will be closed immediately
         1. Beggars or Free Riders
@@ -106,7 +106,7 @@ body:
     id: Log
     attributes:
       label: Log
-      description: All information output from the command you executed to the end of execution (include the command)
+      description: All information output from the command you executed to the end of execution (include the command). It can also be directly posted below if there is only few text.
       render: python
     validations:
       required: true

@@ -81,7 +81,7 @@ body:
     id: Log
     attributes:
       label: Log
-      description: All information output from the command you executed to the end of execution (include the command). You can paste them to [pastebin.com](https://pastebin.com/) then paste the short link here.
+      description: All information output from the command you executed to the end of execution (include the command). You can paste them to [pastebin.com](https://pastebin.com/) then paste the short link here. It can also be directly posted below if there is only few text.
       render: python
     validations:
       required: true

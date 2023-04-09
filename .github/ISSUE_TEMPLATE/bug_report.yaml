@@ -81,7 +81,7 @@ body:
     id: Log
     attributes:
       label: 日志
-      description: 将从执行命令到执行完毕输出的所有信息（包括你所执行的命令）粘贴到[pastebin.com](https://pastebin.com/)并把剪贴板链接贴到这里
+      description: 将从执行命令到执行完毕输出的所有信息（包括你所执行的命令）粘贴到[pastebin.com](https://pastebin.com/)并把剪贴板链接贴到这里，日志量少的话也可以直接贴在下面
       render: python
     validations:
       required: true
