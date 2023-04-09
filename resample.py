@@ -37,7 +37,7 @@ if __name__ == "__main__":
     parser.add_argument("--in_dir", type=str, default="./dataset_raw", help="path to source dir")
     parser.add_argument("--out_dir2", type=str, default="./dataset/44k", help="path to target dir")
     args = parser.parse_args()
-    processs = cpu_count()-2 if cpu_count() >4 else 1
+    processs = 30 if cpu_count() > 60 else (cpu_count()-2 if cpu_count() > 4 else 1)
     pool = Pool(processes=processs)
 
     for speaker in os.listdir(args.in_dir):
