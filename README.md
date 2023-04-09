@@ -38,7 +38,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
   
 ## 💬 About Python Version
 
-After conducting tests, we believe that the project runs stably on Python version 3.8.9.
+After conducting tests, we believe that the project runs stably on `Python 3.8.9`.
 
 ## 📥 Pre-trained Model Files
 
@@ -64,10 +64,10 @@ Although the pretrained model generally does not cause any copyright problems, p
 
 #### **Optional(Select as Required)**
 
-If you are using the NSF-HIFIGAN enhancer, you will need to download the pre-trained NSF-HIFIGAN model, or not if you do not need to download.
+If you are using the NSF-HIFIGAN enhancer, you will need to download the pre-trained NSF-HIFIGAN model, or not if you do not need it.
 
 - Pre-trained NSF-HIFIGAN Vocoder: [nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
-  - After unzipping, place putting the four files in the 'pretrain/nsf_hifigan' directory
+  - Unzip and place the four files under the `pretrain/nsf_hifigan` directory
 
 ```shell
 # nsf_hifigan
@@ -104,13 +104,23 @@ dataset_raw
 
 ## 🛠️ Preprocessing
 
+0. Slice audio
+
+Slice to `5s - 15s`, a bit longer is no problem. Too long may lead to `torch.cuda.OutOfMemoryError` during training or even pre-processing.
+
+By using [audio-slicer-GUI](https://github.com/flutydeer/audio-slicer) or [audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
+
+In general, only the `Minimum Interval` needs to be adjusted. For statement audio it usually remains default. For singing materials it can be adjusted to `100` or even `50`.
+
+After slicing, delete audio that is too long and too short.
+
 1. Resample to 44100Hz and mono
 
 ```shell
 python resample.py
 ```
 
-2. Automatically split the dataset into training and validation sets, and generate configuration files
+2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
 python preprocess_flist_config.py
@@ -155,11 +165,11 @@ Required parameters:
 
 Optional parameters: see the next section
 - `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
-- `-fmp` | `--f0_mean_pooling`: Apply mean filter (pooling) to f0，which may improve some hoarse sounds. Enabling this option will reduce inference speed.
+- `-fmp` | `--f0_mean_pooling`: Apply mean filter (pooling) to f0, which may improve some hoarse sounds. Enabling this option will reduce inference speed.
 - `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
 - `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
 - `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
-- `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default
+- `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
 
 ## 🤔 Optional Settings
 
@@ -177,16 +187,17 @@ Introduction: The clustering scheme can reduce timbre leakage and make the train
 The existing steps before clustering do not need to be changed. All you need to do is to train an additional clustering model, which has a relatively low training cost.
 
 - Training process:
-  - Train on a machine with a good CPU performance. According to my experience, it takes about 4 minutes to train each speaker on a Tencent Cloud 6-core CPU.
-  - Execute "python cluster/train_cluster.py". The output of the model will be saved in "logs/44k/kmeans_10000.pt".
+  - Train on a machine with good CPU performance. According to my experience, it takes about 4 minutes to train each speaker on a Tencent Cloud machine with 6-core CPU.
+  - Execute `python cluster/train_cluster.py`. The output model will be saved in `logs/44k/kmeans_10000.pt`.
 - Inference process:
-  - Specify "cluster_model_path" in inference_main.
-  - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
+  - Specify `cluster_model_path` in `inference_main.py`.
+  - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using clustering at all, `1` means only using clustering, and usually `0.5` is sufficient.
 
 ### F0 mean filtering
 
 Introduction: The mean filtering of F0 can effectively reduce the hoarse sound caused by the predicted fluctuation of pitch (the hoarse sound caused by reverb or harmony can not be eliminated temporarily). This function has been greatly improved on some songs. However, some songs are out of tune. If the song appears dumb after reasoning, it can be considered to open.
-- Set f0_mean_pooling to true in inference_main
+
+- Set `f0_mean_pooling` to true in `inference_main.py`
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
 
@@ -206,8 +217,11 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 ### UI support for Onnx models
 
 - [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
+  - [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
 
-Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)  [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)。CppDataProcess are some functions to preprocess data used in MoeSS
+Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)
+
+CppDataProcess are some functions to preprocess data used in MoeSS
 
 ## ☀️ Previous contributors
 

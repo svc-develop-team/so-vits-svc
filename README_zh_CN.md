@@ -38,7 +38,7 @@
 
 ## 💬 关于 Python 版本问题
 
-我们在进行测试后，认为 Python 3.8.9 版本能够稳定地运行该项目
+在进行测试后，我们认为`Python 3.8.9`能够稳定地运行该项目
 
 ## 📥 预先下载的模型文件
 
@@ -103,6 +103,16 @@ dataset_raw
 ```
 
 ## 🛠️ 数据预处理
+
+0. 音频切片
+
+将音频切片至`5s - 15s`, 稍微长点也无伤大雅，实在太长可能会导致训练中途甚至预处理就爆显存。
+
+可以使用[audio-slicer-GUI](https://github.com/flutydeer/audio-slicer)、[audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
+
+一般情况下只需调整其中的`Minimum Interval`，普通陈述素材通常保持默认即可，歌唱素材可以调整至`100`甚至`50`
+
+切完之后手动删除过长过短的音频
 
 1. 重采样至44100Hz单声道
 
@@ -178,16 +188,16 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 + 训练过程：
   + 使用cpu性能较好的机器训练，据我的经验在腾讯云6核cpu训练每个speaker需要约4分钟即可完成训练
-  + 执行python cluster/train_cluster.py ，模型的输出会在 logs/44k/kmeans_10000.pt
+  + 执行`python cluster/train_cluster.py` ，模型的输出会在`logs/44k/kmeans_10000.pt`
 + 推理过程：
-  + inference_main中指定cluster_model_path
-  + inference_main中指定cluster_infer_ratio，0为完全不使用聚类，1为只使用聚类，通常设置0.5即可
+  + `inference_main.py`中指定`cluster_model_path`
+  + `inference_main.py`中指定`cluster_infer_ratio`，`0`为完全不使用聚类，`1`为只使用聚类，通常设置`0.5`即可
 
 ### F0均值滤波
 
 介绍：对F0进行均值滤波，可以有效的减少因音高推测波动造成的哑音（由于混响或和声等造成的哑音暂时不能消除）。该功能在部分歌曲上提升巨大，但是在部分歌曲上会出现跑调的问题。如果歌曲推理后出现哑音可以考虑开启。
 
-+ 在inference_main中设置f0_mean_pooling为true即可
++ 在`inference_main.py`中设置`f0_mean_pooling`为true即可
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
 
@@ -196,6 +206,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ## 📤 Onnx导出
 
 使用 [onnx_export.py](onnx_export.py)
+
 + 新建文件夹：`checkpoints` 并打开
 + 在`checkpoints`文件夹中新建一个文件夹作为项目文件夹，文件夹名为你的项目名称，比如`aziplayer`
 + 将你的模型更名为`model.pth`，配置文件更名为`config.json`，并放置到刚才创建的`aziplayer`文件夹下
@@ -206,9 +217,11 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ### Onnx模型支持的UI
 
 + [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
-+ 我去除了所有的训练用函数和一切复杂的转置，一行都没有保留，因为我认为只有去除了这些东西，才知道你用的是Onnx
-+ 注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
-[Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+  + [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
+
+注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
+
+CppDataProcess中是一些在MoeSS里处理音频的功能
 
 ## ☀️ 旧贡献者
 
