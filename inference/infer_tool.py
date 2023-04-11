@@ -6,6 +6,7 @@ import os
 import time
 from pathlib import Path
 from inference import slicer
+import gc
 
 import librosa
 import numpy as np
@@ -223,8 +224,13 @@ class Svc(object):
 
     def unload_model(self):
         # 卸载模型
+        self.net_g_ms = self.net_g_ms.to("cpu")
         del self.net_g_ms
-        if hasattr(self,"enhancer"): del self.enhancer
+        if hasattr(self,"enhancer"): 
+            self.enhancer.enhancer = self.enhancer.enhancer.to("cpu")
+            del self.enhancer.enhancer
+            del self.enhancer
+        gc.collect()
 
     def slice_inference(self,
                         raw_audio_path,
