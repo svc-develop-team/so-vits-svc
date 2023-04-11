@@ -224,7 +224,7 @@ class Svc(object):
     def unload_model(self):
         # 卸载模型
         del self.net_g_ms
-        if self.enhancer!=None: del self.enhancer
+        if hasattr(self,"enhancer"): del self.enhancer
 
     def slice_inference(self,
                         raw_audio_path,

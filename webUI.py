@@ -17,6 +17,7 @@ from scipy.io import wavfile
 import librosa
 import torch
 import time
+import traceback
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -51,6 +52,7 @@ def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance):
             msg += i + " "
         return sid.update(choices = spks,value=spks[0]), msg
     except Exception as e:
+        if debug: traceback.print_exc()
         raise gr.Error(e)
 
     
@@ -90,8 +92,10 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             soundfile.write(output_file, _audio, model.target_sample, format="wav")
             return f"推理成功，音频文件保存为results/{filename}", (model.target_sample, _audio)
         except Exception as e:
+            if debug: traceback.print_exc()
             raise gr.Error(e)  
     except Exception as e:
+        if debug: traceback.print_exc()
         raise gr.Error(e)
 
 
@@ -142,6 +146,8 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     os.remove(save_path2)
     return a,b
 
+def debug_change():
+    debug = debug_button.value
 
 with gr.Blocks(
     theme=gr.themes.Base(
@@ -205,9 +211,15 @@ with gr.Blocks(
                     vc_output1 = gr.Textbox(label="Output Message")
                 with gr.Column():
                     vc_output2 = gr.Audio(label="Output Audio", interactive=False)
-
+            with gr.Row(variant="panel"):
+                with gr.Column():
+                    gr.Markdown(value="""
+                        <font size=2> WebUI设置</font>
+                        """)
+                    debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
         vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
         vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        debug_button.change(debug_change,[],[])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance],[sid,sid_output])
         model_unload_button.click(modelUnload,[],[sid,sid_output])
     app.launch()
