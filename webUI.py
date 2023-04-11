@@ -147,6 +147,7 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     return a,b
 
 def debug_change():
+    global debug
     debug = debug_button.value
 
 with gr.Blocks(
