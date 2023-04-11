@@ -221,6 +221,11 @@ class Svc(object):
         # 清理显存
         torch.cuda.empty_cache()
 
+    def unload_model(self):
+        # 卸载模型
+        del self.net_g_ms
+        if self.enhancer!=None: del self.enhancer
+
     def slice_inference(self,
                         raw_audio_path,
                         spk,
