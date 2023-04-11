@@ -105,7 +105,9 @@ def run(rank, n_gpus, hps):
         _, _, _, epoch_str = utils.load_checkpoint(utils.latest_checkpoint_path(hps.model_dir, "D_*.pth"), net_d,
                                                    optim_d, skip_optimizer)
         epoch_str = max(epoch_str, 1)
-        global_step = (epoch_str - 1) * len(train_loader)
+        name=utils.latest_checkpoint_path(hps.model_dir, "D_*.pth")
+        global_step=int(name[name.rfind("_")+1:name.rfind(".")])+1
+        #global_step = (epoch_str - 1) * len(train_loader)
     except:
         print("load old checkpoint failed...")
         epoch_str = 1
@@ -114,20 +116,30 @@ def run(rank, n_gpus, hps):
         epoch_str = 1
         global_step = 0
 
+    warmup_epoch = hps.train.warmup_epochs
     scheduler_g = torch.optim.lr_scheduler.ExponentialLR(optim_g, gamma=hps.train.lr_decay, last_epoch=epoch_str - 2)
     scheduler_d = torch.optim.lr_scheduler.ExponentialLR(optim_d, gamma=hps.train.lr_decay, last_epoch=epoch_str - 2)
 
     scaler = GradScaler(enabled=hps.train.fp16_run)
 
     for epoch in range(epoch_str, hps.train.epochs + 1):
+        # update learning rate
+        if epoch > 1:
+            scheduler_g.step()
+            scheduler_d.step()
+        # set up warm-up learning rate
+        if epoch <= warmup_epoch:
+            for param_group in optim_g.param_groups:
+                param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
+            for param_group in optim_d.param_groups:
+                param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
+        # training
         if rank == 0:
             train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
                                [train_loader, eval_loader], logger, [writer, writer_eval])
         else:
             train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
                                [train_loader, None], None, None)
-        scheduler_g.step()
-        scheduler_d.step()
 
 
 def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loaders, logger, writers):
@@ -211,10 +223,14 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
             if global_step % hps.train.log_interval == 0:
                 lr = optim_g.param_groups[0]['lr']
                 losses = [loss_disc, loss_gen, loss_fm, loss_mel, loss_kl]
+                reference_loss=0
+                for i in losses:
+                    reference_loss += math.log(i, 10)
+                reference_loss*=10
                 logger.info('Train Epoch: {} [{:.0f}%]'.format(
                     epoch,
                     100. * batch_idx / len(train_loader)))
-                logger.info(f"Losses: {[x.item() for x in losses]}, step: {global_step}, lr: {lr}")
+                logger.info(f"Losses: {[x.item() for x in losses]}, step: {global_step}, lr: {lr}, reference_loss: {reference_loss}")
 
                 scalar_dict = {"loss/g/total": loss_gen_all, "loss/d/total": loss_disc_all, "learning_rate": lr,
                                "grad_norm_d": grad_norm_d, "grad_norm_g": grad_norm_g}
