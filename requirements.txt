@@ -1,6 +1,6 @@
 Flask
 Flask_Cors
-gradio
+gradio>=3.7.0
 numpy==1.23.0
 pyworld==0.2.5
 scipy==1.10.0
