@@ -106,11 +106,11 @@ def tts_func(_text,_rate):
     elif _rate<0:
         ratestr="{:.0%}".format(_rate)#减号自带
 
-    p=subprocess.Popen(["edge-tts",
-                        "--text",_text,
-                        "--write-media",output_file,
-                        "--voice",voice,
-                        "--rate="+ratestr]
+    p=subprocess.Popen("edge-tts "+
+                        " --text "+_text+
+                        " --write-media "+output_file+
+                        " --voice "+voice+
+                        " --rate="+ratestr
                         ,shell=True,
                         stdout=subprocess.PIPE,
                         stdin=subprocess.PIPE)
