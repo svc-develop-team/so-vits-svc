@@ -17,6 +17,7 @@ from scipy.io import wavfile
 import librosa
 import torch
 import time
+import traceback
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -28,15 +29,16 @@ model = None
 spk = None
 debug = False
 
-cuda = []
+cuda = {}
 if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
         device_name = torch.cuda.get_device_properties(i).name
-        cuda.append(f"CUDA:{i} {device_name}")
+        cuda[f"CUDA:{i} {device_name}"] = f"cuda:{i}"
 
 def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance):
     global model
     try:
+        device = cuda[device] if "CUDA" in device else device
         model = Svc(model_path.name, config_path.name, device=device if device!="Auto" else None, cluster_model_path = cluster_model_path.name if cluster_model_path != None else "",nsf_hifigan_enhance=enhance)
         spks = list(model.spk2id.keys())
         device_name = torch.cuda.get_device_properties(model.dev).name if "cuda" in str(model.dev) else str(model.dev)
@@ -50,6 +52,7 @@ def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance):
             msg += i + " "
         return sid.update(choices = spks,value=spks[0]), msg
     except Exception as e:
+        if debug: traceback.print_exc()
         raise gr.Error(e)
 
     
@@ -58,6 +61,7 @@ def modelUnload():
     if model is None:
         return sid.update(choices = [],value=""),"没有模型需要卸载!"
     else:
+        model.unload_model()
         model = None
         torch.cuda.empty_cache()
         return sid.update(choices = [],value=""),"模型卸载完毕!"
@@ -88,8 +92,10 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             soundfile.write(output_file, _audio, model.target_sample, format="wav")
             return f"推理成功，音频文件保存为results/{filename}", (model.target_sample, _audio)
         except Exception as e:
-            raise gr.Error(e)  
+            if debug: traceback.print_exc()
+            raise gr.Error(e)
     except Exception as e:
+        if debug: traceback.print_exc()
         raise gr.Error(e)
 
 
@@ -141,6 +147,9 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     os.remove(save_path2)
     return a,b
 
+def debug_change():
+    global debug
+    debug = debug_button.value
 
 with gr.Blocks(
     theme=gr.themes.Base(
@@ -162,7 +171,7 @@ with gr.Blocks(
                     model_path = gr.File(label="选择模型文件")
                     config_path = gr.File(label="选择配置文件")
                     cluster_model_path = gr.File(label="选择聚类模型文件（没有可以不选）")
-                    device = gr.Dropdown(label="推理设备，默认为自动选择CPU和GPU", choices=["Auto",*cuda,"CPU"], value="Auto")
+                    device = gr.Dropdown(label="推理设备，默认为自动选择CPU和GPU", choices=["Auto",*cuda.keys(),"CPU"], value="Auto")
                     enhance = gr.Checkbox(label="是否使用NSF_HIFIGAN增强,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭", value=False)
                 with gr.Column():
                     gr.Markdown(value="""
@@ -205,8 +214,15 @@ with gr.Blocks(
                     vc_output1 = gr.Textbox(label="Output Message")
                 with gr.Column():
                     vc_output2 = gr.Audio(label="Output Audio", interactive=False)
-
+            with gr.Row(variant="panel"):
+                with gr.Column():
+                    gr.Markdown(value="""
+                        <font size=2> WebUI设置</font>
+                        """)
+                    debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
         vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        debug_button.change(debug_change,[],[])
         vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance],[sid,sid_output])
         model_unload_button.click(modelUnload,[],[sid,sid_output])
