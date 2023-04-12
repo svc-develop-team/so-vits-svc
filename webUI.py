@@ -124,9 +124,12 @@ def tts_func(_text,_rate,_voice):
     p.wait()
     return output_file
 
+def text_clear(text):
+    return re.sub(r"[\n\,\(\) ]", "", text)
 
 def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,F0_mean_pooling,enhancer_adaptive_key):
     #使用edge-tts把文字转成音频
+    text2tts=text_clear(text2tts)
     output_file=tts_func(text2tts,tts_rate,tts_voice)
 
     #调整采样率
