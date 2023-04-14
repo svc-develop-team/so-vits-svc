@@ -93,17 +93,18 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             return f"推理成功，音频文件保存为results/{filename}", (model.target_sample, _audio)
         except Exception as e:
             if debug: traceback.print_exc()
-            raise gr.Error(e)  
+            raise gr.Error(e)
     except Exception as e:
         if debug: traceback.print_exc()
         raise gr.Error(e)
 
 
-def tts_func(_text,_rate):
+def tts_func(_text,_rate,_voice):
     #使用edge-tts把文字转成音频
     # voice = "zh-CN-XiaoyiNeural"#女性，较高音
     # voice = "zh-CN-YunxiNeural"#男性
     voice = "zh-CN-YunxiNeural"#男性
+    if ( _voice == "女" ) : voice = "zh-CN-XiaoyiNeural"
     output_file = _text[0:10]+".wav"
     # communicate = edge_tts.Communicate(_text, voice)
     # await communicate.save(output_file)
@@ -112,21 +113,24 @@ def tts_func(_text,_rate):
     elif _rate<0:
         ratestr="{:.0%}".format(_rate)#减号自带
 
-    p=subprocess.Popen(["edge-tts",
-                        "--text",_text,
-                        "--write-media",output_file,
-                        "--voice",voice,
-                        "--rate="+ratestr]
+    p=subprocess.Popen("edge-tts "+
+                        " --text "+_text+
+                        " --write-media "+output_file+
+                        " --voice "+voice+
+                        " --rate="+ratestr
                         ,shell=True,
                         stdout=subprocess.PIPE,
                         stdin=subprocess.PIPE)
-    p.wait() 
+    p.wait()
     return output_file
 
+def text_clear(text):
+    return re.sub(r"[\n\,\(\) ]", "", text)
 
-def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key):
+def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,F0_mean_pooling,enhancer_adaptive_key):
     #使用edge-tts把文字转成音频
-    output_file=tts_func(text2tts,tts_rate)
+    text2tts=text_clear(text2tts)
+    output_file=tts_func(text2tts,tts_rate,tts_voice)
 
     #调整采样率
     sr2=44100
@@ -136,7 +140,7 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     wavfile.write(save_path2,sr2,
                 (wav2 * np.iinfo(np.int16).max).astype(np.int16)
                 )
-    
+
     #读取音频
     sample_rate, data=gr_pu.audio_from_file(save_path2)
     vc_input=(sample_rate, data)
@@ -181,7 +185,7 @@ with gr.Blocks(
                     sid = gr.Dropdown(label="音色（说话人）")
                     sid_output = gr.Textbox(label="Output Message")
 
-                    
+
             with gr.Row(variant="panel"):
                 with gr.Column():
                     gr.Markdown(value="""
@@ -193,7 +197,7 @@ with gr.Blocks(
                     cluster_ratio = gr.Number(label="聚类模型混合比例，0-1之间，0即不启用聚类。使用聚类模型能提升音色相似度，但会导致咬字下降（如果使用建议0.5左右）", value=0)
                     slice_db = gr.Number(label="切片阈值", value=-40)
                     noise_scale = gr.Number(label="noise_scale 建议不要动，会影响音质，玄学参数", value=0.4)
-                with gr.Column(): 
+                with gr.Column():
                     pad_seconds = gr.Number(label="推理音频pad秒数，由于未知原因开头结尾会有异响，pad一小段静音段后就不会出现", value=0.5)
                     cl_num = gr.Number(label="音频自动切片，0为不切片，单位为秒(s)", value=0)
                     lg_num = gr.Number(label="两端音频切片的交叉淡入长度，如果自动切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，注意，该设置会影响推理速度，单位为秒/s", value=0)
@@ -206,6 +210,7 @@ with gr.Blocks(
                 with gr.TabItem("文字转音频"):
                     text2tts=gr.Textbox(label="在此输入要转译的文字。注意，使用该功能建议打开F0预测，不然会很怪")
                     tts_rate = gr.Number(label="tts语速", value=0)
+                    tts_voice = gr.Radio(label="性别",choices=["男","女"], value="男")
                     vc_submit2 = gr.Button("文字转换", variant="primary")
             with gr.Row():
                 with gr.Column():
@@ -219,7 +224,7 @@ with gr.Blocks(
                         """)
                     debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
         vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
-        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
+        vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
         debug_button.change(debug_change,[],[])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance],[sid,sid_output])
         model_unload_button.click(modelUnload,[],[sid,sid_output])
