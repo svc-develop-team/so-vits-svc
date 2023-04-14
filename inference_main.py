@@ -31,13 +31,13 @@ def main():
     parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'], help='合成目标说话人名称')
 
     # 可选项部分
-    parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False,help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
+    parser.add_argument('-a', '--auto_predict_f0', type=bool, default=False, help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
     parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt", help='聚类模型路径，如果没有训练聚类则随便填')
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可')
     parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒')
     parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False, help='是否对F0使用均值滤波器(池化)，对部分哑音有改善。注意，启动该选项会导致推理速度下降，默认关闭')
     parser.add_argument('-eh', '--enhance', type=bool, default=False, help='是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭')
- 
+
     # 不用动的部分
     parser.add_argument('-sd', '--slice_db', type=int, default=-40, help='默认-40，嘈杂的音频可以-30，干声保留呼吸可以-50')
     parser.add_argument('-d', '--device', type=str, default=None, help='推理设备，None则为自动选择cpu和gpu')
