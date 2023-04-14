@@ -9,6 +9,8 @@ import numpy as np
 import soundfile
 from inference.infer_tool import Svc
 import logging
+import re
+import json
 
 import subprocess
 import edge_tts
@@ -18,6 +20,8 @@ import librosa
 import torch
 import time
 import traceback
+from itertools import chain
+from utils import mix_model
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -34,6 +38,41 @@ if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
         device_name = torch.cuda.get_device_properties(i).name
         cuda[f"CUDA:{i} {device_name}"] = f"cuda:{i}"
+
+def upload_mix_append_file(files,sfiles):
+    try:
+        if(sfiles == None):
+            file_paths = [file.name for file in files]
+        else:
+            file_paths = [file.name for file in chain(files,sfiles)]
+        p = {file:100 for file in file_paths}
+        return file_paths,mix_model_output1.update(value=json.dumps(p,indent=2))
+    except Exception as e:
+        if debug: traceback.print_exc()
+        raise gr.Error(e)
+
+def mix_submit_click(js,mode):
+    try:
+        assert js.lstrip()!=""
+        modes = {"凸组合":0, "线性组合":1}
+        mode = modes[mode]
+        data = json.loads(js)
+        data = list(data.items())
+        model_path,mix_rate = zip(*data)
+        path = mix_model(model_path,mix_rate,mode)
+        return f"成功，文件被保存在了{path}"
+    except Exception as e:
+        if debug: traceback.print_exc()
+        raise gr.Error(e)
+
+def updata_mix_info(files):
+    try:
+        if files == None : return mix_model_output1.update(value="")
+        p = {file.name:100 for file in files}
+        return mix_model_output1.update(value=json.dumps(p,indent=2))
+    except Exception as e:
+        if debug: traceback.print_exc()
+        raise gr.Error(e)
 
 def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance):
     global model
@@ -162,7 +201,7 @@ with gr.Blocks(
     ),
 ) as app:
     with gr.Tabs():
-        with gr.TabItem("Inference"):
+        with gr.TabItem("推理"):
             gr.Markdown(value="""
                 So-vits-svc 4.0 推理 webui
                 """)
@@ -217,12 +256,49 @@ with gr.Blocks(
                     vc_output1 = gr.Textbox(label="Output Message")
                 with gr.Column():
                     vc_output2 = gr.Audio(label="Output Audio", interactive=False)
-            with gr.Row(variant="panel"):
-                with gr.Column():
-                    gr.Markdown(value="""
-                        <font size=2> WebUI设置</font>
+
+        with gr.TabItem("小工具/实验室特性"):
+            gr.Markdown(value="""
+                        <font size=2> So-vits-svc 4.0 小工具/实验室特性</font>
                         """)
-                    debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
+            with gr.Tabs():
+                with gr.TabItem("静态声线融合"):
+                    gr.Markdown(value="""
+                        <font size=2> 介绍:该功能可以将多个声音模型合成为一个声音模型(多个模型参数的凸组合或线性组合)，从而制造出现实中不存在的声线 
+                                          注意：
+                                          1.该功能仅支持单说话人的模型
+                                          2.如果强行使用多说话人模型，需要保证多个模型的说话人数量相同，这样可以混合同一个SpaekerID下的声音
+                                          3.保证所有待混合模型的config.json中的model字段是相同的
+                                          4.输出的混合模型可以使用待合成模型的任意一个config.json，但聚类模型将不能使用
+                                          5.批量上传模型的时候最好把模型放到一个文件夹选中后一起上传
+                                          6.混合比例调整建议大小在0-100之间，也可以调为其他数字，但在线性组合模式下会出现未知的效果
+                                          7.混合完毕后，文件将会保存在项目根目录中，文件名为output.pth
+                                          8.凸组合模式会将混合比例执行Softmax使混合比例相加为1，而线性组合模式不会
+                        </font>
+                        """)
+                    mix_model_path = gr.Files(label="选择需要混合模型文件")
+                    mix_model_upload_button = gr.UploadButton("选择/追加需要混合模型文件", file_count="multiple", variant="primary")
+                    mix_model_output1 = gr.Textbox(
+                                            label="混合比例调整，单位/%",
+                                            interactive = True
+                                         )
+                    mix_mode = gr.Radio(choices=["凸组合", "线性组合"], label="融合模式",value="凸组合",interactive = True)
+                    mix_submit = gr.Button("声线融合启动", variant="primary")
+                    mix_model_output2 = gr.Textbox(
+                                            label="Output Message"
+                                         )
+                    mix_model_path.change(updata_mix_info,[mix_model_path],[mix_model_output1])
+                    mix_model_upload_button.upload(upload_mix_append_file, [mix_model_upload_button,mix_model_path], [mix_model_path,mix_model_output1])
+                    mix_submit.click(mix_submit_click, [mix_model_output1,mix_mode], [mix_model_output2])
+                    
+                    
+    with gr.Tabs():
+        with gr.Row(variant="panel"):
+            with gr.Column():
+                gr.Markdown(value="""
+                    <font size=2> WebUI设置</font>
+                    """)
+                debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
         vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
         vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,F0_mean_pooling,enhancer_adaptive_key], [vc_output1, vc_output2])
         debug_button.change(debug_change,[],[])
@@ -231,3 +307,4 @@ with gr.Blocks(
     app.launch()
 
 
+ 

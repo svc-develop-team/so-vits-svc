@@ -205,7 +205,7 @@ def f0_to_coarse(f0):
 
   f0_mel[f0_mel <= 1] = 1
   f0_mel[f0_mel > f0_bin - 1] = f0_bin - 1
-  f0_coarse = (f0_mel + 0.5).int() if is_torch else np.rint(f0_mel).astype(np.int)
+  f0_coarse = (f0_mel + 0.5).long() if is_torch else np.rint(f0_mel).astype(np.int)
   assert f0_coarse.max() <= 255 and f0_coarse.min() >= 1, (f0_coarse.max(), f0_coarse.min())
   return f0_coarse
 
@@ -500,6 +500,19 @@ def repeat_expand_2d(content, target_len):
     return target
 
 
+def mix_model(model_paths,mix_rate,mode):
+  mix_rate = torch.FloatTensor(mix_rate)/100
+  model_tem = torch.load(model_paths[0])
+  models = [torch.load(path)["model"] for path in model_paths]
+  if mode == 0:
+     mix_rate = F.softmax(mix_rate,dim=0)
+  for k in model_tem["model"].keys():
+     model_tem["model"][k] = torch.zeros_like(model_tem["model"][k])
+     for i,model in enumerate(models):
+        model_tem["model"][k] += model[k]*mix_rate[i]
+  torch.save(model_tem,os.path.join(os.path.curdir,"output.pth"))
+  return os.path.join(os.path.curdir,"output.pth")
+  
 class HParams():
   def __init__(self, **kwargs):
     for k, v in kwargs.items():
