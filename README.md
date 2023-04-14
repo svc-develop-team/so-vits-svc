@@ -205,7 +205,9 @@ Introduction: The mean filtering of F0 can effectively reduce the hoarse sound c
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
 
-#### [23/03/16] No longer need to download hubert manually
+**[23/03/16] No longer need to download hubert manually**
+
+**[23/04/14] Support NSF_HIFIGAN enhancer**
 
 ## 📤 Exporting to Onnx
 
