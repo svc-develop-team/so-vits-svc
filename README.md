@@ -13,6 +13,14 @@
 5. If you distribute this repository's code or publish any results produced by this project publicly (including but not limited to video sharing platforms), please indicate the original author and code source (this repository).
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
+## 📝 4.0 Feature list of branches
+
+| Branch        |     Feature      |  whether compatible with the main branch model |
+| :-------------: | :----------: | :------------:    |
+| 4.0              |   main branch   |        -     |
+| 4.0v2        |  The VISinger2 model is used  |        incompatibility     |
+| 4.0-Vec768-Layer12    |  The feature input is the Layer 12 Transformer output of the Content Vec  |       incompatibility     |
+
 ## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, and inputs them together with F0 into VITS instead of the original text input to achieve the effect of song conversion. At the same time, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
