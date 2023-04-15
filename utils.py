@@ -232,12 +232,11 @@ def get_hubert_content(hmodel, wav_16k_tensor):
   inputs = {
     "source": feats.to(wav_16k_tensor.device),
     "padding_mask": padding_mask.to(wav_16k_tensor.device),
-    "output_layer": 9,  # layer 9
+    "output_layer": 12,  # layer 12
   }
   with torch.no_grad():
     logits = hmodel.extract_features(**inputs)
-    feats = hmodel.final_proj(logits[0])
-  return feats.transpose(1, 2)
+  return logits[0].transpose(1, 2)
 
 
 def get_content(cmodel, y):

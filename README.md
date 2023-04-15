@@ -29,16 +29,9 @@ This project is an open source, offline project, and all members of SvcDevelopTe
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### 🆕 4.0 Version Update Content
+### 🆕 4.0-Vec768-Layer12 Version Update Content
 
-- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec)
-- The sampling rate is unified to use 44100Hz
-- Due to the change of hop size and other parameters, as well as the streamlining of some model structures, the required GPU memory for inference is **significantly reduced**. The 44kHz GPU memory usage of version 4.0 is even smaller than the 32kHz usage of version 3.0.
-- Some code structures have been adjusted
-- The dataset creation and training process are consistent with version 3.0, but the model is completely non-universal, and the data set needs to be fully pre-processed again.
-- Added an option 1: automatic pitch prediction for vc mode, which means that you don't need to manually enter the pitch key when converting speech, and the pitch of male and female voices can be automatically converted. However, this mode will cause pitch shift when converting songs.
-- Added option 2: reduce timbre leakage through k-means clustering scheme, making the timbre more similar to the target timbre.
-- Added option 3: Added [NSF-HIFIGAN Enhancer](https://github.com/yxlllc/DDSP-SVC), which has certain sound quality enhancement effect on some models with few train-sets, but has negative effect on well-trained models, so it is closed by default
+- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, the branch is not compatible with 4.0 model
   
 ## 💬 About Python Version
 

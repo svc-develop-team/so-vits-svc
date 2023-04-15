@@ -52,8 +52,8 @@
     "upsample_kernel_sizes": [16,16, 4, 4, 4],
     "n_layers_q": 3,
     "use_spectral_norm": false,
-    "gin_channels": 256,
-    "ssl_dim": 256,
+    "gin_channels": 768,
+    "ssl_dim": 768,
     "n_speakers": 200
   },
   "spk": {
