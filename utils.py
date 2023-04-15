@@ -205,7 +205,7 @@ def f0_to_coarse(f0):
 
   f0_mel[f0_mel <= 1] = 1
   f0_mel[f0_mel > f0_bin - 1] = f0_bin - 1
-  f0_coarse = (f0_mel + 0.5).long() if is_torch else np.rint(f0_mel).astype(np.int)
+  f0_coarse = (f0_mel + 0.5).int() if is_torch else np.rint(f0_mel).astype(np.int)
   assert f0_coarse.max() <= 255 and f0_coarse.min() >= 1, (f0_coarse.max(), f0_coarse.min())
   return f0_coarse
 
