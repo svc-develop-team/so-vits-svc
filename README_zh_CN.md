@@ -29,16 +29,9 @@
 
 歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
 
-### 🆕 4.0 版本更新内容
+### 🆕 4.0-Vec768-Layer12 版本更新内容
 
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 
-+ 采样率统一使用44100hz
-+ 由于更改了hop size等参数以及精简了部分模型结构，推理所需显存占用**大幅降低**，4.0版本44khz显存占用甚至小于3.0版本的32khz
-+ 调整了部分代码结构
-+ 数据集制作、训练过程和3.0保持一致，但模型完全不通用，数据集也需要全部重新预处理
-+ 增加了可选项 1：vc模式自动预测音高f0,即转换语音时不需要手动输入变调key，男女声的调能自动转换，但仅限语音转换，该模式转换歌声会跑调
-+ 增加了可选项 2：通过kmeans聚类方案减小音色泄漏，即使得音色更加像目标音色
-+ 增加了可选项 3：增加了[NSF-HIFIGAN增强器](https://github.com/yxlllc/DDSP-SVC)，对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭
++ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出，该分支不兼容4.0的模型
 
 ## 💬 关于 Python 版本问题
 
