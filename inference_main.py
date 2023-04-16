@@ -22,31 +22,50 @@ def main():
 
     parser = argparse.ArgumentParser(description='sovits4 inference')
 
-    # 一定要设置的部分
-    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_0.pth", help='模型路径')
-    parser.add_argument('-c', '--config_path', type=str, default="configs/config.json", help='配置文件路径')
-    parser.add_argument('-cl', '--clip', type=float, default=0, help='音频强制切片，默认0为自动切片，单位为秒/s')
-    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"], help='wav文件名列表，放在raw文件夹下')
-    parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0], help='音高调整，支持正负（半音）')
-    parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'], help='合成目标说话人名称')
+    # Required
+    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_0.pth",
+                        help='Path to the model.')
+    parser.add_argument('-c', '--config_path', type=str, default="configs/config.json",
+                        help='Path to the configuration file.')
+    parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'],
+                        help='Target speaker name for conversion.')
+    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"],
+                        help='A list of wav file names located in the raw folder.')
+    parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0],
+                        help='Pitch adjustment, supports positive and negative (semitone) values.')
 
-    # 可选项部分
-    parser.add_argument('-a', '--auto_predict_f0', type=bool, default=False, help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
-    parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt", help='聚类模型路径，如果没有训练聚类则随便填')
-    parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可')
-    parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒')
-    parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False, help='是否对F0使用均值滤波器(池化)，对部分哑音有改善。注意，启动该选项会导致推理速度下降，默认关闭')
-    parser.add_argument('-eh', '--enhance', type=bool, default=False, help='是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭')
+    # Optional
+    parser.add_argument('-a', '--auto_predict_f0', type=bool, default=False,
+                        help='Automatic pitch prediction for voice conversion. Do not enable this when converting songs as it can cause serious pitch issues.')
+    parser.add_argument('-cl', '--clip', type=float, default=0,
+                        help='Voice forced slicing. Set to 0 to turn off(default), duration in seconds.')
+    parser.add_argument('-lg', '--linear_gradient', type=float, default=0,
+                        help='The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use. Default 0.')
+    parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt",
+                        help='Path to the clustering model. Fill in any value if clustering is not trained.')
+    parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0,
+                        help='Proportion of the clustering solution, range 0-1. Fill in 0 if the clustering model is not trained.')
+    parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, default=False,
+                        help='Apply mean filter (pooling) to f0, which may improve some hoarse sounds. Enabling this option will reduce inference speed.')
+    parser.add_argument('-eh', '--enhance', type=bool, default=False,
+                        help='Whether to use NSF_HIFIGAN enhancer. This option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.')
 
-    # 不用动的部分
-    parser.add_argument('-sd', '--slice_db', type=int, default=-40, help='默认-40，嘈杂的音频可以-30，干声保留呼吸可以-50')
-    parser.add_argument('-d', '--device', type=str, default=None, help='推理设备，None则为自动选择cpu和gpu')
-    parser.add_argument('-ns', '--noice_scale', type=float, default=0.4, help='噪音级别，会影响咬字和音质，较为玄学')
-    parser.add_argument('-p', '--pad_seconds', type=float, default=0.5, help='推理音频pad秒数，由于未知原因开头结尾会有异响，pad一小段静音段后就不会出现')
-    parser.add_argument('-wf', '--wav_format', type=str, default='flac', help='音频输出格式')
-    parser.add_argument('-lgr', '--linear_gradient_retain', type=float, default=0.75, help='自动音频切片后，需要舍弃每段切片的头尾。该参数设置交叉长度保留的比例，范围0-1,左开右闭')
-    parser.add_argument('-eak', '--enhancer_adaptive_key', type=int, default=0, help='使增强器适应更高的音域(单位为半音数)|默认为0')
-    
+    # generally keep default
+    parser.add_argument('-sd', '--slice_db', type=int, default=-40,
+                        help='Loudness for automatic slicing. For noisy audio it can be set to -30')
+    parser.add_argument('-d', '--device', type=str, default=None,
+                        help='Device used for inference. None means auto selecting.')
+    parser.add_argument('-ns', '--noice_scale', type=float, default=0.4,
+                        help='Affect pronunciation and sound quality.')
+    parser.add_argument('-p', '--pad_seconds', type=float, default=0.5,
+                        help='Due to unknown reasons, there may be abnormal noise at the beginning and end. It will disappear after padding a short silent segment.')
+    parser.add_argument('-wf', '--wav_format', type=str, default='flac',
+                        help='output format')
+    parser.add_argument('-lgr', '--linear_gradient_retain', type=float, default=0.75,
+                        help='Proportion of cross length retention, range (0-1]. After forced slicing, the beginning and end of each segment need to be discarded.')
+    parser.add_argument('-eak', '--enhancer_adaptive_key', type=int, default=0,
+                        help='Adapt the enhancer to a higher range of sound. The unit is the semitones, default 0.')
+
     args = parser.parse_args()
 
     clean_names = args.clean_names

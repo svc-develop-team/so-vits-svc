@@ -2,8 +2,6 @@
 
 The project has been officially stopped for maintenance.
 
-[**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
-
 #### ✨ A fork with a greatly improved interface: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
 #### ✨ A client supports real-time conversion: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
@@ -170,24 +168,24 @@ Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0
 
 ```shell
 # Example
-python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "君の知らない物語-src.wav" -t 0 -s "nen"
+python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -s "nen" -n "君の知らない物語-src.wav" -t 0
 ```
 
 Required parameters:
-- `-m` | `--model_path`: path to the model.
-- `-c` | `--config_path`: path to the configuration file.
-- `-n` | `--clean_names`: a list of wav file names located in the raw folder.
-- `-t` | `--trans`: pitch adjustment, supports positive and negative (semitone) values.
-- `-s` | `--spk_list`: target speaker name for synthesis.
-- `-cl` | `--clip`: voice forced slicing, set to 0 to turn off(default), duration in seconds.
+- `-m` | `--model_path`: Path to the model.
+- `-c` | `--config_path`: Path to the configuration file.
+- `-s` | `--spk_list`: Target speaker name for conversion.
+- `-n` | `--clean_names`: A list of wav file names located in the raw folder.
+- `-t` | `--trans`: Pitch adjustment, supports positive and negative (semitone) values.
 
 Optional parameters: see the next section
-- `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
+- `-a` | `--auto_predict_f0`: Automatic pitch prediction for voice conversion. Do not enable this when converting songs as it can cause serious pitch issues.
+- `-cl` | `--clip`: Voice forced slicing. Set to 0 to turn off(default), duration in seconds.
+- `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use. Default 0.
+- `-cm` | `--cluster_model_path`: Path to the clustering model. Fill in any value if clustering is not trained.
+- `-cr` | `--cluster_infer_ratio`: Proportion of the clustering solution, range 0-1. Fill in 0 if the clustering model is not trained.
 - `-fmp` | `--f0_mean_pooling`: Apply mean filter (pooling) to f0, which may improve some hoarse sounds. Enabling this option will reduce inference speed.
-- `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
-- `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
-- `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
-- `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
+- `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer. This option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
 
 ## 🤔 Optional Settings
 

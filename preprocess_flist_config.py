@@ -13,11 +13,11 @@ pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
 
 def get_wav_duration(file_path):
     with wave.open(file_path, 'rb') as wav_file:
-        # 获取音频帧数
+        # get audio frames
         n_frames = wav_file.getnframes()
-        # 获取采样率
+        # get sampling rate
         framerate = wav_file.getframerate()
-        # 计算时长（秒）
+        # calculate duration in seconds
         duration = n_frames / float(framerate)
     return duration
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             if not file.endswith("wav"):
                 continue
             if not pattern.match(file):
-                print(f"warning：文件名{file}中包含非字母数字下划线，可能会导致错误。（也可能不会）")
+                print(f"Warning: The file name of {file} contains non-alphanumeric and underscores, which may cause issues. (or maybe not)")
             if get_wav_duration(file) < 0.3:
                 print("skip too short audio:", file)
                 continue

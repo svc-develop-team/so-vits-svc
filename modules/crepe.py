@@ -92,7 +92,7 @@ class BasePitchExtractor:
         vuv_vector[f0 > 0.0] = 1.0
         vuv_vector[f0 <= 0.0] = 0.0
         
-        # 去掉0频率, 并线性插值
+        # Remove 0 frequency and apply linear interpolation
         nzindex = torch.nonzero(f0).squeeze()
         f0 = torch.index_select(f0, dim=0, index=nzindex).cpu().numpy()
         time_org = self.hop_length / sampling_rate * nzindex.cpu().numpy()
@@ -104,7 +104,7 @@ class BasePitchExtractor:
         if f0.shape[0] == 1:
             return torch.ones(pad_to, dtype=torch.float, device=x.device) * f0[0],torch.ones(pad_to, dtype=torch.float, device=x.device)
     
-        # 大概可以用 torch 重写?
+        # Probably can be rewritten with torch?
         f0 = np.interp(time_frame, time_org, f0, left=f0[0], right=f0[-1])
         vuv_vector = vuv_vector.cpu().numpy()
         vuv_vector = np.ceil(scipy.ndimage.zoom(vuv_vector,pad_to/len(vuv_vector),order = 0))

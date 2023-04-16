@@ -129,7 +129,7 @@ class Svc(object):
         self.hop_size = self.hps_ms.data.hop_length
         self.spk2id = self.hps_ms.spk
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
-        # 加载hubert
+        # load hubert
         self.hubert_model = utils.get_hubert_model().to(self.dev)
         self.load_model()
         if os.path.exists(cluster_model_path):
@@ -139,7 +139,7 @@ class Svc(object):
             self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
 
     def load_model(self):
-        # 获取模型配置
+        # get model configuration
         self.net_g_ms = SynthesizerTrn(
             self.hps_ms.data.filter_length // 2 + 1,
             self.hps_ms.train.segment_size // self.hps_ms.data.hop_length,
@@ -159,13 +159,13 @@ class Svc(object):
         if F0_mean_pooling == True:
             f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev)
             if f0_filter and sum(f0) == 0:
-                raise F0FilterException("未检测到人声")
+                raise F0FilterException("No voice detected")
             f0 = torch.FloatTensor(list(f0))
             uv = torch.FloatTensor(list(uv))
         if F0_mean_pooling == False:
             f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
             if f0_filter and sum(f0) == 0:
-                raise F0FilterException("未检测到人声")
+                raise F0FilterException("No voice detected")
             f0, uv = utils.interpolate_f0(f0)
             f0 = torch.FloatTensor(f0)
             uv = torch.FloatTensor(uv)
@@ -219,11 +219,11 @@ class Svc(object):
         return audio, audio.shape[-1]
 
     def clear_empty(self):
-        # 清理显存
+        # clean up vram
         torch.cuda.empty_cache()
 
     def unload_model(self):
-        # 卸载模型
+        # unload model
         self.net_g_ms = self.net_g_ms.to("cpu")
         del self.net_g_ms
         if hasattr(self,"enhancer"): 
@@ -305,10 +305,10 @@ class RealTimeVC:
     def __init__(self):
         self.last_chunk = None
         self.last_o = None
-        self.chunk_len = 16000  # 区块长度
-        self.pre_len = 3840  # 交叉淡化长度，640的倍数
+        self.chunk_len = 16000  # chunk length
+        self.pre_len = 3840  # cross fade length, multiples of 640
 
-    """输入输出都是1维numpy 音频波形数组"""
+    # Input and output are 1-dimensional numpy waveform arrays
 
     def process(self, svc_model, speaker_id, f_pitch_change, input_wav_path,
                 cluster_infer_ratio=0,

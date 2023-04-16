@@ -12,10 +12,10 @@ app = Flask(__name__)
 @app.route("/wav2wav", methods=["POST"])
 def wav2wav():
     request_form = request.form
-    audio_path = request_form.get("audio_path", None)  # wav文件地址
-    tran = int(float(request_form.get("tran", 0)))  # 音调
-    spk = request_form.get("spk", 0)  # 说话人(id或者name都可以,具体看你的config)
-    wav_format = request_form.get("wav_format", 'wav')  # 范围文件格式
+    audio_path = request_form.get("audio_path", None)  # wav path
+    tran = int(float(request_form.get("tran", 0)))  # tone
+    spk = request_form.get("spk", 0)  # speaker(id or name)
+    wav_format = request_form.get("wav_format", 'wav')
     infer_tool.format_wav(audio_path)
     chunks = slicer.cut(audio_path, db_thresh=-40)
     audio_data, audio_sr = slicer.chunks2audio(audio_path, chunks)
@@ -49,7 +49,7 @@ def wav2wav():
 
 
 if __name__ == '__main__':
-    model_name = "logs/44k/G_60000.pth"  # 模型地址
-    config_name = "configs/config.json"  # config地址
+    model_name = "logs/44k/G_60000.pth"
+    config_name = "configs/config.json"
     svc_model = infer_tool.Svc(model_name, config_name)
     app.run(port=1145, host="0.0.0.0", debug=False, threaded=False)

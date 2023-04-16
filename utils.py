@@ -119,9 +119,6 @@ def plot_data_to_numpy(x, y):
 
 
 def interpolate_f0(f0):
-    '''
-    对F0进行插值处理
-    '''
 
     data = np.reshape(f0, (f0.size, 1))
 
@@ -151,7 +148,7 @@ def interpolate_f0(f0):
                 for k in range(i, frame_number):
                     ip_data[k] = last_value
         else:
-            ip_data[i] = data[i] #这里可能存在一个没有必要的拷贝
+            ip_data[i] = data[i] # this may not be necessary
             last_value = data[i]
 
     return ip_data[:,0], vuv_vector[:,0]

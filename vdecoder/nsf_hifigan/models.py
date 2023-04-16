@@ -137,12 +137,12 @@ class SineGen(torch.nn.Module):
         """
         f0 = f0.unsqueeze(-1)
         fn = torch.multiply(f0, torch.arange(1, self.dim + 1, device=f0.device).reshape((1, 1, -1)))
-        rad_values = (fn / self.sampling_rate) % 1  ###%1意味着n_har的乘积无法后处理优化
+        rad_values = (fn / self.sampling_rate) % 1  ###%1 means the product of n_har cannot be optimized for post-processing
         rand_ini = torch.rand(fn.shape[0], fn.shape[2], device=fn.device)
         rand_ini[:, 0] = 0
         rad_values[:, 0, :] = rad_values[:, 0, :] + rand_ini
         is_half = rad_values.dtype is not torch.float32
-        tmp_over_one = torch.cumsum(rad_values.double(), 1)  # % 1  #####%1意味着后面的cumsum无法再优化
+        tmp_over_one = torch.cumsum(rad_values.double(), 1)  # % 1  #####%1 means the following cumsum can no longer be optimized
         if is_half:
             tmp_over_one = tmp_over_one.half()
         else:
