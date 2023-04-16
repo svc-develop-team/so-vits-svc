@@ -1,14 +1,20 @@
 # SoftVC VITS Singing Voice Conversion
 
+The project has been officially stopped for maintenance.
+
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
 #### ✨ A fork with a greatly improved interface: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
 #### ✨ A client supports real-time conversion: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
 
-## Warning!!!
+## Disclaimer
 
 This project is an open source, offline project, and all members of SvcDevelopTeam and all developers and maintainers of this project (hereinafter referred to as contributors) have no control over this project.  The contributor of this project has never provided any organization or individual with any form of assistance, including but not limited to data set extraction, data set processing, computing support, training support, infering, etc.  Contributors to the project do not and cannot know what users are using the project for.  Therefore, all AI models and synthesized audio based on the training of this project have nothing to do with the contributors of this project.  All problems arising therefrom shall be borne by the user.
+
+This project is run completely offline and cannot collect any user information or obtain user input data. Therefore, contributors to this project are not aware of all user input and models and therefore are not responsible for any user input.
+
+This project is only a framework project, which does not have the function of speech synthesis itself, and all functions can be realized only by the user's self-training model. Meanwhile, there is no model attached to this project, and any secondary distributed project has nothing to do with the contributors of this project
 
 ## 📏 Terms of Use
 
