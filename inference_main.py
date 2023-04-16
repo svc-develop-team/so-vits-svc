@@ -35,7 +35,7 @@ def main():
                         help='Pitch adjustment, supports positive and negative (semitone) values.')
 
     # Optional
-    parser.add_argument('-a', '--auto_predict_f0', type=bool, action='store_true', default=False,
+    parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False,
                         help='Automatic pitch prediction for voice conversion. Do not enable this when converting songs as it can cause serious pitch issues.')
     parser.add_argument('-cl', '--clip', type=float, default=0,
                         help='Voice forced slicing. Set to 0 to turn off(default), duration in seconds.')
@@ -45,9 +45,9 @@ def main():
                         help='Path to the clustering model. Fill in any value if clustering is not trained.')
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0,
                         help='Proportion of the clustering solution, range 0-1. Fill in 0 if the clustering model is not trained.')
-    parser.add_argument('-fmp', '--f0_mean_pooling', type=bool, action='store_true', default=False,
+    parser.add_argument('-fmp', '--f0_mean_pooling', action='store_true', default=False,
                         help='Apply mean filter (pooling) to f0, which may improve some hoarse sounds. Enabling this option will reduce inference speed.')
-    parser.add_argument('-eh', '--enhance', type=bool, action='store_true', default=False,
+    parser.add_argument('-eh', '--enhance', action='store_true', default=False,
                         help='Whether to use NSF_HIFIGAN enhancer. This option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.')
 
     # generally keep default
