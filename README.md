@@ -14,7 +14,7 @@ This project is an open source, offline project, and all members of SvcDevelopTe
 
 This project is run completely offline and cannot collect any user information or obtain user input data. Therefore, contributors to this project are not aware of all user input and models and therefore are not responsible for any user input.
 
-This project is only a framework project, which does not have the function of speech synthesis itself, and all functions can be realized only by the user's self-training model. Meanwhile, there is no model attached to this project, and any secondary distributed project has nothing to do with the contributors of this project
+This project is only a framework project, which does not have the function of speech synthesis itself, and all the functions require the user to train the model themselves. Meanwhile, there is no model attached to this project, and any secondary distributed project has nothing to do with the contributors of this project
 
 ## 📏 Terms of Use
 
