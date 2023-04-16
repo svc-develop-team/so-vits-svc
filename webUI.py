@@ -132,7 +132,7 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             return f"推理成功，音频文件保存为results/{filename}", (model.target_sample, _audio)
         except Exception as e:
             if debug: traceback.print_exc()
-            raise gr.Error(e)
+            return f"文件保存失败，请手动保存", (model.target_sample, _audio)
     except Exception as e:
         if debug: traceback.print_exc()
         raise gr.Error(e)
