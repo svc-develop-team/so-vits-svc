@@ -152,12 +152,12 @@ class Svc(object):
 
 
 
-    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling):
+    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling,cr_threshold=0.05):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
         if F0_mean_pooling == True:
-            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev)
+            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev,cr_threshold = cr_threshold)
             if f0_filter and sum(f0) == 0:
                 raise F0FilterException("No voice detected")
             f0 = torch.FloatTensor(list(f0))
@@ -193,7 +193,8 @@ class Svc(object):
               noice_scale=0.4,
               f0_filter=False,
               F0_mean_pooling=False,
-              enhancer_adaptive_key = 0
+              enhancer_adaptive_key = 0,
+              cr_threshold = 0.05
               ):
 
         speaker_id = self.spk2id.__dict__.get(speaker)
@@ -201,7 +202,7 @@ class Svc(object):
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
-        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling)
+        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling,cr_threshold=cr_threshold)
         if "half" in self.net_g_path and torch.cuda.is_available():
             c = c.half()
         with torch.no_grad():
@@ -245,7 +246,8 @@ class Svc(object):
                         lg_num=0,
                         lgr_num =0.75,
                         F0_mean_pooling = False,
-                        enhancer_adaptive_key = 0
+                        enhancer_adaptive_key = 0,
+                        cr_threshold = 0.05
                         ):
         wav_path = raw_audio_path
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
@@ -285,7 +287,8 @@ class Svc(object):
                                                     auto_predict_f0=auto_predict_f0,
                                                     noice_scale=noice_scale,
                                                     F0_mean_pooling = F0_mean_pooling,
-                                                    enhancer_adaptive_key = enhancer_adaptive_key
+                                                    enhancer_adaptive_key = enhancer_adaptive_key,
+                                                    cr_threshold = cr_threshold
                                                     )
                 _audio = out_audio.cpu().numpy()
                 pad_len = int(self.target_sample * pad_seconds)
