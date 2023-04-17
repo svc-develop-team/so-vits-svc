@@ -65,7 +65,7 @@ def main():
                         help='Proportion of cross length retention, range (0-1]. After forced slicing, the beginning and end of each segment need to be discarded.')
     parser.add_argument('-eak', '--enhancer_adaptive_key', type=int, default=0,
                         help='Adapt the enhancer to a higher range of sound. The unit is the semitones, default 0.')
-    parser.add_argument('-ft', '--F0_filter_threshold', type=float, default=0.05,
+    parser.add_argument('-ft', '--f0_filter_threshold', type=float, default=0.05,
                         help='F0 Filtering threshold: This parameter is valid only when f0_mean_pooling is enabled. Values range from 0 to 1. Reducing this value reduces the probability of being out of tune, but increases matte.')
 
 
@@ -86,7 +86,7 @@ def main():
     F0_mean_pooling = args.f0_mean_pooling
     enhance = args.enhance
     enhancer_adaptive_key = args.enhancer_adaptive_key
-    cr_threshold = args.F0_filter_threshold
+    cr_threshold = args.f0_filter_threshold
 
     svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance)
     infer_tool.mkdir(["raw", "results"])
