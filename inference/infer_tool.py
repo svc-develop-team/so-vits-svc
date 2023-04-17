@@ -129,7 +129,7 @@ class Svc(object):
         self.hop_size = self.hps_ms.data.hop_length
         self.spk2id = self.hps_ms.spk
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
-        # 加载hubert
+        # load hubert
         self.hubert_model = utils.get_hubert_model().to(self.dev)
         self.load_model()
         if os.path.exists(cluster_model_path):
@@ -139,7 +139,7 @@ class Svc(object):
             self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
 
     def load_model(self):
-        # 获取模型配置
+        # get model configuration
         self.net_g_ms = SynthesizerTrn(
             self.hps_ms.data.filter_length // 2 + 1,
             self.hps_ms.train.segment_size // self.hps_ms.data.hop_length,
@@ -152,20 +152,20 @@ class Svc(object):
 
 
 
-    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling):
+    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling,cr_threshold=0.05):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
         if F0_mean_pooling == True:
-            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev)
+            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev,cr_threshold = cr_threshold)
             if f0_filter and sum(f0) == 0:
-                raise F0FilterException("未检测到人声")
+                raise F0FilterException("No voice detected")
             f0 = torch.FloatTensor(list(f0))
             uv = torch.FloatTensor(list(uv))
         if F0_mean_pooling == False:
             f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
             if f0_filter and sum(f0) == 0:
-                raise F0FilterException("未检测到人声")
+                raise F0FilterException("No voice detected")
             f0, uv = utils.interpolate_f0(f0)
             f0 = torch.FloatTensor(f0)
             uv = torch.FloatTensor(uv)
@@ -193,7 +193,8 @@ class Svc(object):
               noice_scale=0.4,
               f0_filter=False,
               F0_mean_pooling=False,
-              enhancer_adaptive_key = 0
+              enhancer_adaptive_key = 0,
+              cr_threshold = 0.05
               ):
 
         speaker_id = self.spk2id.__dict__.get(speaker)
@@ -201,7 +202,7 @@ class Svc(object):
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
-        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling)
+        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling,cr_threshold=cr_threshold)
         if "half" in self.net_g_path and torch.cuda.is_available():
             c = c.half()
         with torch.no_grad():
@@ -219,11 +220,11 @@ class Svc(object):
         return audio, audio.shape[-1]
 
     def clear_empty(self):
-        # 清理显存
+        # clean up vram
         torch.cuda.empty_cache()
 
     def unload_model(self):
-        # 卸载模型
+        # unload model
         self.net_g_ms = self.net_g_ms.to("cpu")
         del self.net_g_ms
         if hasattr(self,"enhancer"): 
@@ -245,7 +246,8 @@ class Svc(object):
                         lg_num=0,
                         lgr_num =0.75,
                         F0_mean_pooling = False,
-                        enhancer_adaptive_key = 0
+                        enhancer_adaptive_key = 0,
+                        cr_threshold = 0.05
                         ):
         wav_path = raw_audio_path
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
@@ -285,7 +287,8 @@ class Svc(object):
                                                     auto_predict_f0=auto_predict_f0,
                                                     noice_scale=noice_scale,
                                                     F0_mean_pooling = F0_mean_pooling,
-                                                    enhancer_adaptive_key = enhancer_adaptive_key
+                                                    enhancer_adaptive_key = enhancer_adaptive_key,
+                                                    cr_threshold = cr_threshold
                                                     )
                 _audio = out_audio.cpu().numpy()
                 pad_len = int(self.target_sample * pad_seconds)
@@ -305,10 +308,10 @@ class RealTimeVC:
     def __init__(self):
         self.last_chunk = None
         self.last_o = None
-        self.chunk_len = 16000  # 区块长度
-        self.pre_len = 3840  # 交叉淡化长度，640的倍数
+        self.chunk_len = 16000  # chunk length
+        self.pre_len = 3840  # cross fade length, multiples of 640
 
-    """输入输出都是1维numpy 音频波形数组"""
+    # Input and output are 1-dimensional numpy waveform arrays
 
     def process(self, svc_model, speaker_id, f_pitch_change, input_wav_path,
                 cluster_infer_ratio=0,
