@@ -225,8 +225,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 losses = [loss_disc, loss_gen, loss_fm, loss_mel, loss_kl]
                 reference_loss=0
                 for i in losses:
-                    reference_loss += math.log(i, 10)
-                reference_loss*=10
+                    reference_loss += i
                 logger.info('Train Epoch: {} [{:.0f}%]'.format(
                     epoch,
                     100. * batch_idx / len(train_loader)))
