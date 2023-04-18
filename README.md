@@ -169,7 +169,7 @@ The existing steps before clustering do not need to be changed. All you need to 
   - Specify "cluster_model_path" in inference_main.
   - Specify "cluster_infer_ratio" in inference_main, where 0 means not using clustering at all, 1 means only using clustering, and usually 0.5 is sufficient.
 
-### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/svc-develop-team/so-vits-svc/blob/4.0-v2/sovits4v2_for_colab.ipynb) [sovits4v2_for_colab.ipynb](https://github.com/svc-develop-team/so-vits-svc/blob/4.0-v2/sovits4v2_for_colab.ipynb)
+### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.0-v2/sovits4v2_for_colab.ipynb) [sovits4v2_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.0-v2/sovits4v2_for_colab.ipynb)
 
 **[23/03/16] No longer need to download hubert manually**
 
