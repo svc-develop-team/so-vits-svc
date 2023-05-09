@@ -105,7 +105,7 @@ def main():
         lg_size_r = int(lg_size*lgr)
         lg_size_c_l = (lg_size-lg_size_r)//2
         lg_size_c_r = lg_size-lg_size_r-lg_size_c_l
-        lg = np.linspace(0,1,lg_size_r) if lg_size!=0 else 0
+        lg_2 = np.linspace(0,1,lg_size_r) if lg_size!=0 else 0
 
         for spk in spk_list:
             audio = []
@@ -146,7 +146,7 @@ def main():
                     if lg_size!=0 and k!=0:
                         lg1 = audio[-(lg_size_r+lg_size_c_r):-lg_size_c_r] if lgr != 1 else audio[-lg_size:]
                         lg2 = _audio[lg_size_c_l:lg_size_c_l+lg_size_r]  if lgr != 1 else _audio[0:lg_size]
-                        lg_pre = lg1*(1-lg)+lg2*lg
+                        lg_pre = lg1*(1-lg_2)+lg2*lg_2
                         audio = audio[0:-(lg_size_r+lg_size_c_r)] if lgr != 1 else audio[0:-lg_size]
                         audio.extend(lg_pre)
                         _audio = _audio[lg_size_c_l+lg_size_r:] if lgr != 1 else _audio[lg_size:]
