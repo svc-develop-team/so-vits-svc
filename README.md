@@ -244,6 +244,9 @@ Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently
 
 CppDataProcess are some functions to preprocess data used in MoeSS
 
+## 🤔The relationship between original project(so-vits-svc by original author), this project and so-vits-svc-5.0
+If the original project is equivalent to the Roman Empire, This project is Eastern Roman Empire(The Byzantine Empire) and so-vits-svc-5.0 is Kingdom of Romania
+
 ## ☀️ Previous contributors
 
 For some reason the author deleted the original repository. Because of the negligence of the organization members, the contributor list was cleared because all files were directly reuploaded to this repository at the beginning of the reconstruction of this repository. Now add a previous contributor list to README.md.
