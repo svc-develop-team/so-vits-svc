@@ -65,8 +65,8 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         spk = filename.split("/")[-2]
         spk = torch.LongTensor([self.spk_map[spk]])
 
-        f0 = np.load(filename + ".f0.npy")
-        f0, uv = utils.interpolate_f0(f0)
+        f0, uv = np.load(filename + ".f0.npy",allow_pickle=True)
+        
         f0 = torch.FloatTensor(f0)
         uv = torch.FloatTensor(uv)
 
