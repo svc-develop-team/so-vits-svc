@@ -11,13 +11,11 @@ import gc
 import librosa
 import numpy as np
 # import onnxruntime
-import parselmouth
 import soundfile
 import torch
 import torchaudio
 
 import cluster
-from hubert import hubert_model
 import utils
 from models import SynthesizerTrn
 
