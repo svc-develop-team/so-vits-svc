@@ -36,10 +36,10 @@ def process_one(filename, hmodel):
     if not os.path.exists(f0_path):
         from modules.F0Predictor.DioF0Predictor import DioF0Predictor
         f0_predictor = DioF0Predictor(sampling_rate=sampling_rate, hop_length=hop_length)
-        f0 = f0_predictor.compute_f0(
+        f0,uv = f0_predictor.compute_f0_uv(
             wav
         )
-        np.save(f0_path, f0)
+        np.save(f0_path, np.asanyarray((f0,uv),dtype=object))
 
     spec_path = filename.replace(".wav", ".spec.pt")
     if not os.path.exists(spec_path):
