@@ -29,41 +29,6 @@ f0_min = 50.0
 f0_mel_min = 1127 * np.log(1 + f0_min / 700)
 f0_mel_max = 1127 * np.log(1 + f0_max / 700)
 
-
-# def normalize_f0(f0, random_scale=True):
-#     f0_norm = f0.clone()  # create a copy of the input Tensor
-#     batch_size, _, frame_length = f0_norm.shape
-#     for i in range(batch_size):
-#         means = torch.mean(f0_norm[i, 0, :])
-#         if random_scale:
-#             factor = random.uniform(0.8, 1.2)
-#         else:
-#             factor = 1
-#         f0_norm[i, 0, :] = (f0_norm[i, 0, :] - means) * factor
-#     return f0_norm
-# def normalize_f0(f0, random_scale=True):
-#     means = torch.mean(f0[:, 0, :], dim=1, keepdim=True)
-#     if random_scale:
-#         factor = torch.Tensor(f0.shape[0],1).uniform_(0.8, 1.2).to(f0.device)
-#     else:
-#         factor = torch.ones(f0.shape[0], 1, 1).to(f0.device)
-#     f0_norm = (f0 - means.unsqueeze(-1)) * factor.unsqueeze(-1)
-#     return f0_norm
-
-def deprecated(func):
-    """This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used."""
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
-                      category=DeprecationWarning,
-                      stacklevel=2)
-        warnings.simplefilter('default', DeprecationWarning)  # reset filter
-        return func(*args, **kwargs)
-    return new_func
-
 def normalize_f0(f0, x_mask, uv, random_scale=True):
     # calculate means based on x_mask
     uv_sum = torch.sum(uv, dim=1, keepdim=True)
@@ -79,20 +44,6 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
     if torch.isnan(f0_norm).any():
         exit(0)
     return f0_norm * x_mask
-
-def compute_f0_uv_torchcrepe(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512,device=None,cr_threshold=0.05):
-    from modules.crepe import CrepePitchExtractor
-    x = wav_numpy
-    if p_len is None:
-        p_len = x.shape[0]//hop_length
-    else:
-        assert abs(p_len-x.shape[0]//hop_length) < 4, "pad length error"
-    
-    f0_min = 50
-    f0_max = 1100
-    F0Creper = CrepePitchExtractor(hop_length=hop_length,f0_min=f0_min,f0_max=f0_max,device=device,threshold=cr_threshold)
-    f0,uv = F0Creper(x[None,:].float(),sampling_rate,pad_to=p_len)
-    return f0,uv
 
 def plot_data_to_numpy(x, y):
     global MATPLOTLIB_FLAG
@@ -116,87 +67,6 @@ def plot_data_to_numpy(x, y):
     plt.close()
     return data
 
-
-
-def interpolate_f0(f0):
-    '''
-    对F0进行插值处理
-    '''
-
-    data = np.reshape(f0, (f0.size, 1))
-
-    vuv_vector = np.zeros((data.size, 1), dtype=np.float32)
-    vuv_vector[data > 0.0] = 1.0
-    vuv_vector[data <= 0.0] = 0.0
-
-    ip_data = data
-
-    frame_number = data.size
-    last_value = 0.0
-    for i in range(frame_number):
-        if data[i] <= 0.0:
-            j = i + 1
-            for j in range(i + 1, frame_number):
-                if data[j] > 0.0:
-                    break
-            if j < frame_number - 1:
-                if last_value > 0.0:
-                    step = (data[j] - data[i - 1]) / float(j - i)
-                    for k in range(i, j):
-                        ip_data[k] = data[i - 1] + step * (k - i + 1)
-                else:
-                    for k in range(i, j):
-                        ip_data[k] = data[j]
-            else:
-                for k in range(i, frame_number):
-                    ip_data[k] = last_value
-        else:
-            ip_data[i] = data[i] #这里可能存在一个没有必要的拷贝
-            last_value = data[i]
-
-    return ip_data[:,0], vuv_vector[:,0]
-
-
-def compute_f0_parselmouth(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512):
-    import parselmouth
-    x = wav_numpy
-    if p_len is None:
-        p_len = x.shape[0]//hop_length
-    else:
-        assert abs(p_len-x.shape[0]//hop_length) < 4, "pad length error"
-    time_step = hop_length / sampling_rate * 1000
-    f0_min = 50
-    f0_max = 1100
-    f0 = parselmouth.Sound(x, sampling_rate).to_pitch_ac(
-        time_step=time_step / 1000, voicing_threshold=0.6,
-        pitch_floor=f0_min, pitch_ceiling=f0_max).selected_array['frequency']
-
-    pad_size=(p_len - len(f0) + 1) // 2
-    if(pad_size>0 or p_len - len(f0) - pad_size>0):
-        f0 = np.pad(f0,[[pad_size,p_len - len(f0) - pad_size]], mode='constant')
-    return f0
-
-def resize_f0(x, target_len):
-    source = np.array(x)
-    source[source<0.001] = np.nan
-    target = np.interp(np.arange(0, len(source)*target_len, len(source))/ target_len, np.arange(0, len(source)), source)
-    res = np.nan_to_num(target)
-    return res
-
-def compute_f0_dio(wav_numpy, p_len=None, sampling_rate=44100, hop_length=512):
-    import pyworld
-    if p_len is None:
-        p_len = wav_numpy.shape[0]//hop_length
-    f0, t = pyworld.dio(
-        wav_numpy.astype(np.double),
-        fs=sampling_rate,
-        f0_ceil=800,
-        frame_period=1000 * hop_length / sampling_rate,
-    )
-    f0 = pyworld.stonemask(wav_numpy.astype(np.double), f0, t, sampling_rate)
-    for index, pitch in enumerate(f0):
-        f0[index] = round(pitch, 1)
-    return resize_f0(f0, p_len)
 
 def f0_to_coarse(f0):
   is_torch = isinstance(f0, torch.Tensor)
@@ -244,7 +114,6 @@ def get_content(cmodel, y):
         c = cmodel.extract_features(y.squeeze(1))[0]
     c = c.transpose(1, 2)
     return c
-
 
 
 def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False):

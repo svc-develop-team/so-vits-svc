@@ -152,27 +152,34 @@ class Svc(object):
 
 
 
-    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,F0_mean_pooling,cr_threshold=0.05):
+    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
-        if F0_mean_pooling == True:
-            f0, uv = utils.compute_f0_uv_torchcrepe(torch.FloatTensor(wav), sampling_rate=self.target_sample, hop_length=self.hop_size,device=self.dev,cr_threshold = cr_threshold)
-            if f0_filter and sum(f0) == 0:
-                raise F0FilterException("No voice detected")
-            f0 = torch.FloatTensor(list(f0))
-            uv = torch.FloatTensor(list(uv))
-        if F0_mean_pooling == False:
-            f0 = utils.compute_f0_parselmouth(wav, sampling_rate=self.target_sample, hop_length=self.hop_size)
-            if f0_filter and sum(f0) == 0:
-                raise F0FilterException("No voice detected")
-            f0, uv = utils.interpolate_f0(f0)
-            f0 = torch.FloatTensor(f0)
-            uv = torch.FloatTensor(uv)
+        if f0_predictor == "pm":
+            from modules.F0Predictor.PMF0Predictor import PMF0Predictor
+            f0_predictor_object = PMF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
+        elif f0_predictor == "crepe":
+            from modules.F0Predictor.CrepeF0Predictor import CrepeF0Predictor
+            f0_predictor_object = CrepeF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
+        elif f0_predictor == "harvest":
+            from modules.F0Predictor.HarvestF0Predictor import HarvestF0Predictor
+            f0_predictor_object = HarvestF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
+        elif f0_predictor == "dio":
+            from modules.F0Predictor.DioF0Predictor import DioF0Predictor
+            f0_predictor_object = DioF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
+        else:
+            raise Exception("Unknown f0 predictor")
+        
+        f0, uv = f0_predictor_object.compute_f0_uv(wav)
+        if f0_filter and sum(f0) == 0:
+            raise F0FilterException("No voice detected")
+        f0 = torch.FloatTensor(f0).to(self.dev)
+        uv = torch.FloatTensor(uv).to(self.dev)
 
         f0 = f0 * 2 ** (tran / 12)
-        f0 = f0.unsqueeze(0).to(self.dev)
-        uv = uv.unsqueeze(0).to(self.dev)
+        f0 = f0.unsqueeze(0)
+        uv = uv.unsqueeze(0)
 
         wav16k = librosa.resample(wav, orig_sr=self.target_sample, target_sr=16000)
         wav16k = torch.from_numpy(wav16k).to(self.dev)
@@ -192,7 +199,7 @@ class Svc(object):
               auto_predict_f0=False,
               noice_scale=0.4,
               f0_filter=False,
-              F0_mean_pooling=False,
+              f0_predictor='pm',
               enhancer_adaptive_key = 0,
               cr_threshold = 0.05
               ):
@@ -202,7 +209,7 @@ class Svc(object):
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
-        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,F0_mean_pooling,cr_threshold=cr_threshold)
+        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,f0_predictor,cr_threshold=cr_threshold)
         if "half" in self.net_g_path and torch.cuda.is_available():
             c = c.half()
         with torch.no_grad():
@@ -245,7 +252,7 @@ class Svc(object):
                         clip_seconds=0,
                         lg_num=0,
                         lgr_num =0.75,
-                        F0_mean_pooling = False,
+                        f0_predictor='pm',
                         enhancer_adaptive_key = 0,
                         cr_threshold = 0.05
                         ):
@@ -286,7 +293,7 @@ class Svc(object):
                                                     cluster_infer_ratio=cluster_infer_ratio,
                                                     auto_predict_f0=auto_predict_f0,
                                                     noice_scale=noice_scale,
-                                                    F0_mean_pooling = F0_mean_pooling,
+                                                    f0_predictor = f0_predictor,
                                                     enhancer_adaptive_key = enhancer_adaptive_key,
                                                     cr_threshold = cr_threshold
                                                     )
