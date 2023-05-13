@@ -34,8 +34,10 @@ def process_one(filename, hmodel):
 
     f0_path = filename + ".f0.npy"
     if not os.path.exists(f0_path):
-        f0 = utils.compute_f0_dio(
-            wav, sampling_rate=sampling_rate, hop_length=hop_length
+        from modules.F0Predictor.DioF0Predictor import DioF0Predictor
+        f0_predictor = DioF0Predictor(sampling_rate=sampling_rate, hop_length=hop_length)
+        f0 = f0_predictor.compute_f0(
+            wav
         )
         np.save(f0_path, f0)
 

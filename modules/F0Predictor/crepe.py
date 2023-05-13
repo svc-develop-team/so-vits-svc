@@ -263,9 +263,17 @@ class CrepePitchExtractor(BasePitchExtractor):
         device = None,
         model: Literal["full", "tiny"] = "full",
         use_fast_filters: bool = True,
+        decoder="viterbi"
     ):
         super().__init__(hop_length, f0_min, f0_max, keep_zeros)
-
+        if decoder == "viterbi":
+            self.decoder = torchcrepe.decode.viterbi
+        elif decoder == "argmax":
+            self.decoder = torchcrepe.decode.argmax
+        elif decoder == "weighted_argmax":
+            self.decoder = torchcrepe.decode.weighted_argmax
+        else:
+            raise "Unknown decoder"
         self.threshold = threshold
         self.model = model
         self.use_fast_filters = use_fast_filters
@@ -306,6 +314,7 @@ class CrepePitchExtractor(BasePitchExtractor):
             batch_size=1024,
             device=x.device,
             return_periodicity=True,
+            decoder=self.decoder
         )
 
         # Filter, remove silence, set uv threshold, refer to the original warehouse readme
