@@ -44,7 +44,7 @@ class HarvestF0Predictor(F0Predictor):
     def compute_f0_uv(self,wav,p_len=None):
         if p_len is None:
             p_len = wav.shape[0]//self.hop_length
-        f0, t = pyworld.dio(
+        f0, t = pyworld.harvest(
             wav.astype(np.double),
             fs=self.sampling_rate,
             f0_floor=self.f0_min,
