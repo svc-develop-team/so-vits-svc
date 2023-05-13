@@ -170,7 +170,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 可选项部分：部分具体见下一节
 + `-lg` | `--linear_gradient`：两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒
-+ `-fmp` | `--f0_mean_pooling`：是否对F0使用均值滤波器(池化)，对部分哑音有改善。注意，启动该选项会导致推理速度下降，默认关闭
++ `-f0p` | `--f0_predictor`：选择F0预测器,可选择crepe,pm,dio,harvest,默认为pm(注意：crepe为原F0使用均值滤波器)
 + `-a` | `--auto_predict_f0`：语音转换自动预测音高，转换歌声时不要打开这个会严重跑调
 + `-cm` | `--cluster_model_path`：聚类模型路径，如果没有训练聚类则随便填
 + `-cr` | `--cluster_infer_ratio`：聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可
@@ -197,12 +197,6 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + 推理过程：
   + `inference_main.py`中指定`cluster_model_path`
   + `inference_main.py`中指定`cluster_infer_ratio`，`0`为完全不使用聚类，`1`为只使用聚类，通常设置`0.5`即可
-
-### F0均值滤波
-
-介绍：对F0进行均值滤波，可以有效的减少因音高推测波动造成的哑音（由于混响或和声等造成的哑音暂时不能消除）。该功能在部分歌曲上提升巨大，但是在部分歌曲上会出现跑调的问题。如果歌曲推理后出现哑音可以考虑开启。
-
-+ 在`inference_main.py`中设置`f0_mean_pooling`为true即可
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing) [sovits4_for_colab.ipynb](https://colab.research.google.com/drive/1kv-3y2DmZo0uya8pEr1xk7cSB-4e_Pct?usp=sharing)
 
