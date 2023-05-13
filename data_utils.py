@@ -67,8 +67,8 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
         f0, uv = np.load(filename + ".f0.npy",allow_pickle=True)
         
-        f0 = torch.FloatTensor(f0)
-        uv = torch.FloatTensor(uv)
+        f0 = torch.FloatTensor(np.array(f0,dtype=float))
+        uv = torch.FloatTensor(np.array(uv,dtype=float))
 
         c = torch.load(filename+ ".soft.pt")
         c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[0])
