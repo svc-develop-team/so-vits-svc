@@ -41,7 +41,6 @@ def process_one(filename, hmodel,f0p):
         )
         np.save(f0_path, np.asanyarray((f0,uv),dtype=object))
 
-
     spec_path = filename.replace(".wav", ".spec.pt")
     if not os.path.exists(spec_path):
         # Process spectrogram
