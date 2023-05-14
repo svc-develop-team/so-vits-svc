@@ -20,10 +20,9 @@ import numpy as np
 hps = utils.get_hparams_from_file("configs/config.json")
 sampling_rate = hps.data.sampling_rate
 hop_length = hps.data.hop_length
-f0p = "dio"
-speech_encoder = "vec768l12"
+speech_encoder = hps["model"]["speech_encoder"]
 
-def process_one(filename, hmodel):
+def process_one(filename, hmodel,f0p):
     # print(filename)
     wav, sr = librosa.load(filename, sr=sampling_rate)
     soft_path = filename + ".soft.pt"
@@ -72,13 +71,13 @@ def process_one(filename, hmodel):
         torch.save(spec, spec_path)
 
 
-def process_batch(filenames):
+def process_batch(filenames,f0p):
     print("Loading hubert for content...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     hmodel = utils.get_speech_encoder(speech_encoder,device=device)
     print("Loaded hubert.")
     for filename in tqdm(filenames):
-        process_one(filename, hmodel)
+        process_one(filename, hmodel,f0p)
 
 
 if __name__ == "__main__":
@@ -89,15 +88,10 @@ if __name__ == "__main__":
     parser.add_argument( 
         '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
     )
-    parser.add_argument('-c', '--config', type=str, default="./configs/config.json",
-                      help='JSON file for configuration')
     args = parser.parse_args()
     f0p = args.f0_predictor
-    config = json.load(open(args.config))
-    hparams = utils.HParams(**config)
-    speech_encoder = hparams["model"]["speech_encoder"]
-    print(f0p)
     print(speech_encoder)
+    print(f0p)
     filenames = glob(f"{args.in_dir}/*/*.wav", recursive=True)  # [:10]
     shuffle(filenames)
     multiprocessing.set_start_method("spawn", force=True)
@@ -109,7 +103,7 @@ if __name__ == "__main__":
     ]
     print([len(c) for c in chunks])
     processes = [
-        multiprocessing.Process(target=process_batch, args=(chunk,)) for chunk in chunks
+        multiprocessing.Process(target=process_batch, args=(chunk,f0p)) for chunk in chunks
     ]
     for p in processes:
         p.start()
