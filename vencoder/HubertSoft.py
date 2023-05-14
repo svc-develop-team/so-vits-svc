@@ -11,7 +11,6 @@ class HubertSoft(SpeechEncoder):
             self.dev = torch.device(device)
         self.hidden_dim = 256
         self.model = hubert_soft.to(self.dev)
-        return hubert_soft
 
     def encoder(self, wav):
         feats = wav
