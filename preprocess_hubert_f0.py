@@ -93,7 +93,7 @@ if __name__ == "__main__":
                       help='JSON file for configuration')
     args = parser.parse_args()
     f0p = args.f0_predictor
-    config = json.load(args.config)
+    config = json.load(open(args.config))
     hparams = utils.HParams(**config)
     speech_encoder = hparams["model"]["speech_encoder"]
     print(f0p)
