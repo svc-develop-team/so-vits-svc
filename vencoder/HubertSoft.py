@@ -17,6 +17,7 @@ class HubertSoft(SpeechEncoder):
         if feats.dim() == 2:  # double channels
           feats = feats.mean(-1)
         assert feats.dim() == 1, feats.dim()
+        feats = feats[None,None,:]
         with torch.inference_mode():
           units = self.model.units(feats)
           return units.transpose(1,2)
