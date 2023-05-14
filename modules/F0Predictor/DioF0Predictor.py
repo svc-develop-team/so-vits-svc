@@ -67,7 +67,7 @@ class DioF0Predictor(F0Predictor):
         f0 = pyworld.stonemask(wav.astype(np.double), f0, t, self.sampling_rate)
         for index, pitch in enumerate(f0):
             f0[index] = round(pitch, 1)
-        return self.resize_f0(f0, p_len)[0]
+        return self.interpolate_f0(self.resize_f0(f0, p_len))[0]
 
     def compute_f0_uv(self,wav,p_len=None):
         if p_len is None:

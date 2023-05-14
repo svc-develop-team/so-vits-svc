@@ -11,13 +11,11 @@ import gc
 import librosa
 import numpy as np
 # import onnxruntime
-import parselmouth
 import soundfile
 import torch
 import torchaudio
 
 import cluster
-from hubert import hubert_model
 import utils
 from models import SynthesizerTrn
 
@@ -129,8 +127,12 @@ class Svc(object):
         self.hop_size = self.hps_ms.data.hop_length
         self.spk2id = self.hps_ms.spk
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
+        try:
+            self.speech_encoder = self.hps_ms.model.speech_encoder
+        except Exception as e:
+            self.speech_encoder = 'vec768l12'
         # load hubert
-        self.hubert_model = utils.get_hubert_model().to(self.dev)
+        self.hubert_model = utils.get_speech_encoder(self.speech_encoder,device=self.dev)
         self.load_model()
         if os.path.exists(cluster_model_path):
             self.cluster_model = cluster.get_cluster_model(cluster_model_path)
@@ -156,20 +158,7 @@ class Svc(object):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
 
-        if f0_predictor == "pm":
-            from modules.F0Predictor.PMF0Predictor import PMF0Predictor
-            f0_predictor_object = PMF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
-        elif f0_predictor == "crepe":
-            from modules.F0Predictor.CrepeF0Predictor import CrepeF0Predictor
-            f0_predictor_object = CrepeF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
-        elif f0_predictor == "harvest":
-            from modules.F0Predictor.HarvestF0Predictor import HarvestF0Predictor
-            f0_predictor_object = HarvestF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
-        elif f0_predictor == "dio":
-            from modules.F0Predictor.DioF0Predictor import DioF0Predictor
-            f0_predictor_object = DioF0Predictor(hop_length=self.hop_size,sampling_rate=self.target_sample)
-        else:
-            raise Exception("Unknown f0 predictor")
+        f0_predictor_object = utils.get_f0_predictor(f0_predictor,hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
         
         f0, uv = f0_predictor_object.compute_f0_uv(wav)
         if f0_filter and sum(f0) == 0:
@@ -183,7 +172,7 @@ class Svc(object):
 
         wav16k = librosa.resample(wav, orig_sr=self.target_sample, target_sr=16000)
         wav16k = torch.from_numpy(wav16k).to(self.dev)
-        c = utils.get_hubert_content(self.hubert_model, wav_16k_tensor=wav16k)
+        c = self.hubert_model.encoder(wav16k)
         c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
 
         if cluster_infer_ratio !=0:

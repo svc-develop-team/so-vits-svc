@@ -16,7 +16,6 @@ from scipy.io.wavfile import read
 import torch
 from torch.nn import functional as F
 from modules.commons import sequence_mask
-from hubert import hubert_model
 
 MATPLOTLIB_FLAG = False
 
@@ -79,42 +78,42 @@ def f0_to_coarse(f0):
   assert f0_coarse.max() <= 255 and f0_coarse.min() >= 1, (f0_coarse.max(), f0_coarse.min())
   return f0_coarse
 
-
-def get_hubert_model():
-  vec_path = "hubert/checkpoint_best_legacy_500.pt"
-  print("load model(s) from {}".format(vec_path))
-  from fairseq import checkpoint_utils
-  models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
-    [vec_path],
-    suffix="",
-  )
-  model = models[0]
-  model.eval()
-  return model
-
-def get_hubert_content(hmodel, wav_16k_tensor):
-  feats = wav_16k_tensor
-  if feats.dim() == 2:  # double channels
-    feats = feats.mean(-1)
-  assert feats.dim() == 1, feats.dim()
-  feats = feats.view(1, -1)
-  padding_mask = torch.BoolTensor(feats.shape).fill_(False)
-  inputs = {
-    "source": feats.to(wav_16k_tensor.device),
-    "padding_mask": padding_mask.to(wav_16k_tensor.device),
-    "output_layer": 12,  # layer 12
-  }
-  with torch.no_grad():
-    logits = hmodel.extract_features(**inputs)
-  return logits[0].transpose(1, 2)
-
-
 def get_content(cmodel, y):
     with torch.no_grad():
         c = cmodel.extract_features(y.squeeze(1))[0]
     c = c.transpose(1, 2)
     return c
 
+def get_f0_predictor(f0_predictor,hop_length,sampling_rate,**kargs):
+    if f0_predictor == "pm":
+        from modules.F0Predictor.PMF0Predictor import PMF0Predictor
+        f0_predictor_object = PMF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate)
+    elif f0_predictor == "crepe":
+        from modules.F0Predictor.CrepeF0Predictor import CrepeF0Predictor
+        f0_predictor_object = CrepeF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate,device=kargs["device"],threshold=kargs["threshold"])
+    elif f0_predictor == "harvest":
+        from modules.F0Predictor.HarvestF0Predictor import HarvestF0Predictor
+        f0_predictor_object = HarvestF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate)
+    elif f0_predictor == "dio":
+        from modules.F0Predictor.DioF0Predictor import DioF0Predictor
+        f0_predictor_object = DioF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate)
+    else:
+        raise Exception("Unknown f0 predictor")
+    return f0_predictor_object
+
+def get_speech_encoder(speech_encoder,device=None,**kargs):
+    if speech_encoder == "vec768l12":
+        from vencoder.ContentVec768L12 import ContentVec768L12
+        speech_encoder_object = ContentVec768L12(device = device)
+    elif speech_encoder == "vec256l9":
+        from vencoder.ContentVec256L9 import ContentVec256L9
+        speech_encoder_object = ContentVec256L9(device = device)
+    elif speech_encoder == "hubertsoft":
+        from vencoder.HubertSoft import HubertSoft
+        speech_encoder_object = HubertSoft(device = device)
+    else:
+        raise Exception("Unknown speech encoder")
+    return speech_encoder_object 
 
 def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False):
     assert os.path.isfile(checkpoint_path)
@@ -268,7 +267,7 @@ def load_filepaths_and_text(filename, split="|"):
 
 def get_hparams(init=True):
   parser = argparse.ArgumentParser()
-  parser.add_argument('-c', '--config', type=str, default="./configs/base.json",
+  parser.add_argument('-c', '--config', type=str, default="./configs/config.json",
                       help='JSON file for configuration')
   parser.add_argument('-m', '--model', type=str, required=True,
                       help='Model name')
@@ -311,7 +310,6 @@ def get_hparams_from_file(config_path):
   with open(config_path, "r") as f:
     data = f.read()
   config = json.loads(data)
-
   hparams =HParams(**config)
   return hparams
 
