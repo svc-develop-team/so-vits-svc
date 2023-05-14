@@ -57,7 +57,7 @@ def main(HubertExport, NetExport):
         _ = SVCVITS.eval().to(device)
         for i in SVCVITS.parameters():
             i.requires_grad = False
-        test_hidden_unit = torch.rand(1, 10, SVCVITS.hidden_channels)
+        test_hidden_unit = torch.rand(1, 10, SVCVITS.gin_channels)
         test_pitch = torch.rand(1, 10)
         test_mel2ph = torch.LongTensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).unsqueeze(0)
         test_uv = torch.ones(1, 10, dtype=torch.float32)
