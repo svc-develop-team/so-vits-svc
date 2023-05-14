@@ -39,7 +39,20 @@
 
 ### 🆕 4.0-Vec768-Layer12 版本更新内容
 
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出，该分支不兼容4.0的模型
++ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出
+
+### 🆕 关于兼容主分支模型的问题
+
++ 可通过修改主分支模型的config.json对主分支的模型进行支持，需要在config.json的model字段中添加speech_encoder字段，具体见下
+
+```
+  "model": {
+    .........
+    "ssl_dim": 768,
+    "n_speakers": 200,
+    "speech_encoder":"vec256l9"
+  }
+```
 
 ## 💬 关于 Python 版本问题
 
@@ -49,14 +62,21 @@
 
 #### **必须项**
 
+**以下编码器需要选择一个使用**
+
+##### **1. 若使用contentvec作为声音编码器**
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
-  + 放在`hubert`目录下
+  + 放在`pretrain`目录下
 
 ```shell
 # contentvec
-http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
-# 也可手动下载放在hubert目录
+wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+# 也可手动下载放在pretrain目录
 ```
+
+##### **2. 若使用hubertsoft作为声音编码器**
++ soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
+  + 放在`pretrain`目录下
 
 #### **可选项(强烈建议使用)**
 
@@ -76,7 +96,7 @@ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 
 ```shell
 # nsf_hifigan
-https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
 # 也可手动下载放在pretrain/nsf_hifigan目录
 # 地址：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
@@ -128,14 +148,35 @@ python resample.py
 ### 2. 自动划分训练集、验证集，以及自动生成配置文件
 
 ```shell
-python preprocess_flist_config.py
+python preprocess_flist_config.py --speech_encoder vec768l12
 ```
+
+speech_encoder拥有三个选择
+```
+vec768l12
+vec256l9
+hubertsoft
+```
+
+如果省略speech_encoder参数，默认值为vec768l12
 
 ### 3. 生成hubert与f0
 
 ```shell
-python preprocess_hubert_f0.py
+python preprocess_hubert_f0.py --f0_predictor dio
 ```
+
+f0_predictor拥有四个选择
+```
+crepe
+dio
+pm
+harvest
+```
+
+如果训练集过于嘈杂，请使用crepe处理f0
+
+如果省略f0_predictor参数，默认值为dio
 
 执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除 dataset_raw 文件夹了
 

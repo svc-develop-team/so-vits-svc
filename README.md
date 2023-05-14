@@ -41,6 +41,19 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, the branch is not compatible with 4.0 model
   
+### 🆕 Questions about compatibility with the main branch model
+
+- You can support the main branch model by modifying the config.json of the main branch model, adding the speech_encoder field to the Model field of config.json, see below for details
+
+```
+  "model": {
+    .........
+    "ssl_dim": 768,
+    "n_speakers": 200,
+    "speech_encoder":"vec256l9"
+  }
+```
+
 ## 💬 About Python Version
 
 After conducting tests, we believe that the project runs stably on `Python 3.8.9`.
@@ -49,14 +62,23 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 
 #### **Required**
 
+**The following encoder needs to select one to use**
+
+##### **1. If using contentvec as sound encoder**
+
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
-  - Place it under the `hubert` directory
+  - Place it under the `pretrain` directory
 
 ```shell
 # contentvec
-wget -P hubert/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
 # Alternatively, you can manually download and place it in the hubert directory
 ```
+
+##### **2. If hubertsoft is used as the sound encoder**
+- soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
+  - Place it under the `pretrain` directory
+
 
 #### **Optional(Strongly recommend)**
 
@@ -76,7 +98,7 @@ If you are using the NSF-HIFIGAN enhancer, you will need to download the pre-tra
 
 ```shell
 # nsf_hifigan
-https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
 # URL：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
@@ -128,14 +150,38 @@ python resample.py
 ### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
-python preprocess_flist_config.py
+python preprocess_flist_config.py --speech_encoder vec768l12
 ```
+
+speech_encoder has three choices
+
+```
+vec768l12
+vec256l9
+hubertsoft
+```
+
+If the speech_encoder argument is omitted, the default value is vec768l12
+
 
 ### 3. Generate hubert and f0
 
 ```shell
-python preprocess_hubert_f0.py
+python preprocess_hubert_f0.py --f0_predictor dio
 ```
+
+f0_predictor has four options
+
+```
+crepe
+dio
+pm
+harvest
+```
+
+If the training set is too noisy, use crepe to handle f0
+
+If the f0_predictor parameter is omitted, the default value is dio
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
