@@ -1,16 +1,20 @@
 from vencoder.encoder import SpeechEncoder
 import torch
+from fairseq import checkpoint_utils
 
 class ContentVec768L12(SpeechEncoder):
-    def __init__(self,vec_path = "pretrain/checkpoint_best_legacy_500.pt"):
+    def __init__(self,vec_path = "pretrain/checkpoint_best_legacy_500.pt",device=None):
         print("load model(s) from {}".format(vec_path))
-        from fairseq import checkpoint_utils
+        self.hidden_dim = 768
         models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
           [vec_path],
           suffix="",
         )
-        self.hidden_dim = 768
-        self.model = models[0]
+        if device is None:
+            self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.dev = torch.device(device)
+        self.model = models[0].to(self.dev)
         self.model.eval()
 
     def encoder(self, wav):

@@ -1,7 +1,7 @@
 from vencoder.encoder import SpeechEncoder
 import torch
 from vencoder.hubert import hubert_model
-class Hubersoft(SpeechEncoder):
+class HubertSoft(SpeechEncoder):
     def __init__(self,vec_path = "pretrain/hubert-soft-0d54a1f4.pt",device=None):
         print("load model(s) from {}".format(vec_path))
         hubert_soft = hubert_model.hubert_soft("hubert/hubert-soft-0d54a1f4.pt")

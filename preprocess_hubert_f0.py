@@ -8,6 +8,7 @@ import torch
 from glob import glob
 from tqdm import tqdm
 from modules.mel_processing import spectrogram_torch
+import json
 
 import utils
 import logging
@@ -19,7 +20,8 @@ import numpy as np
 hps = utils.get_hparams_from_file("configs/config.json")
 sampling_rate = hps.data.sampling_rate
 hop_length = hps.data.hop_length
-
+f0p = "dio"
+speech_encoder = "vec768l12"
 
 def process_one(filename, hmodel):
     # print(filename)
@@ -29,13 +31,12 @@ def process_one(filename, hmodel):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         wav16k = librosa.resample(wav, orig_sr=sampling_rate, target_sr=16000)
         wav16k = torch.from_numpy(wav16k).to(device)
-        c = utils.get_hubert_content(hmodel, wav_16k_tensor=wav16k)
+        c = hmodel.encoder(wav16k)
         torch.save(c.cpu(), soft_path)
 
     f0_path = filename + ".f0.npy"
     if not os.path.exists(f0_path):
-        from modules.F0Predictor.DioF0Predictor import DioF0Predictor
-        f0_predictor = DioF0Predictor(sampling_rate=sampling_rate, hop_length=hop_length)
+        f0_predictor = utils.get_f0_predictor(f0p,sampling_rate=sampling_rate, hop_length=hop_length,device=None,threshold=0.05)
         f0,uv = f0_predictor.compute_f0_uv(
             wav
         )
@@ -74,7 +75,7 @@ def process_one(filename, hmodel):
 def process_batch(filenames):
     print("Loading hubert for content...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    hmodel = utils.get_hubert_model().to(device)
+    hmodel = utils.get_speech_encoder(speech_encoder,device=device)
     print("Loaded hubert.")
     for filename in tqdm(filenames):
         process_one(filename, hmodel)
@@ -85,8 +86,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "--in_dir", type=str, default="dataset/44k", help="path to input dir"
     )
-
+    parser.add_argument( 
+        '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
+    )
+    parser.add_argument('-c', '--config', type=str, default="./configs/config.json",
+                      help='JSON file for configuration')
     args = parser.parse_args()
+    f0p = args.f0_predictor
+    config = json.loads(args.config)
+    hparams = utils.HParams(**config)
+    speech_encoder = hparams["model"]["speech_encoder"]
+    print(f0p)
+    print(speech_encoder)
     filenames = glob(f"{args.in_dir}/*/*.wav", recursive=True)  # [:10]
     shuffle(filenames)
     multiprocessing.set_start_method("spawn", force=True)
