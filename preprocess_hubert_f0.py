@@ -87,6 +87,9 @@ if __name__ == "__main__":
     parser.add_argument( 
         '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
     )
+    parser.add_argument( 
+        '--ues_diff',action='store_true', help='Whether to use the diffusion model'
+    )
     args = parser.parse_args()
     f0p = args.f0_predictor
     print(speech_encoder)
