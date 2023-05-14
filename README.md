@@ -42,7 +42,7 @@ This project is only a framework project, which does not have the function of sp
 | :-------------: | :----------: | :------------:    |
 | 4.0              |   main branch   |        -     |
 | 4.0v2        |  The VISinger2 model is used  |        incompatibility     |
-| 4.0-Vec768-Layer12    |  The feature input is the Layer 12 Transformer output of the Content Vec  |       incompatibility     |
+| 4.0-Vec768-Layer12    |  The feature input is the Layer 12 Transformer output of the Content Vec  |      Compatible after the configuration file is modified     |
 
 ## 📝 Model Introduction
 
