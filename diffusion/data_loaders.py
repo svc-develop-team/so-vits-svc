@@ -5,6 +5,7 @@ import numpy as np
 import librosa
 import torch
 import random
+from utils import repeat_expand_2d
 from tqdm import tqdm
 from torch.utils.data import Dataset
 
@@ -51,7 +52,7 @@ def traverse_dir(
 
 def get_data_loaders(args, whole_audio=False):
     data_train = AudioDataset(
-        filelists_path = args.training_files,
+        filelists = args.data.training_files,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
@@ -72,7 +73,7 @@ def get_data_loaders(args, whole_audio=False):
         pin_memory=True if args.train.cache_device=='cpu' else False
     )
     data_valid = AudioDataset(
-        filelists_path = args.validation_files,
+        filelists = args.data.validation_files,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
@@ -123,15 +124,15 @@ class AudioDataset(Dataset):
         else:
             print('Load the f0, volume data filelists:', filelists)
         with open(filelists,"r") as f:
-            self.paths = f.readlines()
+            self.paths = f.read().splitlines()
         for name_ext in tqdm(self.paths, total=len(self.paths)):
             name = os.path.splitext(name_ext)[0]
             path_audio = name_ext
             duration = librosa.get_duration(filename = path_audio, sr = self.sample_rate)
             
             path_f0 = name_ext + ".f0.npy"
-            f0 = np.load(path_f0)
-            f0 = torch.from_numpy(f0).float().unsqueeze(-1).to(device)
+            f0,_ = np.load(path_f0,allow_pickle=True)
+            f0 = torch.from_numpy(np.array(f0,dtype=float)).float().unsqueeze(-1).to(device)
                 
             path_volume = name_ext + ".vol.npy"
             volume = np.load(path_volume)
@@ -169,8 +170,9 @@ class AudioDataset(Dataset):
 
                 path_units = name_ext + ".soft.pt"
                 units = torch.load(path_units).to(device)
+                units = units[0]  
+                units = repeat_expand_2d(units,f0.size(0)).transpose(0,1)
                 
-
                 if fp16:
                     mel = mel.half()
                     aug_mel = aug_mel.half()

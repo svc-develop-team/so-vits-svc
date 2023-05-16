@@ -19,7 +19,7 @@ from modules.commons import sequence_mask
 
 MATPLOTLIB_FLAG = False
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logger = logging
 
 f0_bin = 256
@@ -415,10 +415,12 @@ class Volume_Extractor:
     def __init__(self, hop_size = 512):
         self.hop_size = hop_size
         
-    def extract(self, audio): # audio: 1d numpy array
-        n_frames = int(len(audio) // self.hop_size) + 1
+    def extract(self, audio): # audio: 2d tensor array
+        if isinstance(audio,torch.Tensor):
+           audio = torch.Tensor(audio)
+        n_frames = int(audio.size(-1) // self.hop_size)
         audio2 = audio ** 2
         audio2 = torch.nn.functional.pad(audio2, (int(self.hop_size // 2), int((self.hop_size + 1) // 2)), mode = 'reflect')
-        volume = torch.FloatTensor([torch.mean(audio2[int(n * self.hop_size) : int((n + 1) * self.hop_size)]) for n in range(n_frames)])
+        volume = torch.FloatTensor([torch.mean(audio2[:,int(n * self.hop_size) : int((n + 1) * self.hop_size)]) for n in range(n_frames)])
         volume = torch.sqrt(volume)
         return volume

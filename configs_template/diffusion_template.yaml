@@ -7,7 +7,6 @@ data:
   encoder_sample_rate: 16000
   encoder_hop_size: 320
   encoder_out_channels: 768 # 256 if using 'hubertsoft'
-  train_path: dataset/44k # Create a folder named "audio" under this path and put the audio clip in it
   training_files: "filelists/train.txt"
   validation_files: "filelists/val.txt"
   extensions: # List of extension included in the data collection
@@ -27,7 +26,7 @@ infer:
   speedup: 10
   method: 'dpm-solver' # 'pndm' or 'dpm-solver'
 env:
-  expdir: exp/diffusion-test
+  expdir: logs/44k/diffusion
   gpu_id: 0
 train:
   num_workers: 2 # If your cpu and gpu are both very strong, set to 0 may be faster!

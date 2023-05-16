@@ -3,8 +3,8 @@ import time
 import numpy as np
 import torch
 import librosa
-from logger.saver import Saver
-from logger import utils
+from diffusion.logger.saver import Saver
+from diffusion.logger import utils
 from torch import autocast
 from torch.cuda.amp import GradScaler
 
