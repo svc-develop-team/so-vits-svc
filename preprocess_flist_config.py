@@ -7,6 +7,8 @@ from random import shuffle
 import json
 import wave
 
+import diffusion.logger.utils as du
+
 config_template = json.load(open("configs_template/config_template.json"))
 
 pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
@@ -68,14 +70,25 @@ if __name__ == "__main__":
             wavpath = fname
             f.write(wavpath + "\n")
 
+
+    d_config_template = du.load_config("configs_template/diffusion_template.yaml")
+    d_config_template.model.n_spk = spk_id
+    d_config_template.data.encoder = args.speech_encoder
+    d_config_template.spk = spk_dict
+    
     config_template["spk"] = spk_dict
     config_template["model"]["n_speakers"] = spk_id
     config_template["model"]["speech_encoder"] = args.speech_encoder
+    
     if args.speech_encoder == "vec768l12":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 768
+        d_config_template.data.encoder_out_channels = 768
     elif args.speech_encoder == "vec256l9" or args.speech_encoder == 'hubertsoft':
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 256
-
+        d_config_template.data.encoder_out_channels = 256
+    
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
         json.dump(config_template, f, indent=2)
+    print("Writing configs/diffusion_template.yaml")
+    du.save_config("configs/diffusion.yaml",d_config_template)

@@ -1,6 +1,6 @@
 import torch
-from nsf_hifigan.nvSTFT import STFT
-from nsf_hifigan.models import load_model
+from vdecoder.nsf_hifigan.nvSTFT import STFT
+from vdecoder.nsf_hifigan.models import load_model,load_config
 from torchaudio.transforms import Resample
 
     
@@ -31,7 +31,7 @@ class Vocoder:
             key_str = str(sample_rate)
             if key_str not in self.resample_kernel:
                 self.resample_kernel[key_str] = Resample(sample_rate, self.vocoder_sample_rate, lowpass_filter_width = 128).to(self.device)
-            audio_res = self.resample_kernel[key_str](audio)
+            audio_res = self.resample_kernel[key_str](audio)    
         
         # extract
         mel = self.vocoder.extract(audio_res, keyshift=keyshift) # B, n_frames, bins
@@ -49,8 +49,9 @@ class NsfHifiGAN(torch.nn.Module):
         if device is None:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.device = device
-        print('| Load HifiGAN: ', model_path)
-        self.model, self.h = load_model(model_path, device=self.device)
+        self.model_path = model_path
+        self.model = None
+        self.h = load_config(model_path)
         self.stft = STFT(
                 self.h.sampling_rate, 
                 self.h.num_mels, 
@@ -74,6 +75,9 @@ class NsfHifiGAN(torch.nn.Module):
         return mel
     
     def forward(self, mel, f0):
+        if self.model is None:
+            print('| Load HifiGAN: ', self.model_path)
+            self.model, self.h = load_model(self.model_path, device=self.device)
         with torch.no_grad():
             c = mel.transpose(1, 2)
             audio = self.model(c, f0)
@@ -81,6 +85,9 @@ class NsfHifiGAN(torch.nn.Module):
 
 class NsfHifiGANLog10(NsfHifiGAN):    
     def forward(self, mel, f0):
+        if self.model is None:
+            print('| Load HifiGAN: ', self.model_path)
+            self.model, self.h = load_model(self.model_path, device=self.device)
         with torch.no_grad():
             c = 0.434294 * mel.transpose(1, 2)
             audio = self.model(c, f0)

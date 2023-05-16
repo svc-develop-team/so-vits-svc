@@ -51,7 +51,7 @@ def traverse_dir(
 
 def get_data_loaders(args, whole_audio=False):
     data_train = AudioDataset(
-        args.data.train_path,
+        filelists_path = args.filelists_path,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
@@ -71,7 +71,7 @@ def get_data_loaders(args, whole_audio=False):
         pin_memory=True if args.train.cache_device=='cpu' else False
     )
     data_valid = AudioDataset(
-        args.data.valid_path,
+        filelists_path = args.filelists_path,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
@@ -92,7 +92,7 @@ def get_data_loaders(args, whole_audio=False):
 class AudioDataset(Dataset):
     def __init__(
         self,
-        path_root,
+        filelists,
         waveform_sec,
         hop_size,
         sample_rate,
@@ -109,7 +109,7 @@ class AudioDataset(Dataset):
         self.waveform_sec = waveform_sec
         self.sample_rate = sample_rate
         self.hop_size = hop_size
-        self.path_root = path_root
+        self.filelists = filelists
         self.paths = traverse_dir(
             os.path.join(path_root, 'audio'),
             extensions=extensions,

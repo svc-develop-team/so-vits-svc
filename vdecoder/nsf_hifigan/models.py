@@ -13,12 +13,7 @@ LRELU_SLOPE = 0.1
 
 
 def load_model(model_path, device='cuda'):
-    config_file = os.path.join(os.path.split(model_path)[0], 'config.json')
-    with open(config_file) as f:
-        data = f.read()
-
-    json_config = json.loads(data)
-    h = AttrDict(json_config)
+    h = load_config(model_path)
 
     generator = Generator(h).to(device)
 
@@ -28,6 +23,15 @@ def load_model(model_path, device='cuda'):
     generator.remove_weight_norm()
     del cp_dict
     return generator, h
+
+def load_config(model_path):
+    config_file = os.path.join(os.path.split(model_path)[0], 'config.json')
+    with open(config_file) as f:
+        data = f.read()
+
+    json_config = json.loads(data)
+    h = AttrDict(json_config)
+    return h
 
 
 class ResBlock1(torch.nn.Module):
