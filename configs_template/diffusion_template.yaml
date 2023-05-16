@@ -8,7 +8,8 @@ data:
   encoder_hop_size: 320
   encoder_out_channels: 768 # 256 if using 'hubertsoft'
   train_path: dataset/44k # Create a folder named "audio" under this path and put the audio clip in it
-  filelists_path: filelists/ # FileLists path
+  training_files: "filelists/train.txt"
+  validation_files: "filelists/val.txt"
   extensions: # List of extension included in the data collection
     - wav
 model:

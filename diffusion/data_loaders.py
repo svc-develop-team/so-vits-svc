@@ -51,7 +51,7 @@ def traverse_dir(
 
 def get_data_loaders(args, whole_audio=False):
     data_train = AudioDataset(
-        filelists_path = args.filelists_path,
+        filelists_path = args.training_files,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
@@ -59,6 +59,7 @@ def get_data_loaders(args, whole_audio=False):
         whole_audio=whole_audio,
         extensions=args.data.extensions,
         n_spk=args.model.n_spk,
+        spk=args.spk,
         device=args.train.cache_device,
         fp16=args.train.cache_fp16,
         use_aug=True)
@@ -71,12 +72,13 @@ def get_data_loaders(args, whole_audio=False):
         pin_memory=True if args.train.cache_device=='cpu' else False
     )
     data_valid = AudioDataset(
-        filelists_path = args.filelists_path,
+        filelists_path = args.validation_files,
         waveform_sec=args.data.duration,
         hop_size=args.data.block_size,
         sample_rate=args.data.sampling_rate,
         load_all_data=args.train.cache_all_data,
         whole_audio=True,
+        spk=args.spk,
         extensions=args.data.extensions,
         n_spk=args.model.n_spk)
     loader_valid = torch.utils.data.DataLoader(
@@ -96,6 +98,7 @@ class AudioDataset(Dataset):
         waveform_sec,
         hop_size,
         sample_rate,
+        spk,
         load_all_data=True,
         whole_audio=False,
         extensions=['wav'],
@@ -110,41 +113,37 @@ class AudioDataset(Dataset):
         self.sample_rate = sample_rate
         self.hop_size = hop_size
         self.filelists = filelists
-        self.paths = traverse_dir(
-            os.path.join(path_root, 'audio'),
-            extensions=extensions,
-            is_pure=True,
-            is_sort=True,
-            is_ext=True
-        )
         self.whole_audio = whole_audio
         self.use_aug = use_aug
         self.data_buffer={}
-        self.pitch_aug_dict = np.load(os.path.join(self.path_root, 'pitch_aug_dict.npy'), allow_pickle=True).item()
+        self.pitch_aug_dict = {}
+        # np.load(os.path.join(self.path_root, 'pitch_aug_dict.npy'), allow_pickle=True).item()
         if load_all_data:
-            print('Load all the data from :', path_root)
+            print('Load all the data filelists:', filelists)
         else:
-            print('Load the f0, volume data from :', path_root)
+            print('Load the f0, volume data filelists:', filelists)
+        with open(filelists,"r") as f:
+            self.paths = f.readlines()
         for name_ext in tqdm(self.paths, total=len(self.paths)):
             name = os.path.splitext(name_ext)[0]
-            path_audio = os.path.join(self.path_root, 'audio', name_ext)
+            path_audio = name_ext
             duration = librosa.get_duration(filename = path_audio, sr = self.sample_rate)
             
-            path_f0 = os.path.join(self.path_root, 'f0', name_ext) + '.npy'
+            path_f0 = name_ext + ".f0.npy"
             f0 = np.load(path_f0)
             f0 = torch.from_numpy(f0).float().unsqueeze(-1).to(device)
                 
-            path_volume = os.path.join(self.path_root, 'volume', name_ext) + '.npy'
+            path_volume = name_ext + ".vol.npy"
             volume = np.load(path_volume)
             volume = torch.from_numpy(volume).float().unsqueeze(-1).to(device)
             
-            path_augvol = os.path.join(self.path_root, 'aug_vol', name_ext) + '.npy'
+            path_augvol = name_ext + ".aug_vol.npy"
             aug_vol = np.load(path_augvol)
             aug_vol = torch.from_numpy(aug_vol).float().unsqueeze(-1).to(device)
                         
             if n_spk is not None and n_spk > 1:
-                dirname_split = re.split(r"_|\-", os.path.dirname(name_ext), 2)[0]
-                spk_id = int(dirname_split) if str.isdigit(dirname_split) else 0
+                spk_name = name_ext.split("/")[-2]
+                spk_id = spk[spk_name] if spk_name in spk else 0
                 if spk_id < 1 or spk_id > n_spk:
                     raise ValueError(' [x] Muiti-speaker traing error : spk_id must be a positive integer from 1 to n_spk ')
             else:
@@ -158,18 +157,20 @@ class AudioDataset(Dataset):
                     audio = librosa.to_mono(audio)
                 audio = torch.from_numpy(audio).to(device)
                 '''
-                path_mel = os.path.join(self.path_root, 'mel', name_ext) + '.npy'
+                path_mel = name_ext + ".mel.npy"
                 mel = np.load(path_mel)
                 mel = torch.from_numpy(mel).to(device)
                 
-                path_augmel = os.path.join(self.path_root, 'aug_mel', name_ext) + '.npy'
-                aug_mel = np.load(path_augmel)
+                path_augmel = name_ext + ".aug_mel.npy"
+                aug_mel,keyshift = np.load(path_augmel, allow_pickle=True)
+                aug_mel = np.array(aug_mel,dtype=float)
                 aug_mel = torch.from_numpy(aug_mel).to(device)
+                self.pitch_aug_dict[name_ext] = keyshift
+
+                path_units = name_ext + ".soft.pt"
+                units = torch.load(path_units).to(device)
                 
-                path_units = os.path.join(self.path_root, 'units', name_ext) + '.npy'
-                units = np.load(path_units)
-                units = torch.from_numpy(units).to(device)
-                
+
                 if fp16:
                     mel = mel.half()
                     aug_mel = aug_mel.half()
