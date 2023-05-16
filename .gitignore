@@ -147,6 +147,7 @@ results
 inference/chunks_temp.json
 logs
 hubert/checkpoint_best_legacy_500.pt
+pretrain/**/*.pt
 configs/config.json
 filelists/test.txt
 filelists/train.txt
