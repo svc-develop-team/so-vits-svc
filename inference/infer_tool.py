@@ -19,6 +19,9 @@ import cluster
 import utils
 from models import SynthesizerTrn
 
+from diffusion.unit2mel import load_model_vocoder
+import yaml
+
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 
@@ -114,7 +117,11 @@ class Svc(object):
     def __init__(self, net_g_path, config_path,
                  device=None,
                  cluster_model_path="logs/44k/kmeans_10000.pt",
-                 nsf_hifigan_enhance = False
+                 nsf_hifigan_enhance = False,
+                 diffusion_model_path="logs/44k/diffusion/model_0.pt",
+                 diffusion_config_path="configs/diffusion.yaml",
+                 shallow_diffusion = False,
+                 only_diffusion = False,
                  ):
         self.net_g_path = net_g_path
         if device is None:
@@ -127,19 +134,32 @@ class Svc(object):
         self.hop_size = self.hps_ms.data.hop_length
         self.spk2id = self.hps_ms.spk
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
+        self.only_diffusion = only_diffusion
+        self.shallow_diffusion = shallow_diffusion
         try:
             self.speech_encoder = self.hps_ms.model.speech_encoder
         except Exception as e:
             self.speech_encoder = 'vec768l12'
-        # load hubert
-        self.hubert_model = utils.get_speech_encoder(self.speech_encoder,device=self.dev)
-        self.load_model()
+
+        if self.shallow_diffusion or self.only_diffusion:
+            self.diffusion_model,self.vocoder,self.diffusion_args = load_model_vocoder(diffusion_model_path,self.dev,config_path=diffusion_config_path)
+        # load hubert and model
+        if not self.only_diffusion:
+            self.load_model()
+            self.hubert_model = utils.get_speech_encoder(self.speech_encoder,device=self.dev)
+            self.volume_extractor = utils.Volume_Extractor(self.hps_ms.data.hop_length)
+            assert self.diffusion_args.data.encoder == self.hps_ms.model.speech_encoder
+        else:
+            self.hubert_model = utils.get_speech_encoder(self.diffusion_args.data.encoder,device=self.dev)
+            self.volume_extractor = utils.Volume_Extractor(self.diffusion_args.data.block_size)
+            
         if os.path.exists(cluster_model_path):
             self.cluster_model = cluster.get_cluster_model(cluster_model_path)
+        if self.shallow_diffusion : self.nsf_hifigan_enhance = False
         if self.nsf_hifigan_enhance:
             from modules.enhancer import Enhancer
             self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
-
+            
     def load_model(self):
         # get model configuration
         self.net_g_ms = SynthesizerTrn(
@@ -157,7 +177,7 @@ class Svc(object):
     def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
 
         wav, sr = librosa.load(in_path, sr=self.target_sample)
-
+        
         f0_predictor_object = utils.get_f0_predictor(f0_predictor,hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
         
         f0, uv = f0_predictor_object.compute_f0_uv(wav)
@@ -190,7 +210,8 @@ class Svc(object):
               f0_filter=False,
               f0_predictor='pm',
               enhancer_adaptive_key = 0,
-              cr_threshold = 0.05
+              cr_threshold = 0.05,
+              k_step = 100
               ):
 
         speaker_id = self.spk2id.__dict__.get(speaker)
@@ -203,7 +224,44 @@ class Svc(object):
             c = c.half()
         with torch.no_grad():
             start = time.time()
-            audio = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)[0,0].data.float()
+            if not self.only_diffusion:
+                audio,f0 = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)
+                audio = audio[0,0].data.float()
+                if self.shallow_diffusion:
+                    audio_mel = self.vocoder.extract(audio[None,:])
+                    vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev)
+                    f0 = f0[:,:,None]
+                    c = c.transpose(-1,-2)
+                    audio_mel = self.diffusion_model(
+                    c, 
+                    f0, 
+                    vol, 
+                    spk_id = sid, 
+                    spk_mix_dict = None,
+                    gt_spec=audio_mel,
+                    infer=True, 
+                    infer_speedup=self.diffusion_args.infer.speedup, 
+                    method=self.diffusion_args.infer.methold,
+                    k_step=k_step)
+                    audio = self.vocoder.infer(audio_mel, f0).squeeze()
+            else:
+                wav, sr = librosa.load(raw_path, sr=self.target_sample)
+                wav = torch.FloatTensor(wav).to(self.dev)
+                vol = self.volume_extractor.extract(wav[None,:])[None,:,None]
+                c = c.transpose(-1,-2)
+                f0 = f0[:,:,None]
+                audio_mel = self.diffusion_model(
+                    c, 
+                    f0, 
+                    vol, 
+                    spk_id = sid, 
+                    spk_mix_dict = None,
+                    gt_spec=None,
+                    infer=True, 
+                    infer_speedup=self.diffusion_args.infer.speedup, 
+                    method=self.diffusion_args.infer.methold,
+                    k_step=k_step)
+                audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
                 audio, _ = self.enhancer.enhance(
                                                                         audio[None,:], 
@@ -243,9 +301,10 @@ class Svc(object):
                         lgr_num =0.75,
                         f0_predictor='pm',
                         enhancer_adaptive_key = 0,
-                        cr_threshold = 0.05
+                        cr_threshold = 0.05,
+                        k_step = 100
                         ):
-        wav_path = raw_audio_path
+        wav_path = Path(raw_audio_path).with_suffix('.wav')
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
         audio_data, audio_sr = slicer.chunks2audio(wav_path, chunks)
         per_size = int(clip_seconds*audio_sr)
@@ -284,7 +343,8 @@ class Svc(object):
                                                     noice_scale=noice_scale,
                                                     f0_predictor = f0_predictor,
                                                     enhancer_adaptive_key = enhancer_adaptive_key,
-                                                    cr_threshold = cr_threshold
+                                                    cr_threshold = cr_threshold,
+                                                    k_step = k_step
                                                     )
                 _audio = out_audio.cpu().numpy()
                 pad_len = int(self.target_sample * pad_seconds)
@@ -327,7 +387,7 @@ class RealTimeVC:
                                         auto_predict_f0=auto_predict_f0,
                                         noice_scale=noice_scale,
                                         f0_filter=f0_filter)
-
+            
             audio = audio.cpu().numpy()
             self.last_chunk = audio[-self.pre_len:]
             self.last_o = audio
@@ -348,3 +408,4 @@ class RealTimeVC:
             self.last_chunk = audio[-self.pre_len:]
             self.last_o = audio
             return ret[self.chunk_len:2 * self.chunk_len]
+            

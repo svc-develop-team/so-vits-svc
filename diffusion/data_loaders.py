@@ -145,10 +145,10 @@ class AudioDataset(Dataset):
             if n_spk is not None and n_spk > 1:
                 spk_name = name_ext.split("/")[-2]
                 spk_id = spk[spk_name] if spk_name in spk else 0
-                if spk_id < 1 or spk_id > n_spk:
-                    raise ValueError(' [x] Muiti-speaker traing error : spk_id must be a positive integer from 1 to n_spk ')
+                if spk_id < 0 or spk_id >= n_spk:
+                    raise ValueError(' [x] Muiti-speaker traing error : spk_id must be a positive integer from 0 to n_spk-1 ')
             else:
-                spk_id = 1
+                spk_id = 0
             spk_id = torch.LongTensor(np.array([spk_id])).to(device)
 
             if load_all_data:

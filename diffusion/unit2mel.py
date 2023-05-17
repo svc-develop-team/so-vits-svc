@@ -18,8 +18,12 @@ class DotDict(dict):
     
 def load_model_vocoder(
         model_path,
-        device='cpu'):
-    config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
+        device='cpu',
+        config_path = None
+        ):
+    if config_path is None: config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
+    else: config_file = config_path
+    
     with open(config_file, "r") as config:
         args = yaml.safe_load(config)
     args = DotDict(args)
@@ -85,9 +89,9 @@ class Unit2Mel(nn.Module):
             if spk_mix_dict is not None:
                 for k, v in spk_mix_dict.items():
                     spk_id_torch = torch.LongTensor(np.array([[k]])).to(units.device)
-                    x = x + v * self.spk_embed(spk_id_torch - 1)
+                    x = x + v * self.spk_embed(spk_id_torch)
             else:
-                x = x + self.spk_embed(spk_id - 1)
+                x = x + self.spk_embed(spk_id)
         if self.aug_shift_embed is not None and aug_shift is not None:
             x = x + self.aug_shift_embed(aug_shift / 5) 
         x = self.decoder(x, gt_spec=gt_spec, infer=infer, infer_speedup=infer_speedup, method=method, k_step=k_step, use_tqdm=use_tqdm)

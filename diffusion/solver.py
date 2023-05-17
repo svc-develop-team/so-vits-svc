@@ -22,7 +22,8 @@ def test(args, model, vocoder, loader_test, saver):
     # run
     with torch.no_grad():
         for bidx, data in enumerate(loader_test):
-            fn = data['name'][0]
+            fn = data['name'][0].split("/")[-1]
+            speaker = data['name'][0].split("/")[-2]
             print('--------')
             print('{}/{} - {}'.format(bidx, num_batches, fn))
 
@@ -65,16 +66,15 @@ def test(args, model, vocoder, loader_test, saver):
                 test_loss += loss.item()
             
             # log mel
-            saver.log_spec(data['name'][0], data['mel'], mel)
+            saver.log_spec(f"{speaker}_{fn}.wav", data['mel'], mel)
             
-            # log audio
-            path_audio = os.path.join(args.data.valid_path, 'audio', data['name_ext'][0])
+            # log audi
+            path_audio = data['name_ext'][0]
             audio, sr = librosa.load(path_audio, sr=args.data.sampling_rate)
             if len(audio.shape) > 1:
                 audio = librosa.to_mono(audio)
             audio = torch.from_numpy(audio).unsqueeze(0).to(signal)
-            saver.log_audio({fn+'/gt.wav': audio, fn+'/pred.wav': signal})
-            
+            saver.log_audio({f"{speaker}_{fn}_gt.wav": audio,f"{speaker}_{fn}_pred.wav": signal})
     # report
     test_loss /= args.train.batch_size
     test_loss /= num_batches 
@@ -107,6 +107,7 @@ def train(args, initial_global_step, model, optimizer, scheduler, vocoder, loade
         dtype = torch.bfloat16
     else:
         raise ValueError(' [x] Unknown amp_dtype: ' + args.train.amp_dtype)
+    saver.log_info("epoch|batch_idx/num_batches|output_dir|batch/s|lr|time|step")
     for epoch in range(args.train.epochs):
         for batch_idx, data in enumerate(loader_train):
             saver.global_step_increment()

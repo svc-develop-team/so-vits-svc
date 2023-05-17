@@ -416,7 +416,7 @@ class Volume_Extractor:
         self.hop_size = hop_size
         
     def extract(self, audio): # audio: 2d tensor array
-        if isinstance(audio,torch.Tensor):
+        if not isinstance(audio,torch.Tensor):
            audio = torch.Tensor(audio)
         n_frames = int(audio.size(-1) // self.hop_size)
         audio2 = audio ** 2
