@@ -124,31 +124,41 @@ class Svc(object):
                  only_diffusion = False,
                  ):
         self.net_g_path = net_g_path
+        self.only_diffusion = only_diffusion
+        self.shallow_diffusion = shallow_diffusion
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
             self.dev = torch.device(device)
         self.net_g_ms = None
-        self.hps_ms = utils.get_hparams_from_file(config_path)
-        self.target_sample = self.hps_ms.data.sampling_rate
-        self.hop_size = self.hps_ms.data.hop_length
-        self.spk2id = self.hps_ms.spk
-        self.nsf_hifigan_enhance = nsf_hifigan_enhance
-        self.only_diffusion = only_diffusion
-        self.shallow_diffusion = shallow_diffusion
-        try:
-            self.speech_encoder = self.hps_ms.model.speech_encoder
-        except Exception as e:
-            self.speech_encoder = 'vec768l12'
+        if not self.only_diffusion:
+            self.hps_ms = utils.get_hparams_from_file(config_path)
+            self.target_sample = self.hps_ms.data.sampling_rate
+            self.hop_size = self.hps_ms.data.hop_length
+            self.spk2id = self.hps_ms.spk
+            try:
+                self.speech_encoder = self.hps_ms.model.speech_encoder
+            except Exception as e:
+                self.speech_encoder = 'vec768l12'
 
+        self.nsf_hifigan_enhance = nsf_hifigan_enhance
         if self.shallow_diffusion or self.only_diffusion:
-            self.diffusion_model,self.vocoder,self.diffusion_args = load_model_vocoder(diffusion_model_path,self.dev,config_path=diffusion_config_path)
+            if os.path.exists(diffusion_model_path) and os.path.exists(diffusion_model_path):
+                self.diffusion_model,self.vocoder,self.diffusion_args = load_model_vocoder(diffusion_model_path,self.dev,config_path=diffusion_config_path)
+                if self.only_diffusion:
+                    self.target_sample = self.diffusion_args.data.sampling_rate
+                    self.hop_size = self.diffusion_args.data.block_size
+                    self.spk2id = self.diffusion_args.spk
+                    self.speech_encoder = self.diffusion_args.data.encoder
+            else:
+                print("No diffusion model or config found. Shallow diffusion mode will False")
+                self.shallow_diffusion = self.only_diffusion = False
+                
         # load hubert and model
         if not self.only_diffusion:
             self.load_model()
             self.hubert_model = utils.get_speech_encoder(self.speech_encoder,device=self.dev)
-            self.volume_extractor = utils.Volume_Extractor(self.hps_ms.data.hop_length)
-            assert self.diffusion_args.data.encoder == self.hps_ms.model.speech_encoder
+            self.volume_extractor = utils.Volume_Extractor(self.hop_size)
         else:
             self.hubert_model = utils.get_speech_encoder(self.diffusion_args.data.encoder,device=self.dev)
             self.volume_extractor = utils.Volume_Extractor(self.diffusion_args.data.block_size)
@@ -212,7 +222,7 @@ class Svc(object):
               k_step = 100
               ):
 
-        speaker_id = self.spk2id.__dict__.get(speaker)
+        speaker_id = self.spk2id.get(speaker)
         if not speaker_id and type(speaker) is int:
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
