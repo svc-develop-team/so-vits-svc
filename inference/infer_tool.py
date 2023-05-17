@@ -249,7 +249,6 @@ class Svc(object):
                     spk_mix_dict = None,
                     gt_spec=audio_mel,
                     infer=True, 
-                    aug_shift=0,
                     infer_speedup=self.diffusion_args.infer.speedup, 
                     method=self.diffusion_args.infer.methold,
                     k_step=k_step)
@@ -267,7 +266,6 @@ class Svc(object):
                     spk_mix_dict = None,
                     gt_spec=None,
                     infer=True,
-                    aug_shift=0, 
                     infer_speedup=self.diffusion_args.infer.speedup, 
                     method=self.diffusion_args.infer.methold,
                     k_step=k_step)
