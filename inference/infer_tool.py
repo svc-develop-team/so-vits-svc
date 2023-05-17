@@ -227,7 +227,7 @@ class Svc(object):
                 audio,f0 = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale)
                 audio = audio[0,0].data.float()
                 if self.shallow_diffusion:
-                    audio_mel = self.vocoder.extract(audio[None,:])
+                    audio_mel = self.vocoder.extract(audio[None,:],self.target_sample)
                     vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev)
                     f0 = f0[:,:,None]
                     c = c.transpose(-1,-2)
@@ -262,11 +262,11 @@ class Svc(object):
                 audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
                 audio, _ = self.enhancer.enhance(
-                                                                        audio[None,:], 
-                                                                        self.target_sample, 
-                                                                        f0[:,:,None], 
-                                                                        self.hps_ms.data.hop_length, 
-                                                                        adaptive_key = enhancer_adaptive_key)
+                                    audio[None,:], 
+                                    self.target_sample, 
+                                    f0[:,:,None], 
+                                    self.hps_ms.data.hop_length, 
+                                    adaptive_key = enhancer_adaptive_key)
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1]
