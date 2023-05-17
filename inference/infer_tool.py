@@ -174,10 +174,8 @@ class Svc(object):
 
 
 
-    def get_unit_f0(self, in_path, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
+    def get_unit_f0(self, wav, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
 
-        wav, sr = librosa.load(in_path, sr=self.target_sample)
-        
         f0_predictor_object = utils.get_f0_predictor(f0_predictor,hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
         
         f0, uv = f0_predictor_object.compute_f0_uv(wav)
@@ -219,7 +217,8 @@ class Svc(object):
             if len(self.spk2id.__dict__) >= speaker:
                 speaker_id = speaker
         sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
-        c, f0, uv = self.get_unit_f0(raw_path, tran, cluster_infer_ratio, speaker, f0_filter,f0_predictor,cr_threshold=cr_threshold)
+        wav, sr = librosa.load(raw_path, sr=self.target_sample)
+        c, f0, uv = self.get_unit_f0(wav, tran, cluster_infer_ratio, speaker, f0_filter,f0_predictor,cr_threshold=cr_threshold)
         if "half" in self.net_g_path and torch.cuda.is_available():
             c = c.half()
         with torch.no_grad():
@@ -245,9 +244,8 @@ class Svc(object):
                     k_step=k_step)
                     audio = self.vocoder.infer(audio_mel, f0).squeeze()
             else:
-                wav, sr = librosa.load(raw_path, sr=self.target_sample)
                 wav = torch.FloatTensor(wav).to(self.dev)
-                vol = self.volume_extractor.extract(wav[None,:])[None,:,None]
+                vol = self.volume_extractor.extract(wav[None,:])[None,:,None].to(self.dev)
                 c = c.transpose(-1,-2)
                 f0 = f0[:,:,None]
                 audio_mel = self.diffusion_model(
