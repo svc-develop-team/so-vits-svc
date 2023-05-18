@@ -1,0 +1,4 @@
+- Open [onnx_export](onnx_export.py)
+- project_name = "dddsp" change "project_name" to your project name
+- model_path = f'{project_name}/model_500000.pt' change "model_path" to your model path
+- Run
