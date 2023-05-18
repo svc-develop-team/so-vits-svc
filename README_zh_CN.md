@@ -288,14 +288,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + 运行 [onnx_export.py](onnx_export.py) 
 + 等待执行完毕，在你的项目文件夹下会生成一个`model.onnx`，即为导出的模型
 
-### Onnx模型支持的UI
-
-+ [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
-  + [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
-
 注意：Hubert Onnx模型请使用MoeSS提供的模型，目前无法自行导出（fairseq中Hubert有不少onnx不支持的算子和涉及到常量的东西，在导出时会报错或者导出的模型输入输出shape和结果都有问题）
-
-CppDataProcess中是一些在MoeSS里处理音频的功能
 
 ## ☀️ 旧贡献者
 
