@@ -188,7 +188,8 @@ class AudioDataset(Dataset):
                         'aug_vol': aug_vol,
                         'spk_id': spk_id
                         }
-            else:               
+            else:
+                path_augmel = name_ext + ".aug_mel.npy"               
                 aug_mel,keyshift = np.load(path_augmel, allow_pickle=True)
                 self.pitch_aug_dict[name_ext] = keyshift
                 self.data_buffer[name_ext] = {
