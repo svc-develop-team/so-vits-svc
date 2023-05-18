@@ -38,14 +38,6 @@ This project is only a framework project, which does not have the function of sp
 
 > Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
 
-## 📝 4.0 Feature list of branches
-
-| Branch        |     Feature      |  whether compatible with the main branch model |
-| :-------------: | :----------: | :------------:    |
-| 4.0              |   main branch   |        -     |
-| 4.0v2        |  The VISinger2 model is used  |        incompatibility     |
-| 4.0-Vec768-Layer12    |  The feature input is the Layer 12 Transformer output of the Content Vec  |         Compatible after the configuration file is modified      |
-
 ## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
@@ -53,10 +45,11 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 ### 🆕 4.0-Vec768-Layer12 Version Update Content
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, the branch is not compatible with 4.0 model
+- Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality
   
-### 🆕 Questions about compatibility with the main branch model
+### 🆕 Questions about compatibility with the 4.0 model
 
-- You can support the main branch model by modifying the config.json of the main branch model, adding the speech_encoder field to the Model field of config.json, see below for details
+- You can support the 4.0 model by modifying the config.json of the 4.0 model, adding the speech_encoder field to the Model field of config.json, see below for details
 
 ```
   "model": {
@@ -66,6 +59,9 @@ The singing voice conversion model uses SoftVC content encoder to extract source
     "speech_encoder":"vec256l9"
   }
 ```
+
+### 🆕 About shallow diffusion
+![Diagram](shadowdiffusion.png)
 
 ## 💬 About Python Version
 
@@ -98,13 +94,16 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - Pre-trained model files: `G_0.pth` `D_0.pth`
   - Place them under the `logs/44k` directory
 
+- Diffusion model pretraining base model file: `model_0.pt`
+  - Put it in the `logs/44k/diffusion` directory
+
 Get them from svc-develop-team(TBD) or anywhere else.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
 #### **Optional(Select as Required)**
 
-If you are using the NSF-HIFIGAN enhancer, you will need to download the pre-trained NSF-HIFIGAN model, or not if you do not need it.
+If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will need to download the pre-trained NSF-HIFIGAN model, or not if you do not need it.
 
 - Pre-trained NSF-HIFIGAN Vocoder: [nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
   - Unzip and place the four files under the `pretrain/nsf_hifigan` directory
@@ -196,9 +195,15 @@ If the training set is too noisy, use crepe to handle f0
 
 If the f0_predictor parameter is omitted, the default value is dio
 
+If you want shallow diffusion (optional), you need to add the --use_diff parameter, for example
+
+```shell
+python preprocess_hubert_f0.py --f0_predictor dio --use_diff
+```
+
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
-#### You can modify some parameters in the generated config.json
+#### You can modify some parameters in the generated config.json and diffusion.yaml
 
 * `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
 
@@ -206,9 +211,21 @@ After completing the above steps, the dataset directory will contain the preproc
 
 ## 🏋️‍♀️ Training
 
+### Diffusion Model (optional)
+
+If the shallow diffusion function is needed, the diffusion model needs to be trained. The diffusion model training method is as follows:
+
+```shell
+python train_diff.py -c configs/diffusion.yaml
+```
+
+### Sovits Model
+
 ```shell
 python train.py -c configs/config.json -m 44k
 ```
+
+After the model training, the model file is saved in the directory `logs/44k`, and the diffusion model is stored under `logs/44k/diffusion`
 
 ## 🤖 Inference
 
@@ -234,6 +251,14 @@ Optional parameters: see the next section
 - `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
 - `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
+- `-shd` | `--shallow_diffusion`：Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
+
+Shallow diffusion setting
++ `-dm` | `--diffusion_model_path`：Diffusion model path
++ `-dc` | `--diffusion_config_path`：Diffusion model profile path
++ `-ks` | `--k_step`：The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
++ `-od` | `---only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
+
 
 ## 🤔 Optional Settings
 

@@ -46,9 +46,9 @@
 + 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出
 + 更新浅层扩散，可以使用浅层扩散模型提升音质
 
-### 🆕 关于兼容主分支模型的问题
+### 🆕 关于兼容4.0模型的问题
 
-+ 可通过修改主分支模型的config.json对主分支的模型进行支持，需要在config.json的model字段中添加speech_encoder字段，具体见下
++ 可通过修改4.0模型的config.json对4.0的模型进行支持，需要在config.json的model字段中添加speech_encoder字段，具体见下
 
 ```
   "model": {
@@ -100,7 +100,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 #### **可选项(根据情况选择)**
 
-如果使用NSF-HIFIGAN增强器或浅层扩散的话，需要下载预训练的NSF-HIFIGAN模型，如果不需要可以不下载
+如果使用`NSF-HIFIGAN增强器`或`浅层扩散`的话，需要下载预训练的NSF-HIFIGAN模型，如果不需要可以不下载
 
 + 预训练的NSF-HIFIGAN声码器 ：[nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
   + 解压后，将四个文件放在`pretrain/nsf_hifigan`目录下
