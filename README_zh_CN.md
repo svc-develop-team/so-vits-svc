@@ -2,6 +2,8 @@
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
+#### ✨ 带有F0曲线编辑器，角色混合时间轴编辑器的推理端 (Onnx模型的用途) : [MoeVoiceStudio(即将到来)](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
+
 #### ✨ 改善了交互的一个分支推荐：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
 #### ✨ 支持实时转换的一个客户端：[w-okada/voice-changer](https://github.com/w-okada/voice-changer)
