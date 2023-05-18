@@ -247,6 +247,13 @@ class AudioDataset(Dataset):
         else:
             mel = mel[start_frame : start_frame + units_frame_len]
             
+        # load f0
+        f0 = data_buffer.get('f0')
+        aug_shift = 0
+        if aug_flag:
+            aug_shift = self.pitch_aug_dict[name_ext]
+        f0_frames = 2 ** (aug_shift / 12) * f0[start_frame : start_frame + units_frame_len]
+        
         # load units
         units = data_buffer.get('units')
         if units is None:
@@ -257,13 +264,6 @@ class AudioDataset(Dataset):
             
         units = units[start_frame : start_frame + units_frame_len]
 
-        # load f0
-        f0 = data_buffer.get('f0')
-        aug_shift = 0
-        if aug_flag:
-            aug_shift = self.pitch_aug_dict[name_ext]
-        f0_frames = 2 ** (aug_shift / 12) * f0[start_frame : start_frame + units_frame_len]
-        
         # load volume
         vol_key = 'aug_vol' if aug_flag else 'volume'
         volume = data_buffer.get(vol_key)
