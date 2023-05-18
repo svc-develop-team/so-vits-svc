@@ -1,51 +1,9 @@
 import torch
-from torchaudio.models.wav2vec2.utils import import_fairseq_model
-from fairseq import checkpoint_utils
 from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
 import utils
 
-def get_hubert_model():
-    vec_path = "hubert/checkpoint_best_legacy_500.pt"
-    print("load model(s) from {}".format(vec_path))
-    models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
-        [vec_path],
-        suffix="",
-    )
-    model = models[0]
-    model.eval()
-    return model
-
-
 def main(HubertExport, NetExport):
-    path = "yuuka"
-
-    '''if HubertExport:
-        device = torch.device("cpu")
-        vec_path = "hubert/checkpoint_best_legacy_500.pt"
-        models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
-            [vec_path],
-            suffix="",
-        )
-        original = models[0]
-        original.eval()
-        model = original
-        test_input = torch.rand(1, 1, 16000)
-        model(test_input)
-        torch.onnx.export(model,
-                          test_input,
-                          "hubert4.0.onnx",
-                          export_params=True,
-                          opset_version=16,
-                          do_constant_folding=True,
-                          input_names=['source'],
-                          output_names=['embed'],
-                          dynamic_axes={
-                              'source':
-                                  {
-                                      2: "sample_length"
-                                  },
-                          }
-                          )'''
+    path = "SummerPockets"
     if NetExport:
         device = torch.device("cpu")
         hps = utils.get_hparams_from_file(f"checkpoints/{path}/config.json")
@@ -63,7 +21,7 @@ def main(HubertExport, NetExport):
         test_uv = torch.ones(1, 10, dtype=torch.float32)
         test_noise = torch.randn(1, 192, 10)
 
-        export_mix = False
+        export_mix = True
 
         test_sid = torch.LongTensor([0])
         spk_mix = []
@@ -73,6 +31,8 @@ def main(HubertExport, NetExport):
                 spk_mix.append(1.0/float(n_spk))
             test_sid = torch.tensor(spk_mix)
             SVCVITS.export_chara_mix(n_spk)
+            test_sid = test_sid.unsqueeze(0)
+            test_sid = test_sid.repeat(10, 1)
         
         input_names = ["c", "f0", "mel2ph", "uv", "noise", "sid"]
         output_names = ["audio", ]
@@ -94,6 +54,7 @@ def main(HubertExport, NetExport):
                               "mel2ph": [1],
                               "uv": [1],
                               "noise": [2],
+                              "sid":[0]
                           },
                           do_constant_folding=False,
                           opset_version=16,
