@@ -72,9 +72,9 @@ if __name__ == "__main__":
 
 
     d_config_template = du.load_config("configs_template/diffusion_template.yaml")
-    d_config_template.model.n_spk = spk_id
-    d_config_template.data.encoder = args.speech_encoder
-    d_config_template.spk = spk_dict
+    d_config_template["model"]["n_spk"] = spk_id
+    d_config_template["data"]["encoder"] = args.speech_encoder
+    d_config_template["spk"] = spk_dict
     
     config_template["spk"] = spk_dict
     config_template["model"]["n_speakers"] = spk_id
@@ -82,10 +82,10 @@ if __name__ == "__main__":
     
     if args.speech_encoder == "vec768l12":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 768
-        d_config_template.data.encoder_out_channels = 768
+        d_config_template["data"]["encoder_out_channels"] = 768
     elif args.speech_encoder == "vec256l9" or args.speech_encoder == 'hubertsoft':
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 256
-        d_config_template.data.encoder_out_channels = 256
+        d_config_template["data"]["encoder_out_channels"] = 256
     
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
