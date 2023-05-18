@@ -1,67 +1,78 @@
+import time,pdb
+import tqdm
+from time import time as ttime
 import os
-from glob import glob
 from pathlib import Path
-import torch
 import logging
 import argparse
+from cluster.kmeans import KMeansGPU
 import torch
 import numpy as np
-from sklearn.cluster import KMeans, MiniBatchKMeans
-import tqdm
+from sklearn.cluster import KMeans,MiniBatchKMeans
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-import time
-import random
+from time import time as ttime
+import pynvml,torch
 
-def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False):
-
+def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=False):#gpu_minibatch真拉，虽然库支持但是也不考虑
     logger.info(f"Loading features from {in_dir}")
     features = []
     nums = 0
     for path in tqdm.tqdm(in_dir.glob("*.soft.pt")):
-        features.append(torch.load(path).squeeze(0).numpy().T)
+    # for name in os.listdir(in_dir):
+    #     path="%s/%s"%(in_dir,name)
+        features.append(torch.load(path,map_location="cpu").squeeze(0).numpy().T)
         # print(features[-1].shape)
     features = np.concatenate(features, axis=0)
     print(nums, features.nbytes/ 1024**2, "MB , shape:",features.shape, features.dtype)
     features = features.astype(np.float32)
     logger.info(f"Clustering features of shape: {features.shape}")
     t = time.time()
-    if use_minibatch:
-        kmeans = MiniBatchKMeans(n_clusters=n_clusters,verbose=verbose, batch_size=4096, max_iter=80).fit(features)
+    if(use_gpu==False):
+        if use_minibatch:
+            kmeans = MiniBatchKMeans(n_clusters=n_clusters,verbose=verbose, batch_size=4096, max_iter=80).fit(features)
+        else:
+            kmeans = KMeans(n_clusters=n_clusters,verbose=verbose).fit(features)
     else:
-        kmeans = KMeans(n_clusters=n_clusters,verbose=verbose).fit(features)
+            kmeans = KMeansGPU(n_clusters=n_clusters, mode='euclidean', verbose=2 if verbose else 0,max_iter=500,tol=1e-2)#
+            features=torch.from_numpy(features)#.to(device)
+            labels = kmeans.fit_predict(features)#
+
     print(time.time()-t, "s")
 
     x = {
-            "n_features_in_": kmeans.n_features_in_,
-            "_n_threads": kmeans._n_threads,
-            "cluster_centers_": kmeans.cluster_centers_,
+            "n_features_in_": kmeans.n_features_in_ if use_gpu==False else features.shape[0],
+            "_n_threads": kmeans._n_threads if use_gpu==False else 4,
+            "cluster_centers_": kmeans.cluster_centers_ if use_gpu==False else kmeans.centroids.cpu().numpy(),
     }
     print("end")
 
     return x
 
-
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=Path, default="./dataset/44k",
                         help='path of training data directory')
     parser.add_argument('--output', type=Path, default="logs/44k",
                         help='path of model output directory')
+    parser.add_argument('--gpu',action='store_true', type=Path, default="logs/44k",
+                        help='to use GPU')
+
 
     args = parser.parse_args()
 
     checkpoint_dir = args.output
     dataset = args.dataset
-    n_clusters = 10000
-
+    use_gpu = args.arg
+    n_clusters = 1000
+    
     ckpt = {}
     for spk in os.listdir(dataset):
         if os.path.isdir(dataset/spk):
             print(f"train kmeans for {spk}...")
             in_dir = dataset/spk
-            x = train_cluster(in_dir, n_clusters, verbose=False)
+            x = train_cluster(in_dir, n_clusters,use_minibatch=False,verbose=False,use_gpu=use_gpu)
             ckpt[spk] = x
 
     checkpoint_path = checkpoint_dir / f"kmeans_{n_clusters}.pt"
@@ -70,20 +81,4 @@ if __name__ == "__main__":
         ckpt,
         checkpoint_path,
     )
-
-
-    # import cluster
-    # for spk in tqdm.tqdm(os.listdir("dataset")):
-    #     if os.path.isdir(f"dataset/{spk}"):
-    #         print(f"start kmeans inference for {spk}...")
-    #         for feature_path in tqdm.tqdm(glob(f"dataset/{spk}/*.discrete.npy", recursive=True)):
-    #             mel_path = feature_path.replace(".discrete.npy",".mel.npy")
-    #             mel_spectrogram = np.load(mel_path)
-    #             feature_len = mel_spectrogram.shape[-1]
-    #             c = np.load(feature_path)
-    #             c = utils.tools.repeat_expand_2d(torch.FloatTensor(c), feature_len).numpy()
-    #             feature = c.T
-    #             feature_class = cluster.get_cluster_result(feature, spk)
-    #             np.save(feature_path.replace(".discrete.npy", ".discrete_class.npy"), feature_class)
-
-
+    

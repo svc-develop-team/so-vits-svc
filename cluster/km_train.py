@@ -63,7 +63,7 @@ if __name__ == "__main__":
     dataset = args.dataset
     n_clusters = 1000
     
-        ckpt = {}
+    ckpt = {}
     for spk in os.listdir(dataset):
         if os.path.isdir(dataset/spk):
             print(f"train kmeans for {spk}...")
