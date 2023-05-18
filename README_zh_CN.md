@@ -269,6 +269,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + 训练过程：
   + 使用cpu性能较好的机器训练，据我的经验在腾讯云6核cpu训练每个speaker需要约4分钟即可完成训练
   + 执行`python cluster/train_cluster.py` ，模型的输出会在`logs/44k/kmeans_10000.pt`
+  + 聚类模型目前可以使用gpu进行训练，执行`python cluster/train_cluster.py --gpu`
 + 推理过程：
   + `inference_main.py`中指定`cluster_model_path`
   + `inference_main.py`中指定`cluster_infer_ratio`，`0`为完全不使用聚类，`1`为只使用聚类，通常设置`0.5`即可

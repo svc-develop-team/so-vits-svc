@@ -277,6 +277,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 - Training process:
   - Train on a machine with good CPU performance. According to my experience, it takes about 4 minutes to train each speaker on a Tencent Cloud machine with 6-core CPU.
   - Execute `python cluster/train_cluster.py`. The output model will be saved in `logs/44k/kmeans_10000.pt`.
+  - The clustering model can currently be trained using the gpu by executing `python cluster/train_cluster.py --gpu`
 - Inference process:
   - Specify `cluster_model_path` in `inference_main.py`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using clustering at all, `1` means only using clustering, and usually `0.5` is sufficient.
