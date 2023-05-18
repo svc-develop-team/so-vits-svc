@@ -316,7 +316,7 @@ class SynthesizerTrn(nn.Module):
         self.speaker_map = torch.zeros((n_speakers_mix, 1, 1, self.gin_channels))
         for i in range(n_speakers_mix):
             self.speaker_map[i] = self.emb_g(torch.LongTensor([[i]]))
-        self.speaker_map.unsqueeze(0)
+        self.speaker_map = self.speaker_map.unsqueeze(0)
         self.export_mix = True
 
     def forward(self, c, f0, mel2ph, uv, noise=None, g=None, cluster_infer_ratio=0.1):
