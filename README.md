@@ -296,14 +296,7 @@ Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/on
 - Run [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
 - Wait for it to finish running. A `model.onnx` will be generated in your project folder, which is the exported model.
 
-### UI support for Onnx models
-
-- [MoeSS](https://github.com/NaruseMioShirakana/MoeSS)
-  - [Hubert4.0](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel)
-
 Note: For Hubert Onnx models, please use the models provided by MoeSS. Currently, they cannot be exported on their own (Hubert in fairseq has many unsupported operators and things involving constants that can cause errors or result in problems with the input/output shape and results when exported.)
-
-CppDataProcess are some functions to preprocess data used in MoeSS
 
 ## ☀️ Previous contributors
 
