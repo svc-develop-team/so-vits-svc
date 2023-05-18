@@ -313,27 +313,27 @@ class SynthesizerTrn(nn.Module):
         self.export_mix = False
 
     def export_chara_mix(self, n_speakers_mix):
-        spkmap = []
+        self.speaker_map = torch.zeros((n_speakers_mix, 1, 1, self.gin_channels))
         for i in range(n_speakers_mix):
-            spkmap.append(self.emb_g(torch.LongTensor([[i]])).transpose(1, 2).detach().numpy())
-        self.speaker_map = torch.tensor(spkmap)
+            self.speaker_map[i] = self.emb_g(torch.LongTensor([[i]]))
+        self.speaker_map.unsqueeze(0)
         self.export_mix = True
 
     def forward(self, c, f0, mel2ph, uv, noise=None, g=None, cluster_infer_ratio=0.1):
-
         decoder_inp = F.pad(c, [0, 0, 1, 0])
         mel2ph_ = mel2ph.unsqueeze(2).repeat([1, 1, c.shape[-1]])
         c = torch.gather(decoder_inp, 1, mel2ph_).transpose(1, 2)  # [B, T, H]
 
         c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
 
-        if self.export_mix:
-            spk_mix = spk_mix.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
-            g = torch.sum(spk_mix * self.speaker_map, dim=0).transpose(1, 2)
+        if self.export_mix:   # [N, S]  *  [S, B, 1, H]
+            g = g.reshape((g.shape[0], g.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
+            g = g * self.speaker_map  # [N, S, B, 1, H]
+            g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
+            g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
         else:
             g = g.unsqueeze(0)
             g = self.emb_g(g).transpose(1, 2)
-
 
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
