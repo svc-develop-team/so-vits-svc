@@ -81,9 +81,9 @@ class Unit2Mel(nn.Module):
             dict of B x n_frames x feat
         '''
 
-        # decoder_inp = F.pad(units, [0, 0, 1, 0])
+        decoder_inp = F.pad(units, [0, 0, 1, 0])
         mel2ph_ = mel2ph.unsqueeze(2).repeat([1, 1, units.shape[-1]])
-        units = torch.gather(units, 1, mel2ph_)  # [B, T, H]
+        units = torch.gather(decoder_inp, 1, mel2ph_)  # [B, T, H]
 
         x = self.unit_embed(units) + self.f0_embed((1 + f0.unsqueeze(-1) / 700).log()) + self.volume_embed(volume.unsqueeze(-1))
 
@@ -151,7 +151,8 @@ class Unit2Mel(nn.Module):
                     "hubert": [1],
                     "f0": [1],
                     "volume": [1],
-                    "mel2ph": [1]
+                    "mel2ph": [1],
+                    "spk_mix": [0],
                 },
                 opset_version=16
             )
