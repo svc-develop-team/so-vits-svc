@@ -1,9 +1,5 @@
 # SoftVC VITS Singing Voice Conversion
 
-在歌唱声音转换领域，不仅有SoVitsSvc一个项目，还有很多其他项目，这里就不一一列举了。该项目正式停止维护和存档。
-
-然而，仍然有其他的爱好者创建了他们自己的分支，并继续维护SoVitsSvc项目(仍然与SvcDevelopTeam和存储库维护者无关)，并对它进行了一些大的更改，供您自己发现。
-
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
 #### ✨ 改善了交互的一个分支推荐：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
