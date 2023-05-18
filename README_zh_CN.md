@@ -17,7 +17,9 @@
 ## 声明
 
 本项目为开源、离线的项目，SvcDevelopTeam的所有成员与本项目的所有开发者以及维护者（以下简称贡献者）对本项目没有控制力。本项目的贡献者从未向任何组织或个人提供包括但不限于数据集提取、数据集加工、算力支持、训练支持、推理等一切形式的帮助；本项目的贡献者不知晓也无法知晓使用者使用该项目的用途。故一切基于本项目训练的AI模型和合成的音频都与本项目贡献者无关。一切由此造成的问题由使用者自行承担。
+
 此项目完全离线运行，不能收集任何用户信息或获取用户输入数据。因此，这个项目的贡献者不知道所有的用户输入和模型，因此不负责任何用户输入。
+
 本项目只是一个框架项目，本身并没有语音合成的功能，所有的功能都需要用户自己训练模型。同时，这个项目没有任何模型，任何二次分发的项目都与这个项目的贡献者无关
 
 ## 📏 使用规约
@@ -35,14 +37,6 @@
 
 > 更新了4.0-v2模型，全部流程同4.0，相比4.0在部分场景下有一定提升，但也有些情况有退步，具体可移步[4.0-v2分支](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2)
 
-## 📝 4.0各分支特性列表
-
-| 分支名         |     特性      |   是否与主分支模型兼容 |
-| :-------------: | :----------: | :------------:    |
-| 4.0              |   主分支   |        -     |
-| 4.0v2        |  采用了VISinger2模型  |        不兼容     |
-| 4.0-Vec768-Layer12    |  特征输入为Content Vec的第12层Transformer输出  |      修改配置文件后兼容     |
-
 ## 📝 模型简介
 
 歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
@@ -50,10 +44,11 @@
 ### 🆕 4.0-Vec768-Layer12 版本更新内容
 
 + 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出
++ 更新浅层扩散，可以使用浅层扩散模型提升音质
 
-### 🆕 关于兼容主分支模型的问题
+### 🆕 关于兼容4.0模型的问题
 
-+ 可通过修改主分支模型的config.json对主分支的模型进行支持，需要在config.json的model字段中添加speech_encoder字段，具体见下
++ 可通过修改4.0模型的config.json对4.0的模型进行支持，需要在config.json的model字段中添加speech_encoder字段，具体见下
 
 ```
   "model": {
@@ -63,6 +58,9 @@
     "speech_encoder":"vec256l9"
   }
 ```
+
+### 🆕 关于浅扩散
+![Diagram](shadowdiffusion.png)
 
 ## 💬 关于 Python 版本问题
 
@@ -93,13 +91,16 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 + 预训练底模文件： `G_0.pth` `D_0.pth`
   + 放在`logs/44k`目录下
 
++ 扩散模型预训练底模文件： `model_0.pt `
+  + 放在`logs/44k/diffusion`目录下
+
 从svc-develop-team(待定)或任何其他地方获取
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
 
 #### **可选项(根据情况选择)**
 
-如果使用NSF-HIFIGAN增强器的话，需要下载预训练的NSF-HIFIGAN模型，如果不需要可以不下载
+如果使用`NSF-HIFIGAN增强器`或`浅层扩散`的话，需要下载预训练的NSF-HIFIGAN模型，如果不需要可以不下载
 
 + 预训练的NSF-HIFIGAN声码器 ：[nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
   + 解压后，将四个文件放在`pretrain/nsf_hifigan`目录下
@@ -188,9 +189,15 @@ harvest
 
 如果省略f0_predictor参数，默认值为dio
 
+尚若需要浅扩散功能（可选），需要增加--use_diff参数，比如
+
+```shell
+python preprocess_hubert_f0.py --f0_predictor dio --use_diff
+```
+
 执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除 dataset_raw 文件夹了
 
-#### 此时可以在生成的config.json修改部分参数
+#### 此时可以在生成的config.json与diffusion.yaml修改部分参数
 
 * `keep_ckpts`：训练时保留最后几个模型，`0`为保留所有，默认只保留最后`3`个
 
@@ -198,9 +205,21 @@ harvest
 
 ## 🏋️‍♀️ 训练
 
+### 扩散模型（可选）
+
+尚若需要浅扩散功能，需要训练扩散模型，扩散模型训练方法为:
+
+```shell
+python train_diff.py -c configs/diffusion.yaml
+```
+
+### 主模型训练
+
 ```shell
 python train.py -c configs/config.json -m 44k
 ```
+
+模型训练结束后，模型文件保存在`logs/44k`目录下，扩散模型在`logs/44k/diffusion`下
 
 ## 🤖 推理
 
@@ -226,6 +245,13 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + `-cm` | `--cluster_model_path`：聚类模型路径，如果没有训练聚类则随便填
 + `-cr` | `--cluster_infer_ratio`：聚类方案占比，范围0-1，若没有训练聚类模型则默认0即可
 + `-eh` | `--enhance`：是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭
++ `-shd` | `--shallow_diffusion`：是否使用浅层扩散，使用后可解决一部分电音问题，默认关闭，该选项打开时，NSF_HIFIGAN增强器将会被禁止
+
+浅扩散设置
++ `-dm` | `--diffusion_model_path`：扩散模型路径
++ `-dc` | `--diffusion_config_path`：扩散模型配置文件路径
++ `-ks` | `--k_step`：扩散步数，越大越接近扩散模型的结果，默认100
++ `-od` | `---only_diffusion`：纯扩散模式，该模式不会加载sovits模型，以扩散模型推理
 
 ## 🤔 可选项
 

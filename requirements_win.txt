@@ -22,3 +22,4 @@ onnxsim
 onnxoptimizer
 tensorboardX
 edge_tts
+pyyaml
