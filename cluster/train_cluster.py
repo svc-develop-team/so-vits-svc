@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import logging
 import argparse
-from cluster.kmeans import KMeansGPU
+from kmeans import KMeansGPU
 import torch
 import numpy as np
 from sklearn.cluster import KMeans,MiniBatchKMeans
@@ -56,7 +56,7 @@ if __name__ == "__main__":
                         help='path of training data directory')
     parser.add_argument('--output', type=Path, default="logs/44k",
                         help='path of model output directory')
-    parser.add_argument('--gpu',action='store_true', type=Path, default="logs/44k",
+    parser.add_argument('--gpu',action='store_true', default=False ,
                         help='to use GPU')
 
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     checkpoint_dir = args.output
     dataset = args.dataset
-    use_gpu = args.arg
+    use_gpu = args.gpu
     n_clusters = 1000
     
     ckpt = {}
