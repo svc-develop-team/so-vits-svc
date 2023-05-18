@@ -240,7 +240,7 @@ class AudioDataset(Dataset):
         mel_key = 'aug_mel' if aug_flag else 'mel'
         mel = data_buffer.get(mel_key)
         if mel is None:
-            mel = os.path.join(self.path_root, mel_key, name_ext) + '.npy'
+            mel = name_ext + ".mel.npy"
             mel = np.load(mel)
             mel = mel[start_frame : start_frame + units_frame_len]
             mel = torch.from_numpy(mel).float() 
@@ -250,12 +250,12 @@ class AudioDataset(Dataset):
         # load units
         units = data_buffer.get('units')
         if units is None:
-            units = os.path.join(self.path_root, 'units', name_ext) + '.npy'
-            units = np.load(units)
-            units = units[start_frame : start_frame + units_frame_len]
-            units = torch.from_numpy(units).float() 
-        else:
-            units = units[start_frame : start_frame + units_frame_len]
+            path_units = name_ext + ".soft.pt"
+            units = torch.load(path_units)
+            units = units[0]  
+            units = repeat_expand_2d(units,f0.size(0)).transpose(0,1)
+            
+        units = units[start_frame : start_frame + units_frame_len]
 
         # load f0
         f0 = data_buffer.get('f0')
