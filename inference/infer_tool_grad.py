@@ -131,7 +131,7 @@ class VitsSvc(object):
         with torch.no_grad():
             x_tst = stn_tst.unsqueeze(0).to(self.device)
             x_tst = torch.repeat_interleave(x_tst, repeats=2, dim=1).transpose(1, 2)
-            audio = self.SVCVITS.infer(x_tst, f0=f0, g=sid)[0,0].data.float()
+            audio,_ = self.SVCVITS.infer(x_tst, f0=f0, g=sid)[0,0].data.float()
         return audio, audio.shape[-1]
 
     def inference(self,srcaudio,chara,tran,slice_db):

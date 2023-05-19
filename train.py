@@ -295,7 +295,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
                 hps.data.sampling_rate,
                 hps.data.mel_fmin,
                 hps.data.mel_fmax)
-            y_hat = generator.module.infer(c, f0, uv, g=g)
+            y_hat,_ = generator.module.infer(c, f0, uv, g=g)
 
             y_hat_mel = mel_spectrogram_torch(
                 y_hat.squeeze(1).float(),

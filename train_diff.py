@@ -48,9 +48,9 @@ if __name__ == '__main__':
     optimizer = torch.optim.AdamW(model.parameters())
     initial_global_step, model, optimizer = utils.load_model(args.env.expdir, model, optimizer, device=args.device)
     for param_group in optimizer.param_groups:
-        param_group['lr'] = args.train.lr * (args.train.gamma ** (initial_global_step//args.train.decay_step) )
+        param_group['lr'] = args.train.lr * (args.train.gamma ** max(((initial_global_step-1)//args.train.decay_step),0) )
         param_group['weight_decay'] = args.train.weight_decay
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.train.decay_step, gamma=args.train.gamma,last_epoch=initial_global_step-1)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.train.decay_step, gamma=args.train.gamma,last_epoch=max(initial_global_step-2,-1))
     
     # device
     if args.device == 'cuda':
