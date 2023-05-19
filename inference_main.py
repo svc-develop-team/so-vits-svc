@@ -110,7 +110,10 @@ def main():
             audio = svc_model.slice_inference(**kwarg)
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
-            res_path = f'./results/{clean_name}_{key}_{spk}{cluster_name}.{wav_format}'
+            isdiffusion = "sovits"
+            if shallow_diffusion : isdiffusion = "sovdiff"
+            if only_diffusion : isdiffusion = "diff"
+            res_path = f'./results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}.{wav_format}'
             soundfile.write(res_path, audio, svc_model.target_sample, format=wav_format)
             svc_model.clear_empty()
             
