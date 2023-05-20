@@ -250,7 +250,7 @@ class Svc(object):
                     gt_spec=audio_mel,
                     infer=True, 
                     infer_speedup=self.diffusion_args.infer.speedup, 
-                    method=self.diffusion_args.infer.methold,
+                    method=self.diffusion_args.infer.method,
                     k_step=k_step)
                     audio = self.vocoder.infer(audio_mel, f0).squeeze()
             else:
@@ -267,7 +267,7 @@ class Svc(object):
                     gt_spec=None,
                     infer=True,
                     infer_speedup=self.diffusion_args.infer.speedup, 
-                    method=self.diffusion_args.infer.methold,
+                    method=self.diffusion_args.infer.method,
                     k_step=k_step)
                 audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
