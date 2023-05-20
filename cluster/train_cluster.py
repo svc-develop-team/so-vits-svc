@@ -42,7 +42,7 @@ def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=
     print(time.time()-t, "s")
 
     x = {
-            "n_features_in_": kmeans.n_features_in_ if use_gpu==False else features.shape[0],
+            "n_features_in_": kmeans.n_features_in_ if use_gpu==False else features.shape[1],
             "_n_threads": kmeans._n_threads if use_gpu==False else 4,
             "cluster_centers_": kmeans.cluster_centers_ if use_gpu==False else kmeans.centroids.cpu().numpy(),
     }
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     checkpoint_dir = args.output
     dataset = args.dataset
     use_gpu = args.gpu
-    n_clusters = 1000
+    n_clusters = 10000
     
     ckpt = {}
     for spk in os.listdir(dataset):
