@@ -84,6 +84,20 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 + soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
   + 放在`pretrain`目录下
 
+##### **3. 若使用OnnxHubert/ContentVec作为声音编码器**
+- download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
+  - Place it under the `pretrain` directory
+
+#### **编码器列表**
+- "vec768l12"
+- "vec256l9"
+- "vec256l9-onnx"
+- "vec256l12-onnx"
+- "vec768l9-onnx"
+- "vec768l12-onnx"
+- "hubertsoft-onnx"
+- "hubertsoft"
+
 #### **可选项(强烈建议使用)**
 
 + 预训练底模文件： `G_0.pth` `D_0.pth`

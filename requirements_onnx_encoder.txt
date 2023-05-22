@@ -14,7 +14,7 @@ praat-parselmouth
 onnx
 onnxsim
 onnxoptimizer
-onnxruntime
+onnxruntime-gpu
 librosa==0.9.1
 tensorboard
 tensorboardX
