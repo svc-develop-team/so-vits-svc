@@ -20,18 +20,20 @@ def process(item):
         peak = np.abs(wav).max()
         if peak > 1.0:
             wav = 0.98 * wav / peak
-        wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
-        meter = pyln.Meter(args.sr2)
-        loudness = meter.integrated_loudness(wav2)
-        wav2 = pyln.normalize.loudness(wav2, loudness, -16.0)
-        # wav2 /= max(wav2.max(), -wav2.min())
-        save_name = wav_name
-        save_path2 = os.path.join(args.out_dir2, speaker, save_name)
-        wavfile.write(
-            save_path2,
-            args.sr2,
-            (wav2 * np.iinfo(np.int16).max).astype(np.int16)
-        )
+            wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
+        try:
+            meter = pyln.Meter(args.sr2)
+            loudness = meter.integrated_loudness(wav2)
+            wav2 = pyln.normalize.loudness(wav2, loudness, -16.0)
+            # wav2 /= max(wav2.max(), -wav2.min())
+            save_name = wav_name
+            save_path2 = os.path.join(args.out_dir2, speaker, save_name)
+            wavfile.write(
+                save_path2,
+                args.sr2,
+                (wav2 * np.iinfo(np.int16).max).astype(np.int16))
+        except ValueError as e:
+            print(f"{wav_path} is too short(<400ms), the wav skip")
 
 
 
