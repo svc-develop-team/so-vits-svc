@@ -41,10 +41,10 @@ This project is only a framework project, which does not have the function of sp
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
-### 🆕 4.0-Vec768-Layer12 Version Update Content
+### 🆕 4.1-Stable Version Update Content
 
-- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, the branch is not compatible with 4.0 model
-- Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality
+- Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, And compatible with 4.0 branches.
+- Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality.
   
 ### 🆕 Questions about compatibility with the 4.0 model
 
@@ -53,7 +53,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 ```
   "model": {
     .........
-    "ssl_dim": 768,
+    "ssl_dim": 256,
     "n_speakers": 200,
     "speech_encoder":"vec256l9"
   }

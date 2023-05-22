@@ -39,9 +39,9 @@
 
 歌声音色转换模型，通过SoftVC内容编码器提取源音频语音特征，与F0同时输入VITS替换原本的文本输入达到歌声转换的效果。同时，更换声码器为 [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) 解决断音问题
 
-### 🆕 4.0-Vec768-Layer12 版本更新内容
+### 🆕 4.1-Stable 版本更新内容
 
-+ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出
++ 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出，并兼容4.0分支
 + 更新浅层扩散，可以使用浅层扩散模型提升音质
 
 ### 🆕 关于兼容4.0模型的问题
@@ -51,7 +51,7 @@
 ```
   "model": {
     .........
-    "ssl_dim": 768,
+    "ssl_dim": 256,
     "n_speakers": 200,
     "speech_encoder":"vec256l9"
   }
