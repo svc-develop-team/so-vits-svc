@@ -87,6 +87,9 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
   - Place it under the `pretrain` directory
 
+##### **3. If OnnxHubert/ContentVec as the encoder**
+- download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
+  - Place it under the `pretrain` directory
 
 #### **Optional(Strongly recommend)**
 
