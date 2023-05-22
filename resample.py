@@ -20,7 +20,7 @@ def process(item):
         peak = np.abs(wav).max()
         if peak > 1.0:
             wav = 0.98 * wav / peak
-            wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
+        wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
         try:
             meter = pyln.Meter(args.sr2)
             loudness = meter.integrated_loudness(wav2)
