@@ -91,6 +91,16 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
   - Place it under the `pretrain` directory
 
+#### **List of Encoders**
+- "vec768l12"
+- "vec256l9"
+- "vec256l9-onnx"
+- "vec256l12-onnx"
+- "vec768l9-onnx"
+- "vec768l12-onnx"
+- "hubertsoft-onnx"
+- "hubertsoft"
+
 #### **Optional(Strongly recommend)**
 
 - Pre-trained model files: `G_0.pth` `D_0.pth`
