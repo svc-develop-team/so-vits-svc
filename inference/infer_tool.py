@@ -238,37 +238,24 @@ class Svc(object):
                 audio = audio[0,0].data.float()
                 if self.shallow_diffusion:
                     audio_mel = self.vocoder.extract(audio[None,:],self.target_sample)
-                    vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev)
-                    f0 = f0[:,:,None]
-                    c = c.transpose(-1,-2)
-                    audio_mel = self.diffusion_model(
-                    c, 
-                    f0, 
-                    vol, 
-                    spk_id = sid, 
-                    spk_mix_dict = None,
-                    gt_spec=audio_mel,
-                    infer=True, 
-                    infer_speedup=self.diffusion_args.infer.speedup, 
-                    method=self.diffusion_args.infer.method,
-                    k_step=k_step)
-                    audio = self.vocoder.infer(audio_mel, f0).squeeze()
             else:
-                wav = torch.FloatTensor(wav).to(self.dev)
-                vol = self.volume_extractor.extract(wav[None,:])[None,:,None].to(self.dev)
-                c = c.transpose(-1,-2)
+                audio = torch.FloatTensor(wav).to(self.dev)
+                audio_mel = None
+            if self.only_diffusion or self.shallow_diffusion:
+                vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev)
                 f0 = f0[:,:,None]
+                c = c.transpose(-1,-2)
                 audio_mel = self.diffusion_model(
-                    c, 
-                    f0, 
-                    vol, 
-                    spk_id = sid, 
-                    spk_mix_dict = None,
-                    gt_spec=None,
-                    infer=True,
-                    infer_speedup=self.diffusion_args.infer.speedup, 
-                    method=self.diffusion_args.infer.method,
-                    k_step=k_step)
+                c, 
+                f0, 
+                vol, 
+                spk_id = sid, 
+                spk_mix_dict = None,
+                gt_spec=audio_mel,
+                infer=True, 
+                infer_speedup=self.diffusion_args.infer.speedup, 
+                method=self.diffusion_args.infer.method,
+                k_step=k_step)
                 audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
                 audio, _ = self.enhancer.enhance(
