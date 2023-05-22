@@ -1,7 +1,7 @@
 data:
   sampling_rate: 44100
   block_size: 512 # Equal to hop_length
-  duration: 1 # Audio duration during training, must be less than the duration of the shortest audio clip
+  duration: 2 # Audio duration during training, must be less than the duration of the shortest audio clip
   encoder: 'vec768l12' # 'hubertsoft', 'vec256l9', 'vec768l12'
   cnhubertsoft_gate: 10
   encoder_sample_rate: 16000
