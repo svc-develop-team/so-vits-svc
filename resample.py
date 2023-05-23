@@ -21,10 +21,11 @@ def process(item):
         if peak > 1.0:
             wav = 0.98 * wav / peak
         wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
+        wav2 /= max(wav2.max(), -wav2.min())
         try:
             meter = pyln.Meter(args.sr2)
             loudness = meter.integrated_loudness(wav2)
-            wav2 = pyln.normalize.loudness(wav2, loudness, -16.0)
+            wav2 = pyln.normalize.loudness(wav2, loudness, -23.0)
             # wav2 /= max(wav2.max(), -wav2.min())
             save_name = wav_name
             save_path2 = os.path.join(args.out_dir2, speaker, save_name)
