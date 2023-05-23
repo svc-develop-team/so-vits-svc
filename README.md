@@ -8,7 +8,7 @@
 
 #### ✨ A client supports real-time conversion: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
 
-#### This project is fundamentally different from Vits. Vits is TTS and this project is SVC. TTS cannot be carried out in this project, and Vits cannot carry out SVC, and the two project models are not universal
+**This project is fundamentally different from Vits. Vits is TTS and this project is SVC. TTS cannot be carried out in this project, and Vits cannot carry out SVC, and the two project models are not universal.**
 
 ## Announcement
 
@@ -16,7 +16,7 @@ The project was developed to allow the developers' favorite anime characters to 
 
 ## Disclaimer
 
-This project is an open source, offline project, and all members of SvcDevelopTeam and all developers and maintainers of this project (hereinafter referred to as contributors) have no control over this project.  The contributor of this project has never provided any organization or individual with any form of assistance, including but not limited to data set extraction, data set processing, computing support, training support, infering, etc.  Contributors to the project do not and cannot know what users are using the project for.  Therefore, all AI models and synthesized audio based on the training of this project have nothing to do with the contributors of this project.  All problems arising therefrom shall be borne by the user.
+This project is an open source, offline project, and all members of SvcDevelopTeam and all developers and maintainers of this project (hereinafter referred to as contributors) have no control over this project. The contributor of this project has never provided any organization or individual with any form of assistance, including but not limited to data set extraction, data set processing, computing support, training support, infering, etc. Contributors to the project do not and cannot know what users are using the project for. Therefore, all AI models and synthesized audio based on the training of this project have nothing to do with the contributors of this project. All problems arising therefrom shall be borne by the user.
 
 This project is run completely offline and cannot collect any user information or obtain user input data. Therefore, contributors to this project are not aware of all user input and models and therefore are not responsible for any user input.
 
@@ -33,10 +33,6 @@ This project is only a framework project, which does not have the function of sp
 5. Continuing to use this project is deemed as agreeing to the relevant provisions stated in this repository README. This repository README has the obligation to persuade, and is not responsible for any subsequent problems that may arise.
 6. If you use this project for any other plan, please contact and inform the author of this repository in advance. Thank you very much.
 
-## 🆕 Update!
-
-> Updated the 4.0-v2 model, the entire process is the same as 4.0. Compared to 4.0, there is some improvement in certain scenarios, but there are also some cases where it has regressed. Please refer to the [4.0-v2 branch](https://github.com/svc-develop-team/so-vits-svc/tree/4.0-v2) for more information.
-
 ## 📝 Model Introduction
 
 The singing voice conversion model uses SoftVC content encoder to extract source audio speech features, then the vectors are directly fed into VITS instead of converting to a text based intermediate; thus the pitch and intonations are conserved. Additionally, the vocoder is changed to [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
@@ -45,7 +41,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, And compatible with 4.0 branches.
 - Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality.
-  
+
 ### 🆕 Questions about compatibility with the 4.0 model
 
 - You can support the 4.0 model by modifying the config.json of the 4.0 model, adding the speech_encoder field to the Model field of config.json, see below for details
@@ -73,7 +69,6 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 **The following encoder needs to select one to use**
 
 ##### **1. If using contentvec as sound encoder**
-
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
 
@@ -111,7 +106,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 Get Sovits Pre-trained model from svc-develop-team(TBD) or anywhere else.
 
-Diffusion Model reference [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) Diffusion Model, Pre-trained model [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) and the diffusion model of Pre-trained model general, can go to [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) to obtain the diffusion model of the Pre-trained model.
+Diffusion model references [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) diffusion model. The pre-trained diffusion model is universal with the DDSP-SVC's. You can go to [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) to get the pre-trained diffusion model.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
@@ -125,6 +120,7 @@ If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will nee
 ```shell
 # nsf_hifigan
 wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
+\unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
 # URL：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
@@ -188,7 +184,6 @@ hubertsoft
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
-
 
 ### 3. Generate hubert and f0
 
@@ -267,12 +262,11 @@ Optional parameters: see the next section
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
 - `-shd` | `--shallow_diffusion`：Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
 
-Shallow diffusion setting
+Shallow diffusion settings:
 + `-dm` | `--diffusion_model_path`：Diffusion model path
 + `-dc` | `--diffusion_config_path`：Diffusion model profile path
 + `-ks` | `--k_step`：The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
 + `-od` | `---only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
-
 
 ## 🤔 Optional Settings
 
@@ -297,11 +291,7 @@ The existing steps before clustering do not need to be changed. All you need to 
   - Specify `cluster_model_path` in `inference_main.py`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using clustering at all, `1` means only using clustering, and usually `0.5` is sufficient.
 
-### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.0-Vec768-Layer12/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.0-Vec768-Layer12/sovits4_for_colab.ipynb)
-
-**[23/03/16] No longer need to download hubert manually**
-
-**[23/04/14] Support NSF_HIFIGAN enhancer**
+### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 
 ## 📤 Exporting to Onnx
 
