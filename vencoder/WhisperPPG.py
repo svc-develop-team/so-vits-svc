@@ -6,7 +6,7 @@ from vencoder.whisper.audio import pad_or_trim, log_mel_spectrogram
 
 
 class WhisperPPG(SpeechEncoder):
-    def __init__(self,vec_path = "pretrain/base.pt",device=None):
+    def __init__(self,vec_path = "pretrain/medium.pt",device=None):
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:

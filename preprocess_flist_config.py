@@ -87,8 +87,8 @@ if __name__ == "__main__":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 256
         d_config_template["data"]["encoder_out_channels"] = 256
     elif args.speech_encoder == "whisper-ppg" :
-        config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 512
-        d_config_template["data"]["encoder_out_channels"] = 512
+        config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 1024
+        d_config_template["data"]["encoder_out_channels"] = 1024
 
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
