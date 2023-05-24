@@ -2,7 +2,7 @@ from vencoder.encoder import SpeechEncoder
 import onnxruntime
 import torch
 
-class ContentVec768L12_Onnx(SpeechEncoder):
+class HubertSoft_Onnx(SpeechEncoder):
     def __init__(self,vec_path = "pretrain/hubert-soft.onnx",device=None):
         print("load model(s) from {}".format(vec_path))
         self.hidden_dim = 256
