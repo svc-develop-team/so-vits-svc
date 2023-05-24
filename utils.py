@@ -18,8 +18,6 @@ from torch.nn import functional as F
 from modules.commons import sequence_mask
 
 MATPLOTLIB_FLAG = False
-
-logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logger = logging
 
 f0_bin = 256
