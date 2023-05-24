@@ -106,10 +106,10 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
 
 
 def process_batch(filenames,f0p,diff=False,mel_extractor=None):
-    print("Loading hubert for content...")
+    print("Loading speech encoder for content...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     hmodel = utils.get_speech_encoder(speech_encoder,device=device)
-    print("Loaded hubert.")
+    print("Loaded speech encoder.")
     for filename in tqdm(filenames):
         process_one(filename, hmodel,f0p,diff,mel_extractor)
 
