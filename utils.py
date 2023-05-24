@@ -126,6 +126,9 @@ def get_speech_encoder(speech_encoder,device=None,**kargs):
     elif speech_encoder == "hubertsoft":
         from vencoder.HubertSoft import HubertSoft
         speech_encoder_object = HubertSoft(device = device)
+    elif speech_encoder == "whisper-ppg":
+        from vencoder.WhisperPPG import WhisperPPG
+        speech_encoder_object = WhisperPPG(device = device)
     else:
         raise Exception("Unknown speech encoder")
     return speech_encoder_object 

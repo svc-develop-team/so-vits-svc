@@ -23,7 +23,7 @@ def process(item):
         wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
         wav2 /= max(wav2.max(), -wav2.min())
         try:
-            meter = pyln.Meter(args.sr2)
+            meter = pyln.Meter(args.sr2,block_size=0.2)
             loudness = meter.integrated_loudness(wav2)
             wav2 = pyln.normalize.loudness(wav2, loudness, -23.0)
             # wav2 /= max(wav2.max(), -wav2.min())
@@ -34,7 +34,7 @@ def process(item):
                 args.sr2,
                 (wav2 * np.iinfo(np.int16).max).astype(np.int16))
         except ValueError as e:
-            print(f"{wav_path} is too short(<400ms), the wav skip")
+            print(f"{wav_path} is too short(<200ms), the wav skip")
 
 
 
