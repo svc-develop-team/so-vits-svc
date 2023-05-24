@@ -24,4 +24,3 @@ tensorboardX
 edge_tts
 pyyaml
 pynvml
-pyloudnorm
