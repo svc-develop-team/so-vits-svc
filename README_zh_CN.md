@@ -170,6 +170,8 @@ dataset_raw
 
 切完之后手动删除过长过短的音频
 
+**如果你使用Whisper-ppg声音编码器进行训练，所有的切片长度必须小于30s**
+
 ### 1. 重采样至44100Hz单声道
 
 ```shell
@@ -182,7 +184,7 @@ python resample.py
 python preprocess_flist_config.py --speech_encoder whisper-ppg
 ```
 
-speech_encoder拥有三个选择
+speech_encoder拥有四个选择
 
 ```
 vec768l12
