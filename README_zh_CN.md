@@ -188,6 +188,7 @@ speech_encoder拥有三个选择
 vec768l12
 vec256l9
 hubertsoft
+whisper-ppg
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12
