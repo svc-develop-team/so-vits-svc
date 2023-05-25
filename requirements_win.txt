@@ -24,3 +24,6 @@ tensorboardX
 edge_tts
 pyyaml
 pynvml
+transformers
+ffmpeg-python
+ffmpeg
