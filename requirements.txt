@@ -1,3 +1,4 @@
+ffmpeg-python
 Flask
 Flask_Cors
 gradio>=3.7.0
@@ -18,6 +19,7 @@ fairseq==0.12.2
 librosa==0.9.1
 tensorboard
 tensorboardX
+transformers
 edge_tts
 pyyaml
 pynvml
