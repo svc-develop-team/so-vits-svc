@@ -168,6 +168,8 @@ In general, only the `Minimum Interval` needs to be adjusted. For statement audi
 
 After slicing, delete audio that is too long and too short.
 
+**If you use whisper-ppg encoder for training,the wav must shorter than 30s.**
+
 ### 1. Resample to 44100Hz and mono
 
 ```shell
