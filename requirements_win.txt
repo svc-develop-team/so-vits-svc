@@ -1,5 +1,6 @@
 librosa==0.9.1
 fairseq==0.12.2
+ffmpeg-python
 Flask==2.1.2
 Flask_Cors==3.0.10
 gradio>=3.7.0
@@ -21,6 +22,7 @@ onnx
 onnxsim
 onnxoptimizer
 tensorboardX
+transformers
 edge_tts
 pyyaml
 pynvml
