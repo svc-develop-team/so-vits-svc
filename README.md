@@ -177,7 +177,7 @@ python resample.py
 ### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
-python preprocess_flist_config.py --speech_encoder vec768l12
+python preprocess_flist_config.py --speech_encoder whisper-ppg
 ```
 
 speech_encoder has three choices
@@ -186,6 +186,7 @@ speech_encoder has three choices
 vec768l12
 vec256l9
 hubertsoft
+whisper-ppg
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
