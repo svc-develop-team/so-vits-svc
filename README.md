@@ -86,6 +86,10 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
   - Place it under the `pretrain` directory
 
+##### **3. If whisper-ppg as the encoder**
+- download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+  - Place it under the `pretrain` directory
+
 #### **List of Encoders**
 - "vec768l12"
 - "vec256l9"
@@ -95,6 +99,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "vec768l12-onnx"
 - "hubertsoft-onnx"
 - "hubertsoft"
+- "whisper-ppg"
 
 #### **Optional(Strongly recommend)**
 
