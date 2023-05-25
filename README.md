@@ -307,6 +307,10 @@ Shallow diffusion settings:
 + `-ks` | `--k_step`：The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
 + `-od` | `--only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
 
+### Attention
+
+If reasoning using `whisp-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to reason properly.
+
 ## 🤔 Optional Settings
 
 If the results from the previous section are satisfactory, or if you didn't understand what is being discussed in the following section, you can skip it, and it won't affect the model usage. (These optional settings have a relatively small impact, and they may have some effect on certain specific data, but in most cases, the difference may not be noticeable.)
