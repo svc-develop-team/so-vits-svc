@@ -86,8 +86,12 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 ##### **3. 若使用OnnxHubert/ContentVec作为声音编码器**
 - download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
-  - Place it under the `pretrain` directory
+  - 放在`pretrain`目录下
 
+##### **4. 若使用Whisper-ppg作为声音编码器**
+- download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+  - 放在`pretrain`目录下
+ 
 #### **编码器列表**
 - "vec768l12"
 - "vec256l9"
@@ -97,6 +101,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "vec768l12-onnx"
 - "hubertsoft-onnx"
 - "hubertsoft"
+- "whisper-ppg"
 
 #### **可选项(强烈建议使用)**
 
@@ -174,7 +179,7 @@ python resample.py
 ### 2. 自动划分训练集、验证集，以及自动生成配置文件
 
 ```shell
-python preprocess_flist_config.py --speech_encoder vec768l12
+python preprocess_flist_config.py --speech_encoder whisper-ppg
 ```
 
 speech_encoder拥有三个选择
