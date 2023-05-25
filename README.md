@@ -293,6 +293,15 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 
+## 🗜️ Model strip
+
+The generated model contains data that is needed for further training. If you confirm that the model is final and not be used in further training, it is safe to strip these data to get smaller file size (about 1/3).
+
+```shell
+# Example
+python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="logs/44k/release.pth"
+```
+
 ## 📤 Exporting to Onnx
 
 Use [onnx_export.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/onnx_export.py)
