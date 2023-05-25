@@ -41,7 +41,8 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, And compatible with 4.0 branches.
 - Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality.
-
+- Added Whisper speech encoder support
+  
 ### 🆕 Questions about compatibility with the 4.0 model
 
 - You can support the 4.0 model by modifying the config.json of the 4.0 model, adding the speech_encoder field to the Model field of config.json, see below for details
@@ -68,7 +69,7 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 
 **The following encoder needs to select one to use**
 
-##### **1. If using contentvec as sound encoder**
+##### **1. If using contentvec as speech encoder**
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
 
@@ -78,16 +79,16 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 # Alternatively, you can manually download and place it in the hubert directory
 ```
 
-##### **2. If hubertsoft is used as the sound encoder**
+##### **2. If hubertsoft is used as the speech encoder**
 - soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
-  - Place it under the `pretrain` directory
-
-##### **3. If OnnxHubert/ContentVec as the encoder**
-- download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
   - Place it under the `pretrain` directory
 
 ##### **3. If whisper-ppg as the encoder**
 - download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+  - Place it under the `pretrain` director
+  
+##### **4. If OnnxHubert/ContentVec as the encoder**
+- download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
   - Place it under the `pretrain` directory
 
 #### **List of Encoders**
@@ -176,10 +177,39 @@ After slicing, delete audio that is too long and too short.
 python resample.py
 ```
 
+#### Attention
+
+Although this project has the script resample.py for resampling and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for resampling and loudness matching processing. If you use other software for resampling and loudness matching, do not run the preceding command.
+
+To manually process the audio, you need to put the dataset into the Dataset directory with the following file structure. If the directory does not exist, you can create it yourself.
+
+```
+dataset
+└───44k
+    ├───speaker0
+    │   ├───xxx1-xxx1.wav
+    │   ├───...
+    │   └───Lxx-0xx8.wav
+    └───speaker1
+        ├───xx2-0xxx2.wav
+        ├───...
+        └───xxx7-xxx007.wav
+```
+
+You can customize the speaker name.
+
+```
+dataset_raw
+└───suijiSUI
+    ├───1.wav
+    ├───...
+    └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
+```
+
 ### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
-python preprocess_flist_config.py --speech_encoder whisper-ppg
+python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
 speech_encoder has four choices
@@ -274,7 +304,7 @@ Shallow diffusion settings:
 + `-dm` | `--diffusion_model_path`：Diffusion model path
 + `-dc` | `--diffusion_config_path`：Diffusion model profile path
 + `-ks` | `--k_step`：The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
-+ `-od` | `---only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
++ `-od` | `--only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
 
 ## 🤔 Optional Settings
 
