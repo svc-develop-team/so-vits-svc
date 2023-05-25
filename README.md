@@ -182,7 +182,7 @@ python resample.py
 python preprocess_flist_config.py --speech_encoder whisper-ppg
 ```
 
-speech_encoder has three choices
+speech_encoder has four choices
 
 ```
 vec768l12
