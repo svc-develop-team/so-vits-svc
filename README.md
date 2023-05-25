@@ -86,6 +86,10 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
   - Place it under the `pretrain` directory
 
+##### **3. If whisper-ppg as the encoder**
+- download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+  - Place it under the `pretrain` directory
+
 #### **List of Encoders**
 - "vec768l12"
 - "vec256l9"
@@ -95,6 +99,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "vec768l12-onnx"
 - "hubertsoft-onnx"
 - "hubertsoft"
+- "whisper-ppg"
 
 #### **Optional(Strongly recommend)**
 
@@ -163,6 +168,8 @@ In general, only the `Minimum Interval` needs to be adjusted. For statement audi
 
 After slicing, delete audio that is too long and too short.
 
+**If you use whisper-ppg encoder for training,the wav must shorter than 30s.**
+
 ### 1. Resample to 44100Hz and mono
 
 ```shell
@@ -172,15 +179,16 @@ python resample.py
 ### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
 
 ```shell
-python preprocess_flist_config.py --speech_encoder vec768l12
+python preprocess_flist_config.py --speech_encoder whisper-ppg
 ```
 
-speech_encoder has three choices
+speech_encoder has four choices
 
 ```
 vec768l12
 vec256l9
 hubertsoft
+whisper-ppg
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
