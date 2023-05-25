@@ -199,11 +199,12 @@ dataset
 You can customize the speaker name.
 
 ```
-dataset_raw
-└───suijiSUI
-    ├───1.wav
-    ├───...
-    └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
+dataset
+└───44k
+     └───suijiSUI
+           ├───1.wav
+           ├───...
+           └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
 ```
 
 ### 2. Automatically split the dataset into training and validation sets, and generate configuration files.
