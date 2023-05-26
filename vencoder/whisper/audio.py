@@ -9,6 +9,8 @@ import torch.nn.functional as F
 
 from .utils import exact_div
 
+from librosa.filters import mel as librosa_mel_fn
+
 # hard-coded audio hyperparameters
 SAMPLE_RATE = 16000
 N_FFT = 400
@@ -85,8 +87,7 @@ def mel_filters(device, n_mels: int = N_MELS) -> torch.Tensor:
         )
     """
     assert n_mels == 80, f"Unsupported n_mels: {n_mels}"
-    with np.load(os.path.join(os.path.dirname(__file__), "assets", "mel_filters.npz")) as f:
-        return torch.from_numpy(f[f"mel_{n_mels}"]).to(device)
+    return torch.from_numpy(librosa_mel_fn(sr=SAMPLE_RATE,n_fft=N_FFT,n_mels=n_mels)).to(device)
 
 
 def log_mel_spectrogram(audio: Union[str, np.ndarray, torch.Tensor], n_mels: int = N_MELS):
