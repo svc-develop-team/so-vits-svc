@@ -179,7 +179,7 @@ python resample.py
 
 #### Attention
 
-Although this project has the script resample.py for resampling and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for resampling and loudness matching processing. If you use other software for resampling and loudness matching, do not run the preceding command.
+Although this project has the script resample.py for resampling, to mono and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for resampling, to mono and loudness matching processing. If you use other software for resampling, to mono and loudness matching, do not run the preceding command.
 
 To manually process the audio, you need to put the dataset into the Dataset directory with the following file structure. If the directory does not exist, you can create it yourself.
 
