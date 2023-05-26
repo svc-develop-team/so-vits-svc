@@ -43,6 +43,7 @@
 
 + 特征输入更换为 [Content Vec](https://github.com/auspicious3000/contentvec) 的第12层Transformer输出，并兼容4.0分支
 + 更新浅层扩散，可以使用浅层扩散模型提升音质
++ 增加whisper语音编码器的支持
 
 ### 🆕 关于兼容4.0模型的问题
 
@@ -84,9 +85,13 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 + soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
   + 放在`pretrain`目录下
 
-##### **3. 若使用OnnxHubert/ContentVec作为声音编码器**
+##### **3. 若使用Whisper-ppg作为声音编码器**
+- download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+  - 放在`pretrain`目录下
+ 
+##### **4. 若使用OnnxHubert/ContentVec作为声音编码器**
 - download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
-  - Place it under the `pretrain` directory
+  - 放在`pretrain`目录下
 
 #### **编码器列表**
 - "vec768l12"
@@ -97,6 +102,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "vec768l12-onnx"
 - "hubertsoft-onnx"
 - "hubertsoft"
+- "whisper-ppg"
 
 #### **可选项(强烈建议使用)**
 
@@ -165,10 +171,42 @@ dataset_raw
 
 切完之后手动删除过长过短的音频
 
+**如果你使用Whisper-ppg声音编码器进行训练，所有的切片长度必须小于30s**
+
 ### 1. 重采样至44100Hz单声道
 
 ```shell
 python resample.py
+```
+
+#### 注意
+
+虽然本项目拥有重采样、转换单声道与响度匹配的脚本resample.py，但是默认的响度匹配是匹配到0db。这可能会造成音质的受损。而python的响度匹配包pyloudnorm无法对电平进行压限，这会导致爆音。所以建议可以考虑使用专业声音处理软件如`adobe audition`等软件做重采样、转换单声道与响度匹配处理。若使用其他软件做重采样、转换单声道与响度匹配，则可以不运行上述命令。
+
+若手动处理音频，需要以以下文件结构将数据集放入dataset目录即可。若无该目录可以自行创建。
+
+```
+dataset
+└───44k
+    ├───speaker0
+    │   ├───xxx1-xxx1.wav
+    │   ├───...
+    │   └───Lxx-0xx8.wav
+    └───speaker1
+        ├───xx2-0xxx2.wav
+        ├───...
+        └───xxx7-xxx007.wav
+```
+
+可以自定义说话人名称
+
+```
+dataset
+└───44k
+     └───suijiSUI
+           ├───1.wav
+           ├───...
+           └───25788785-20221210-200143-856_01_(Vocals)_0_0.wav
 ```
 
 ### 2. 自动划分训练集、验证集，以及自动生成配置文件
@@ -177,12 +215,13 @@ python resample.py
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder拥有三个选择
+speech_encoder拥有四个选择
 
 ```
 vec768l12
 vec256l9
 hubertsoft
+whisper-ppg
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12
@@ -268,7 +307,11 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 + `-dm` | `--diffusion_model_path`：扩散模型路径
 + `-dc` | `--diffusion_config_path`：扩散模型配置文件路径
 + `-ks` | `--k_step`：扩散步数，越大越接近扩散模型的结果，默认100
-+ `-od` | `---only_diffusion`：纯扩散模式，该模式不会加载sovits模型，以扩散模型推理
++ `-od` | `--only_diffusion`：纯扩散模式，该模式不会加载sovits模型，以扩散模型推理
+
+### 注意！
+
+如果使用`whisper-ppg` speech encoder 进行推理，需要将`--clip`设置为25，`-lg`设置为1。否则将无法正常推理。
 
 ## 🤔 可选项
 

@@ -30,7 +30,6 @@ def process(item):
         )
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sr2", type=int, default=44100, help="sampling rate")
