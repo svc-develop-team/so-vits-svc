@@ -23,7 +23,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         3) computes spectrograms from audio files.
     """
 
-    def __init__(self, audiopaths, hparams, all_in_mem: bool = False, vol_aug: bool = False):
+    def __init__(self, audiopaths, hparams, all_in_mem: bool = False):
         self.audiopaths = load_filepaths_and_text(audiopaths)
         self.hparams = hparams
         self.max_wav_value = hparams.data.max_wav_value
@@ -36,7 +36,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         self.spec_len = hparams.train.max_speclen
         self.spk_map = hparams.spk
         self.vol_emb = hparams.model.vol_embedding
-        self.vol_aug = vol_aug
+        self.vol_aug = hparams.train.vol_aug
         random.seed(1234)
         random.shuffle(self.audiopaths)
         
