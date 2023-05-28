@@ -152,3 +152,8 @@ configs/config.json
 filelists/test.txt
 filelists/train.txt
 filelists/val.txt
+.idea/modules.xml
+.idea/so-vits-svc.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
