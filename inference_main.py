@@ -80,7 +80,7 @@ def main():
     only_diffusion = args.only_diffusion
     shallow_diffusion = args.shallow_diffusion
     use_spk_mix = args.use_spk_mix
-    svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance,diffusion_model_path,diffusion_config_path,shallow_diffusion,only_diffusion)
+    svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance,diffusion_model_path,diffusion_config_path,shallow_diffusion,only_diffusion,use_spk_mix)
     infer_tool.mkdir(["raw", "results"])
     if len(spk_mix_map)<=1:
         use_spk_mix = False
