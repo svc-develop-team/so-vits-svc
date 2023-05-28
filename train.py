@@ -75,7 +75,7 @@ def run(rank, n_gpus, hps):
     train_loader = DataLoader(train_dataset, num_workers=num_workers, shuffle=False, pin_memory=True,
                               batch_size=hps.train.batch_size, collate_fn=collate_fn)
     if rank == 0:
-        eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps, all_in_mem=all_in_mem)
+        eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps, all_in_mem=all_in_mem,vol_aug = False)
         eval_loader = DataLoader(eval_dataset, num_workers=1, shuffle=False,
                                  batch_size=1, pin_memory=False,
                                  drop_last=False, collate_fn=collate_fn)
