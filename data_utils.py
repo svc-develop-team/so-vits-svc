@@ -7,7 +7,7 @@ import torch.utils.data
 
 import modules.commons as commons
 import utils
-from modules.mel_processing import spectrogram_torch, spec_to_mel_torch, mel_spectrogram_torch
+from modules.mel_processing import spectrogram_torch, spec_to_mel_torch, spectrogram_torch
 from utils import load_wav_to_torch, load_filepaths_and_text
 
 # import h5py
@@ -101,14 +101,12 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
             log10_vol_shift = random.uniform(-1, max_shift)
             audio_norm = audio_norm * (10 ** log10_vol_shift)
             volume = volume * (10 ** log10_vol_shift)
-            spec = mel_spectrogram_torch(audio_norm,
-                self.hparams.data.filter_length,
-                self.hparams.data.n_mel_channels,
-                self.hparams.data.sampling_rate,
-                self.hparams.data.hop_length,
-                self.hparams.data.win_length,
-                self.hparams.data.mel_fmin,
-                self.hparams.data.mel_fmax)
+            spec = spectrogram_torch(audio_norm,
+            self.hparams.data.filter_length,
+            self.hparams.data.sampling_rate,
+            self.hparams.data.hop_length,
+            self.hparams.data.win_length,
+            center=False)[0]
 
         if spec.shape[1] > 800:
             start = random.randint(0, spec.shape[1]-800)
