@@ -2,12 +2,11 @@ import io
 import logging
 import time
 from pathlib import Path
-
+from spkmix import spk_mix_map
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
 import soundfile
-
 from inference import infer_tool
 from inference import slicer
 from inference.infer_tool import Svc
@@ -23,10 +22,10 @@ def main():
     parser = argparse.ArgumentParser(description='sovits4 inference')
 
     # 一定要设置的部分
-    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_0.pth", help='模型路径')
-    parser.add_argument('-c', '--config_path', type=str, default="configs/config.json", help='配置文件路径')
+    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_37600.pth", help='模型路径')
+    parser.add_argument('-c', '--config_path', type=str, default="logs/44k/config.json", help='配置文件路径')
     parser.add_argument('-cl', '--clip', type=float, default=0, help='音频强制切片，默认0为自动切片，单位为秒/s')
-    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"], help='wav文件名列表，放在raw文件夹下')
+    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["test.wav"], help='wav文件名列表，放在raw文件夹下')
     parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0], help='音高调整，支持正负（半音）')
     parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['nen'], help='合成目标说话人名称')
     
@@ -38,6 +37,7 @@ def main():
     parser.add_argument('-f0p', '--f0_predictor', type=str, default="pm", help='选择F0预测器,可选择crepe,pm,dio,harvest,默认为pm(注意：crepe为原F0使用均值滤波器)')
     parser.add_argument('-eh', '--enhance', action='store_true', default=False, help='是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭')
     parser.add_argument('-shd', '--shallow_diffusion', action='store_true', default=False, help='是否使用浅层扩散，使用后可解决一部分电音问题，默认关闭，该选项打开时，NSF_HIFIGAN增强器将会被禁止')
+    parser.add_argument('-usm', '--use_spk_mix', action='store_true', default=True, help='是否使用角色融合')
 
     # 浅扩散设置
     parser.add_argument('-dm', '--diffusion_model_path', type=str, default="logs/44k/diffusion/model_0.pt", help='扩散模型路径')
@@ -79,9 +79,12 @@ def main():
     k_step = args.k_step
     only_diffusion = args.only_diffusion
     shallow_diffusion = args.shallow_diffusion
-
+    use_spk_mix = args.use_spk_mix
     svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance,diffusion_model_path,diffusion_config_path,shallow_diffusion,only_diffusion)
     infer_tool.mkdir(["raw", "results"])
+
+    if use_spk_mix:
+        spk_list = [spk_mix_map]
     
     infer_tool.fill_a_to_b(trans, clean_names)
     for clean_name, tran in zip(clean_names, trans):
@@ -105,7 +108,8 @@ def main():
                 "f0_predictor" : f0p,
                 "enhancer_adaptive_key" : enhancer_adaptive_key,
                 "cr_threshold" : cr_threshold,
-                "k_step":k_step
+                "k_step":k_step,
+                "use_spk_mix":use_spk_mix
             }
             audio = svc_model.slice_inference(**kwarg)
             key = "auto" if auto_predict_f0 else f"{tran}key"
@@ -113,7 +117,9 @@ def main():
             isdiffusion = "sovits"
             if shallow_diffusion : isdiffusion = "sovdiff"
             if only_diffusion : isdiffusion = "diff"
-            res_path = f'./results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}.{wav_format}'
+            if type(spk) != type('aa'):
+                spk = "spk_mix"
+            res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}.{wav_format}'
             soundfile.write(res_path, audio, svc_model.target_sample, format=wav_format)
             svc_model.clear_empty()
             
