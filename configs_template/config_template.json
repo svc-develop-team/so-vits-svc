@@ -56,7 +56,8 @@
     "ssl_dim": 768,
     "n_speakers": 200,
     "speech_encoder":"vec768l12",
-    "speaker_embedding":false
+    "speaker_embedding":false,
+    "vol_embedding":false
   },
   "spk": {
     "nyaru": 0,
