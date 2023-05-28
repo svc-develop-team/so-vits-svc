@@ -7,7 +7,7 @@ import torch.utils.data
 
 import modules.commons as commons
 import utils
-from modules.mel_processing import spectrogram_torch, spec_to_mel_torch
+from modules.mel_processing import spectrogram_torch, spec_to_mel_torch, mel_spectrogram_torch
 from utils import load_wav_to_torch, load_filepaths_and_text
 
 # import h5py
@@ -25,6 +25,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
     def __init__(self, audiopaths, hparams, all_in_mem: bool = False, vol_aug: bool = False):
         self.audiopaths = load_filepaths_and_text(audiopaths)
+        self.hparams = hparams
         self.max_wav_value = hparams.data.max_wav_value
         self.sampling_rate = hparams.data.sampling_rate
         self.filter_length = hparams.data.filter_length
@@ -35,7 +36,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         self.spec_len = hparams.train.max_speclen
         self.spk_map = hparams.spk
         self.vol_emb = hparams.model.vol_embedding
-
+        self.vol_aug = vol_aug
         random.seed(1234)
         random.shuffle(self.audiopaths)
         
@@ -93,6 +94,22 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         # if spec.shape[1] < 30:
         #     print("skip too short audio:", filename)
         #     return None
+
+        if random.choice([True, False]) and self.vol_aug and volume!=None:
+            max_amp = float(torch.max(torch.abs(audio_norm))) + 1e-5
+            max_shift = min(1, np.log10(1/max_amp))
+            log10_vol_shift = random.uniform(-1, max_shift)
+            audio_norm = audio_norm * (10 ** log10_vol_shift)
+            volume = volume * (10 ** log10_vol_shift)
+            spec = mel_spectrogram_torch(audio_norm,
+                self.hparams.data.filter_length,
+                self.hparams.data.n_mel_channels,
+                self.hparams.data.sampling_rate,
+                self.hparams.data.hop_length,
+                self.hparams.data.win_length,
+                self.hparams.data.mel_fmin,
+                self.hparams.data.mel_fmax)
+
         if spec.shape[1] > 800:
             start = random.randint(0, spec.shape[1]-800)
             end = start + 790
