@@ -150,6 +150,7 @@ class Svc(object):
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
                     self.speech_encoder = self.diffusion_args.data.encoder
+                self.diffusion_model.init_spkmix(len(self.spk2id))
             else:
                 print("No diffusion model or config found. Shallow diffusion mode will False")
                 self.shallow_diffusion = self.only_diffusion = False
@@ -181,8 +182,7 @@ class Svc(object):
             _ = self.net_g_ms.half().eval().to(self.dev)
         else:
             _ = self.net_g_ms.eval().to(self.dev)
-
-
+        self.net_g_ms.EnableCharacterMix(len(self.spk2id), self.dev)
 
     def get_unit_f0(self, wav, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
 
@@ -230,6 +230,8 @@ class Svc(object):
             sid = speaker[:, frame:frame+n_frames].transpose(0,1)
         else:
             speaker_id = self.spk2id.get(speaker)
+            if speaker_id is None:
+                raise RuntimeError("The name you entered is not in the speaker list!")
             if not speaker_id and type(speaker) is int:
                 if len(self.spk2id.__dict__) >= speaker:
                     speaker_id = speaker
@@ -307,6 +309,10 @@ class Svc(object):
                         k_step = 100,
                         use_spk_mix = False
                         ):
+        if use_spk_mix:
+            if len(self.spk2id) == 1:
+                spk = self.spk2id.keys()[0]
+                use_spk_mix = False
         wav_path = Path(raw_audio_path).with_suffix('.wav')
         chunks = slicer.cut(wav_path, db_thresh=slice_db)
         audio_data, audio_sr = slicer.chunks2audio(wav_path, chunks)
@@ -319,7 +325,6 @@ class Svc(object):
 
         if use_spk_mix:
             assert len(self.spk2id) == len(spk)
-            self.net_g_ms.EnableCharacterMix(len(self.spk2id), self.dev)
             audio_length = 0
             for (slice_tag, data) in audio_data:
                 aud_length = int(np.ceil(len(data) / audio_sr * self.target_sample))

@@ -73,6 +73,45 @@ class Unit2Mel(nn.Module):
             
         # diffusion
         self.decoder = GaussianDiffusion(WaveNet(out_dims, n_layers, n_chans, n_hidden), out_dims=out_dims)
+        self.input_channel = input_channel
+    
+    def init_spkembed(self, units, f0, volume, spk_id = None, spk_mix_dict = None, aug_shift = None,
+                gt_spec=None, infer=True, infer_speedup=10, method='dpm-solver', k_step=300, use_tqdm=True):
+        
+        '''
+        input: 
+            B x n_frames x n_unit
+        return: 
+            dict of B x n_frames x feat
+        '''
+        x = self.unit_embed(units) + self.f0_embed((1+ f0 / 700).log()) + self.volume_embed(volume)
+        if self.n_spk is not None and self.n_spk > 1:
+            if spk_mix_dict is not None:
+                spk_embed_mix = torch.zeros((1,1,self.hidden_size))
+                for k, v in spk_mix_dict.items():
+                    spk_id_torch = torch.LongTensor(np.array([[k]])).to(units.device)
+                    spk_embeddd = self.spk_embed(spk_id_torch)
+                    self.speaker_map[k] = spk_embeddd
+                    spk_embed_mix = spk_embed_mix + v * spk_embeddd
+                x = x + spk_embed_mix
+            else:
+                x = x + self.spk_embed(spk_id - 1)
+        self.speaker_map = self.speaker_map.unsqueeze(0)
+        self.speaker_map = self.speaker_map.detach()
+        return x.transpose(1, 2)
+
+    def init_spkmix(self, n_spk):
+        self.speaker_map = torch.zeros((n_spk,1,1,n_hidden))
+        hubert_hidden_size = self.input_channel
+        n_frames = 10
+        hubert = torch.randn((1, n_frames, hubert_hidden_size))
+        mel2ph = torch.arange(end=n_frames).unsqueeze(0).long()
+        f0 = torch.randn((1, n_frames))
+        volume = torch.randn((1, n_frames))
+        spks = {}
+        for i in range(n_spk):
+            spks.update({i:1.0/float(self.n_spk)})
+        orgouttt = self.init_spkembed(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
 
     def forward(self, units, f0, volume, spk_id = None, spk_mix_dict = None, aug_shift = None,
                 gt_spec=None, infer=True, infer_speedup=10, method='dpm-solver', k_step=300, use_tqdm=True):
@@ -91,7 +130,14 @@ class Unit2Mel(nn.Module):
                     spk_id_torch = torch.LongTensor(np.array([[k]])).to(units.device)
                     x = x + v * self.spk_embed(spk_id_torch)
             else:
-                x = x + self.spk_embed(spk_id)
+                if len(spk_id) > 1:
+                    g = spk_id.reshape((spk_id.shape[0], spk_id.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
+                    g = g * self.speaker_map  # [N, S, B, 1, H]
+                    g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
+                    g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
+                    x = x + g
+                else:
+                    x = x + self.spk_embed(spk_id)
         if self.aug_shift_embed is not None and aug_shift is not None:
             x = x + self.aug_shift_embed(aug_shift / 5) 
         x = self.decoder(x, gt_spec=gt_spec, infer=infer, infer_speedup=infer_speedup, method=method, k_step=k_step, use_tqdm=use_tqdm)
