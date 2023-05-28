@@ -136,7 +136,10 @@ class Svc(object):
             self.target_sample = self.hps_ms.data.sampling_rate
             self.hop_size = self.hps_ms.data.hop_length
             self.spk2id = self.hps_ms.spk
-            self.vol_embedding = self.hps_ms.model.vol_embedding
+            try:
+                self.vol_embedding = self.hps_ms.model.vol_embedding
+            except Exception as e:
+                self.vol_embedding = False
             try:
                 self.speech_encoder = self.hps_ms.model.speech_encoder
             except Exception as e:
