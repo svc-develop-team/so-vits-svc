@@ -353,13 +353,17 @@ class Svc(object):
                     begin = int(audio_length * mix[0])
                     end = int(audio_length * mix[1])
                     length = end - begin
-                    if length<=0:                        raise RuntimeError("begin Must lower Than end!")
+                    if length<=0:                        
+                        raise RuntimeError("begin Must lower Than end!")
                     step = (mix[3] - mix[2])/length
                     if last_end is not None:
                         if last_end != begin:
                             raise RuntimeError("[i]EndTime Must Equal [i+1]BeginTime!")
                     last_end = end
-                    spk_mix_data = torch.arange(mix[2],mix[3],step).to(self.dev)
+                    if step == 0.:
+                        spk_mix_data = torch.zeros(size=(step)) + mix[2]
+                    else:
+                        spk_mix_data = torch.arange(mix[2],mix[3],step).to(self.dev)
                     if(len(spk_mix_data)<length):
                         num_pad = length - len(spk_mix_data)
                         spk_mix_data = torch.nn.functional.pad(spk_mix_data, [0, num_pad], mode="reflect").to(self.dev)
