@@ -361,7 +361,7 @@ class Svc(object):
                             raise RuntimeError("[i]EndTime Must Equal [i+1]BeginTime!")
                     last_end = end
                     if step == 0.:
-                        spk_mix_data = torch.zeros(size=(step)) + mix[2]
+                        spk_mix_data = torch.zeros(size=(length)).to(self.dev) + mix[2]
                     else:
                         spk_mix_data = torch.arange(mix[2],mix[3],step).to(self.dev)
                     if(len(spk_mix_data)<length):
