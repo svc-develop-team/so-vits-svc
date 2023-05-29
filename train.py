@@ -287,7 +287,8 @@ def evaluate(hps, generator, eval_loader, writer_eval):
             c = c[:1].cuda(0)
             f0 = f0[:1].cuda(0)
             uv= uv[:1].cuda(0)
-            volume = volume[:1].cuda(0)
+            if volume!=None:
+                volume = volume[:1].cuda(0)
             mel = spec_to_mel_torch(
                 spec,
                 hps.data.filter_length,
