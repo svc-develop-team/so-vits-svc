@@ -42,6 +42,8 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - Feature input is changed to [Content Vec](https://github.com/auspicious3000/contentvec) Transformer output of 12 layer, And compatible with 4.0 branches.
 - Update the shallow diffusion, you can use the shallow diffusion model to improve the sound quality.
 - Added Whisper speech encoder support
+- Added static/dynamic sound fusion
+- Added loudness embedding
   
 ### 🆕 Questions about compatibility with the 4.0 model
 
@@ -69,7 +71,7 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 
 **The following encoder needs to select one to use**
 
-##### **1. If using contentvec as speech encoder**
+##### **1. If using contentvec as speech encoder(recommended)**
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
 
@@ -84,11 +86,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   - Place it under the `pretrain` directory
 
 ##### **3. If whisper-ppg as the encoder**
-- download model at https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt
+- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
   - Place it under the `pretrain` director
   
 ##### **4. If OnnxHubert/ContentVec as the encoder**
-- download model at https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main
+- download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   - Place it under the `pretrain` directory
 
 #### **List of Encoders**
@@ -224,6 +226,18 @@ whisper-ppg
 
 If the speech_encoder argument is omitted, the default value is vec768l12
 
+#### You can modify some parameters in the generated config.json and diffusion.yaml
+
+* `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
+
+* `all_in_mem`, `cache_all_data`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
+  
+* `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
+
+**Use loudness embedding**
+
+If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json will be set to true. After use, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
+
 ### 3. Generate hubert and f0
 
 ```shell
@@ -250,12 +264,6 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 ```
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
-
-#### You can modify some parameters in the generated config.json and diffusion.yaml
-
-* `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
-
-* `all_in_mem`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
 
 ## 🏋️‍♀️ Training
 
@@ -299,13 +307,14 @@ Optional parameters: see the next section
 - `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
 - `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
-- `-shd` | `--shallow_diffusion`：Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
-
+- `-shd` | `--shallow_diffusion`: Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
+- `-usm` | `--use_spk_mix`: whether to use dynamic voice/merge their role
+  
 Shallow diffusion settings:
-+ `-dm` | `--diffusion_model_path`：Diffusion model path
-+ `-dc` | `--diffusion_config_path`：Diffusion model profile path
-+ `-ks` | `--k_step`：The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
-+ `-od` | `--only_diffusion`：Only diffusion mode, which does not load the sovits model to the diffusion model inference
+- `-dm` | `--diffusion_model_path`: Diffusion model path
+- `-dc` | `--diffusion_config_path`: Diffusion model profile path
+- `-ks` | `--k_step`: The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
+- `-od` | `--only_diffusion`: Only diffusion mode, which does not load the sovits model to the diffusion model inference
 
 ### Attention
 
@@ -344,6 +353,35 @@ The generated model contains data that is needed for further training. If you co
 # Example
 python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="logs/44k/release.pth"
 ```
+
+## 👨‍🔧 Timbre mixing
+
+### Stable Timbre mixing
+
+**Refer to `webui.py` file for stable Timbre mixing of the gadget/lab feature.**
+
+Introduction: This function can combine multiple sound models into one sound model (convex combination or linear combination of multiple model parameters) to create sound lines that do not exist in reality
+
+**Note:**
+1. This function only supports single-speaker models
+2. If the multi-speaker model is forced to be used, it is necessary to ensure that the number of speakers in multiple models is the same, so that the voices under the same SpaekerID can be mixed
+3. Ensure that the model fields in config.json of all models to be mixed are the same
+4. The output hybrid model can use any config.json of the model to be synthesized, but the clustering model will not be used
+5. When batch uploading models, it is best to put the models into a folder and upload them together after selecting them
+6. It is suggested to adjust the mixing ratio between 0 and 100, or to other numbers, but unknown effects will occur in the linear combination mode
+7. After mixing, the file named output.pth will be saved in the root directory of the project
+8. Convex combination mode will perform Softmax to add the mix ratio to 1, while linear combination mode will not
+
+### Dynamic timbre mixing
+
+**Refer to the `spkmix.py` file for an introduction to dynamic timbre mixing**
+
+Character mix track writing rules:
+Role ID: \[\[Start time 1, end time 1, start value 1, start value 1], [Start time 2, end time 2, start value 2]]
+The start time must be the same as the end time of the previous one. The first start time must be 0, and the last end time must be 1 (time ranges from 0 to 1).
+All roles must be filled in. For unused roles, fill \[\[0., 1., 0., 0.]]
+The fusion value can be filled in arbitrarily, and the linear change from the start value to the end value within the specified period of time. The internal linear combination will be automatically guaranteed to be 1 (convex combination condition), so it can be used safely
+Use the `--use_spk_mix` parameter when reasoning to enable dynamic timbre mixing
 
 ## 📤 Exporting to Onnx
 
