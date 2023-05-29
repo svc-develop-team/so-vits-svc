@@ -38,12 +38,15 @@ def main():
     parser.add_argument('-eh', '--enhance', action='store_true', default=False, help='是否使用NSF_HIFIGAN增强器,该选项对部分训练集少的模型有一定的音质增强效果，但是对训练好的模型有反面效果，默认关闭')
     parser.add_argument('-shd', '--shallow_diffusion', action='store_true', default=False, help='是否使用浅层扩散，使用后可解决一部分电音问题，默认关闭，该选项打开时，NSF_HIFIGAN增强器将会被禁止')
     parser.add_argument('-usm', '--use_spk_mix', action='store_true', default=False, help='是否使用角色融合')
+    parser.add_argument('-lea', '--loudness_envelope_adjustment', type=float, default=1, help='输入源响度包络替换输出响度包络融合比例，越靠近1越使用输出响度包络')
 
     # 浅扩散设置
     parser.add_argument('-dm', '--diffusion_model_path', type=str, default="logs/44k/diffusion/model_0.pt", help='扩散模型路径')
     parser.add_argument('-dc', '--diffusion_config_path', type=str, default="logs/44k/diffusion/config.yaml", help='扩散模型配置文件路径')
     parser.add_argument('-ks', '--k_step', type=int, default=100, help='扩散步数，越大越接近扩散模型的结果，默认100')
+    parser.add_argument('-se', '--second_encoding', action='store_true', default=False, help='二次编码，浅扩散前会对原始音频进行二次编码，玄学选项，有时候效果好，有时候效果差')
     parser.add_argument('-od', '--only_diffusion', action='store_true', default=False, help='纯扩散模式，该模式不会加载sovits模型，以扩散模型推理')
+    
 
     # 不用动的部分
     parser.add_argument('-sd', '--slice_db', type=int, default=-40, help='默认-40，嘈杂的音频可以-30，干声保留呼吸可以-50')
@@ -80,8 +83,12 @@ def main():
     only_diffusion = args.only_diffusion
     shallow_diffusion = args.shallow_diffusion
     use_spk_mix = args.use_spk_mix
+    second_encoding = args.second_encoding
+    loudness_envelope_adjustment = args.loudness_envelope_adjustment
+
     svc_model = Svc(args.model_path, args.config_path, args.device, args.cluster_model_path,enhance,diffusion_model_path,diffusion_config_path,shallow_diffusion,only_diffusion,use_spk_mix)
     infer_tool.mkdir(["raw", "results"])
+    
     if len(spk_mix_map)<=1:
         use_spk_mix = False
     if use_spk_mix:
@@ -110,7 +117,9 @@ def main():
                 "enhancer_adaptive_key" : enhancer_adaptive_key,
                 "cr_threshold" : cr_threshold,
                 "k_step":k_step,
-                "use_spk_mix":use_spk_mix
+                "use_spk_mix":use_spk_mix,
+                "second_encoding":second_encoding,
+                "loudness_envelope_adjustment":loudness_envelope_adjustment
             }
             audio = svc_model.slice_inference(**kwarg)
             key = "auto" if auto_predict_f0 else f"{tran}key"

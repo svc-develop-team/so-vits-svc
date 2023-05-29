@@ -228,7 +228,9 @@ class Svc(object):
               cr_threshold = 0.05,
               k_step = 100,
               frame = 0,
-              spk_mix = False
+              spk_mix = False,
+              second_encoding = False,
+              loudness_envelope_adjustment = 1
               ):
         wav, sr = librosa.load(raw_path, sr=self.target_sample)
         if spk_mix:
@@ -260,6 +262,11 @@ class Svc(object):
                 audio_mel = None
             if self.only_diffusion or self.shallow_diffusion:
                 vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev) if vol==None else vol[:,:,None]
+                if self.shallow_diffusion and second_encoding:
+                    audio16k = librosa.resample(audio.detach().cpu().numpy(), orig_sr=self.target_sample, target_sr=16000)
+                    audio16k = torch.from_numpy(audio16k).to(self.dev)
+                    c = self.hubert_model.encoder(audio16k)
+                    c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
                 f0 = f0[:,:,None]
                 c = c.transpose(-1,-2)
                 audio_mel = self.diffusion_model(
@@ -281,6 +288,8 @@ class Svc(object):
                                     f0[:,:,None], 
                                     self.hps_ms.data.hop_length, 
                                     adaptive_key = enhancer_adaptive_key)
+            if loudness_envelope_adjustment != 1:
+                audio = utils.change_rms(wav,self.target_sample,audio,self.target_sample,loudness_envelope_adjustment)
             use_time = time.time() - start
             print("vits use time:{}".format(use_time))
         return audio, audio.shape[-1], n_frames
@@ -315,7 +324,9 @@ class Svc(object):
                         enhancer_adaptive_key = 0,
                         cr_threshold = 0.05,
                         k_step = 100,
-                        use_spk_mix = False
+                        use_spk_mix = False,
+                        second_encoding = False,
+                        loudness_envelope_adjustment = 1
                         ):
         if use_spk_mix:
             if len(self.spk2id) == 1:
@@ -419,7 +430,9 @@ class Svc(object):
                                                     cr_threshold = cr_threshold,
                                                     k_step = k_step,
                                                     frame = global_frame,
-                                                    spk_mix = use_spk_mix
+                                                    spk_mix = use_spk_mix,
+                                                    second_encoding = second_encoding,
+                                                    loudness_envelope_adjustment = loudness_envelope_adjustment
                                                     )
                 global_frame += out_frame
                 _audio = out_audio.cpu().numpy()

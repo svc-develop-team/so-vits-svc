@@ -309,13 +309,15 @@ Optional parameters: see the next section
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
 - `-shd` | `--shallow_diffusion`: Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
 - `-usm` | `--use_spk_mix`: whether to use dynamic voice/merge their role
+- `-lea` | `--loudness_envelope_adjustment`：The input source loudness envelope replaces the output loudness envelope fusion ratio. The closer to 1, the more the output loudness envelope is used
   
 Shallow diffusion settings:
 - `-dm` | `--diffusion_model_path`: Diffusion model path
 - `-dc` | `--diffusion_config_path`: Diffusion model profile path
 - `-ks` | `--k_step`: The larger the number of diffusion steps, the closer it is to the result of the diffusion model. The default is 100
 - `-od` | `--only_diffusion`: Only diffusion mode, which does not load the sovits model to the diffusion model inference
-
+- `-se` | `--second_encoding`：Secondary encoding, secondary coding of the original audio before shallow diffusion, mystery options, sometimes good, sometimes bad
+  
 ### Attention
 
 If reasoning using `whisp-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to reason properly.
@@ -377,10 +379,17 @@ Introduction: This function can combine multiple sound models into one sound mod
 **Refer to the `spkmix.py` file for an introduction to dynamic timbre mixing**
 
 Character mix track writing rules:
+
 Role ID: \[\[Start time 1, end time 1, start value 1, start value 1], [Start time 2, end time 2, start value 2]]
+
 The start time must be the same as the end time of the previous one. The first start time must be 0, and the last end time must be 1 (time ranges from 0 to 1).
+
 All roles must be filled in. For unused roles, fill \[\[0., 1., 0., 0.]]
-The fusion value can be filled in arbitrarily, and the linear change from the start value to the end value within the specified period of time. The internal linear combination will be automatically guaranteed to be 1 (convex combination condition), so it can be used safely
+
+The fusion value can be filled in arbitrarily, and the linear change from the start value to the end value within the specified period of time. The 
+
+internal linear combination will be automatically guaranteed to be 1 (convex combination condition), so it can be used safely
+
 Use the `--use_spk_mix` parameter when reasoning to enable dynamic timbre mixing
 
 ## 📤 Exporting to Onnx
