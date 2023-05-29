@@ -78,12 +78,14 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
         spec = torch.squeeze(spec, 0)
         torch.save(spec, spec_path)
 
-    if diff:
+    if diff or hps.model.vol_embedding:
         volume_path = filename + ".vol.npy"
         volume_extractor = utils.Volume_Extractor(hop_length)
         if not os.path.exists(volume_path):
             volume = volume_extractor.extract(audio_norm)
             np.save(volume_path, volume.to('cpu').numpy())
+
+    if diff:
         mel_path = filename + ".mel.npy"
         if not os.path.exists(mel_path) and mel_extractor is not None:
             mel_t = mel_extractor.extract(audio_norm.to(device), sampling_rate)

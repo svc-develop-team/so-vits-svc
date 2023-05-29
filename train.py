@@ -75,7 +75,7 @@ def run(rank, n_gpus, hps):
     train_loader = DataLoader(train_dataset, num_workers=num_workers, shuffle=False, pin_memory=True,
                               batch_size=hps.train.batch_size, collate_fn=collate_fn)
     if rank == 0:
-        eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps, all_in_mem=all_in_mem)
+        eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps, all_in_mem=all_in_mem,vol_aug = False)
         eval_loader = DataLoader(eval_dataset, num_workers=1, shuffle=False,
                                  batch_size=1, pin_memory=False,
                                  drop_last=False, collate_fn=collate_fn)
@@ -155,7 +155,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
     net_g.train()
     net_d.train()
     for batch_idx, items in enumerate(train_loader):
-        c, f0, spec, y, spk, lengths, uv = items
+        c, f0, spec, y, spk, lengths, uv,volume = items
         g = spk.cuda(rank, non_blocking=True)
         spec, y = spec.cuda(rank, non_blocking=True), y.cuda(rank, non_blocking=True)
         c = c.cuda(rank, non_blocking=True)
@@ -173,7 +173,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         with autocast(enabled=hps.train.fp16_run):
             y_hat, ids_slice, z_mask, \
             (z, z_p, m_p, logs_p, m_q, logs_q), pred_lf0, norm_lf0, lf0 = net_g(c, f0, uv, spec, g=g, c_lengths=lengths,
-                                                                                spec_lengths=lengths)
+                                                                                spec_lengths=lengths,vol = volume)
 
             y_mel = commons.slice_segments(mel, ids_slice, hps.train.segment_size // hps.data.hop_length)
             y_hat_mel = mel_spectrogram_torch(
@@ -281,12 +281,13 @@ def evaluate(hps, generator, eval_loader, writer_eval):
     audio_dict = {}
     with torch.no_grad():
         for batch_idx, items in enumerate(eval_loader):
-            c, f0, spec, y, spk, _, uv = items
+            c, f0, spec, y, spk, _, uv,volume = items
             g = spk[:1].cuda(0)
             spec, y = spec[:1].cuda(0), y[:1].cuda(0)
             c = c[:1].cuda(0)
             f0 = f0[:1].cuda(0)
             uv= uv[:1].cuda(0)
+            volume = volume[:1].cuda(0)
             mel = spec_to_mel_torch(
                 spec,
                 hps.data.filter_length,
@@ -294,7 +295,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
                 hps.data.sampling_rate,
                 hps.data.mel_fmin,
                 hps.data.mel_fmax)
-            y_hat,_ = generator.module.infer(c, f0, uv, g=g)
+            y_hat,_ = generator.module.infer(c, f0, uv, g=g,vol = volume)
 
             y_hat_mel = mel_spectrogram_torch(
                 y_hat.squeeze(1).float(),

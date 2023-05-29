@@ -16,7 +16,6 @@ from modules.commons import init_weights, get_padding
 from vdecoder.hifigan.models import Generator
 from utils import f0_to_coarse
 
-
 class ResidualCouplingBlock(nn.Module):
     def __init__(self,
                  channels,
@@ -253,7 +252,6 @@ class SpeakerEncoder(torch.nn.Module):
 
         return embed
 
-
 class F0Decoder(nn.Module):
     def __init__(self,
                  out_channels,
@@ -322,6 +320,7 @@ class SynthesizerTrn(nn.Module):
                  ssl_dim,
                  n_speakers,
                  sampling_rate=44100,
+                 vol_embedding=False,
                  **kwargs):
 
         super().__init__()
@@ -342,7 +341,10 @@ class SynthesizerTrn(nn.Module):
         self.segment_size = segment_size
         self.gin_channels = gin_channels
         self.ssl_dim = ssl_dim
+        self.vol_embedding = vol_embedding
         self.emb_g = nn.Embedding(n_speakers, gin_channels)
+        if vol_embedding:
+           self.emb_vol = nn.Linear(1, hidden_channels)
 
         self.pre = nn.Conv1d(ssl_dim, hidden_channels, kernel_size=5, padding=2)
 
@@ -389,11 +391,15 @@ class SynthesizerTrn(nn.Module):
         self.speaker_map = self.speaker_map.unsqueeze(0).to(device)
         self.character_mix = True
 
-    def forward(self, c, f0, uv, spec, g=None, c_lengths=None, spec_lengths=None):
-        g = self.emb_g(g).transpose(1, 2)
+    def forward(self, c, f0, uv, spec, g=None, c_lengths=None, spec_lengths=None, vol = None):
+        g = self.emb_g(g).transpose(1,2)
+
+        # vol proj
+        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
+
         # ssl prenet
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
+        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
 
         # f0 predict
         lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
@@ -413,7 +419,7 @@ class SynthesizerTrn(nn.Module):
 
         return o, ids_slice, spec_mask, (z, z_p, m_p, logs_p, m_q, logs_q), pred_lf0, norm_lf0, lf0
 
-    def infer(self, c, f0, uv, g=None, noice_scale=0.35, seed=52468, predict_f0=False):
+    def infer(self, c, f0, uv, g=None, noice_scale=0.35, seed=52468, predict_f0=False, vol = None):
 
         if c.device == torch.device("cuda"):
             torch.cuda.manual_seed_all(seed)
@@ -433,15 +439,19 @@ class SynthesizerTrn(nn.Module):
             g = self.emb_g(g).transpose(1, 2)
         
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
-
+        # vol proj
+        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
+           
+        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
+        
         if predict_f0:
             lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
             norm_lf0 = utils.normalize_f0(lf0, x_mask, uv, random_scale=False)
             pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g)
             f0 = (700 * (torch.pow(10, pred_lf0 * 500 / 2595) - 1)).squeeze(1)
-
+        
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0), noice_scale=noice_scale)
         z = self.flow(z_p, c_mask, g=g, reverse=True)
         o = self.dec(z * c_mask, g=g, f0=f0)
-        return o, f0
+        return o,f0
+
