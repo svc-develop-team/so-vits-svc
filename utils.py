@@ -9,7 +9,6 @@ import subprocess
 import warnings
 import random
 import functools
-
 import librosa
 import numpy as np
 from scipy.io.wavfile import read
@@ -110,19 +109,19 @@ def get_speech_encoder(speech_encoder,device=None,**kargs):
         speech_encoder_object = ContentVec256L9(device = device)
     elif speech_encoder == "vec256l9-onnx":
         from vencoder.ContentVec256L9_Onnx import ContentVec256L9_Onnx
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec256L9_Onnx(device = device)
     elif speech_encoder == "vec256l12-onnx":
         from vencoder.ContentVec256L12_Onnx import ContentVec256L12_Onnx
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec256L12_Onnx(device = device)
     elif speech_encoder == "vec768l9-onnx":
         from vencoder.ContentVec768L9_Onnx import ContentVec768L9_Onnx
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec768L9_Onnx(device = device)
     elif speech_encoder == "vec768l12-onnx":
         from vencoder.ContentVec768L12_Onnx import ContentVec768L12_Onnx
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec768L12_Onnx(device = device)
     elif speech_encoder == "hubertsoft-onnx":
         from vencoder.HubertSoft_Onnx import HubertSoft_Onnx
-        speech_encoder_object = HubertSoft(device = device)
+        speech_encoder_object = HubertSoft_Onnx(device = device)
     elif speech_encoder == "hubertsoft":
         from vencoder.HubertSoft import HubertSoft
         speech_encoder_object = HubertSoft(device = device)

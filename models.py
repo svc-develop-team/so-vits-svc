@@ -384,11 +384,11 @@ class SynthesizerTrn(nn.Module):
         self.emb_uv = nn.Embedding(2, hidden_channels)
         self.character_mix = False
 
-    def EnableCharacterMix(self, n_speakers_map):
-        self.speaker_map = torch.zeros((n_speakers_map, 1, 1, self.gin_channels))
+    def EnableCharacterMix(self, n_speakers_map, device):
+        self.speaker_map = torch.zeros((n_speakers_map, 1, 1, self.gin_channels)).to(device)
         for i in range(n_speakers_map):
-            self.speaker_map[i] = self.emb_g(torch.LongTensor([[i]]))
-        self.speaker_map = self.speaker_map.unsqueeze(0)
+            self.speaker_map[i] = self.emb_g(torch.LongTensor([[i]]).to(device))
+        self.speaker_map = self.speaker_map.unsqueeze(0).to(device)
         self.character_mix = True
 
     def forward(self, c, f0, uv, spec, g=None, c_lengths=None, spec_lengths=None, vol = None):
@@ -418,10 +418,26 @@ class SynthesizerTrn(nn.Module):
         o = self.dec(z_slice, g=g, f0=pitch_slice)
 
         return o, ids_slice, spec_mask, (z, z_p, m_p, logs_p, m_q, logs_q), pred_lf0, norm_lf0, lf0
-    
-    def infer(self, c, f0, uv, g=None, noice_scale=0.35, predict_f0=False, vol = None):
+
+    def infer(self, c, f0, uv, g=None, noice_scale=0.35, seed=52468, predict_f0=False, vol = None):
+
+        if c.device == torch.device("cuda"):
+            torch.cuda.manual_seed_all(seed)
+        else:
+            torch.manual_seed(seed)
+
         c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
-        g = self.emb_g(g).transpose(1,2)
+
+        if self.character_mix and len(g) > 1:   # [N, S]  *  [S, B, 1, H]
+            g = g.reshape((g.shape[0], g.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
+            g = g * self.speaker_map  # [N, S, B, 1, H]
+            g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
+            g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
+        else:
+            if g.dim() == 1:
+                g = g.unsqueeze(0)
+            g = self.emb_g(g).transpose(1, 2)
+        
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # vol proj
         vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0

@@ -157,3 +157,10 @@ filelists/val.txt
 .idea/vcs.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/inspectionProfiles/Project_Default.xml
+pretrain/vec-768-layer-12.onnx
+pretrain/hubert-soft.onnx
+pretrain/hubert4.0.onnx
+pretrain/vec-256-layer-9.onnx
+pretrain/vec-256-layer-12.onnx
+pretrain/vec-768-layer-9.onnx
+.vscode/launch.json
