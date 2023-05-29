@@ -29,6 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--val_list", type=str, default="./filelists/val.txt", help="path to val list")
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg'")
+    parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
     args = parser.parse_args()
     
     train = []
@@ -89,6 +90,9 @@ if __name__ == "__main__":
     elif args.speech_encoder == "whisper-ppg" :
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 1024
         d_config_template["data"]["encoder_out_channels"] = 1024
+    
+    if args.vol_aug:
+        config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
 
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
