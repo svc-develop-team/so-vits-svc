@@ -226,10 +226,15 @@ whisper-ppg
 
 If the speech_encoder argument is omitted, the default value is vec768l12
 
-
 **Use loudness embedding**
 
-If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json will be set to true. After use, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
+Add `--vol_aug` if you want to enable loudness embedding:
+
+```shell
+python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
+```
+
+After enabling loudness embedding, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
 
 #### You can modify some parameters in the generated config.json and diffusion.yaml
 
@@ -238,6 +243,7 @@ If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json 
 * `all_in_mem`, `cache_all_data`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
   
 * `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
+
 
 
 ### 3. Generate hubert and f0

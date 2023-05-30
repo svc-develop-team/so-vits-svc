@@ -230,7 +230,13 @@ whisper-ppg
 
 **使用响度嵌入**
 
-若使用响度嵌入，需要将config.json中的`vol_aug`,`vol_embedding`设置为true.使用后训练出的模型将匹配到输入源响度，否则为训练集响度。
+若使用响度嵌入，需要增加`--vol_aug`参数，比如：
+
+```shell
+python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
+```
+
+使用后训练出的模型将匹配到输入源响度，否则为训练集响度。
 
 #### 此时可以在生成的config.json与diffusion.yaml修改部分参数
 
@@ -239,6 +245,7 @@ whisper-ppg
 * `all_in_mem`,`cache_all_data`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量 **远大于** 数据集体积时可以启用
 
 * `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
+
 
 ### 3. 生成hubert与f0
 
