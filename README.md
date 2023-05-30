@@ -236,7 +236,13 @@ If the speech_encoder argument is omitted, the default value is vec768l12
 
 **Use loudness embedding**
 
-If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json will be set to true. After use, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
+Add `--vol_aug` if you want to enable loudness embedding:
+
+```shell
+python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
+```
+
+After enabling loudness embedding, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
 
 ### 3. Generate hubert and f0
 
