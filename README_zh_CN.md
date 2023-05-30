@@ -228,6 +228,10 @@ whisper-ppg
 
 如果省略speech_encoder参数，默认值为vec768l12
 
+**使用响度嵌入**
+
+若使用响度嵌入，需要将config.json中的`vol_aug`,`vol_embedding`设置为true.使用后训练出的模型将匹配到输入源响度，否则为训练集响度。
+
 #### 此时可以在生成的config.json与diffusion.yaml修改部分参数
 
 * `keep_ckpts`：训练时保留最后几个模型，`0`为保留所有，默认只保留最后`3`个
@@ -235,10 +239,6 @@ whisper-ppg
 * `all_in_mem`,`cache_all_data`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量 **远大于** 数据集体积时可以启用
 
 * `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
-
-**使用响度嵌入**
-
-若使用响度嵌入，需要将config.json中的`vol_aug`,`vol_embedding`设置为true.使用后训练出的模型将匹配到输入源响度，否则为训练集响度。
 
 ### 3. 生成hubert与f0
 

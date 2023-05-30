@@ -226,6 +226,11 @@ whisper-ppg
 
 If the speech_encoder argument is omitted, the default value is vec768l12
 
+
+**Use loudness embedding**
+
+If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json will be set to true. After use, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
+
 #### You can modify some parameters in the generated config.json and diffusion.yaml
 
 * `keep_ckpts`: Keep the last `keep_ckpts` models during training. Set to `0` will keep them all. Default is `3`.
@@ -234,9 +239,6 @@ If the speech_encoder argument is omitted, the default value is vec768l12
   
 * `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
 
-**Use loudness embedding**
-
-If loudness embedding is used, the 'vol_aug' and 'vol_embedding' in config.json will be set to true. After use, the trained model will match the loudness of the input source; otherwise, it will be the loudness of the training set.
 
 ### 3. Generate hubert and f0
 
