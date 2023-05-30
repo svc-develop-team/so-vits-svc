@@ -70,7 +70,8 @@ class Unit2Mel(nn.Module):
         self.n_spk = n_spk
         if n_spk is not None and n_spk > 1:
             self.spk_embed = nn.Embedding(n_spk, n_hidden)
-            
+        
+        self.n_hidden = n_hidden
         # diffusion
         self.decoder = GaussianDiffusion(WaveNet(out_dims, n_layers, n_chans, n_hidden), out_dims=out_dims)
         self.input_channel = input_channel
@@ -101,7 +102,7 @@ class Unit2Mel(nn.Module):
         return x.transpose(1, 2)
 
     def init_spkmix(self, n_spk):
-        self.speaker_map = torch.zeros((n_spk,1,1,n_hidden))
+        self.speaker_map = torch.zeros((n_spk,1,1,self.n_hidden))
         hubert_hidden_size = self.input_channel
         n_frames = 10
         hubert = torch.randn((1, n_frames, hubert_hidden_size))
@@ -130,7 +131,7 @@ class Unit2Mel(nn.Module):
                     spk_id_torch = torch.LongTensor(np.array([[k]])).to(units.device)
                     x = x + v * self.spk_embed(spk_id_torch)
             else:
-                if len(spk_id) > 1:
+                if spk_id.shape[1] > 1:
                     g = spk_id.reshape((spk_id.shape[0], spk_id.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
                     g = g * self.speaker_map  # [N, S, B, 1, H]
                     g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
