@@ -18,6 +18,7 @@ import torchaudio
 import cluster
 import utils
 from models import SynthesizerTrn
+import pickle
 
 from diffusion.unit2mel import load_model_vocoder
 import yaml
@@ -122,11 +123,13 @@ class Svc(object):
                  diffusion_config_path="configs/diffusion.yaml",
                  shallow_diffusion = False,
                  only_diffusion = False,
-                 spk_mix_enable = False
+                 spk_mix_enable = False,
+                 feature_retrieval = False
                  ):
         self.net_g_path = net_g_path
         self.only_diffusion = only_diffusion
         self.shallow_diffusion = shallow_diffusion
+        self.feature_retrieval = feature_retrieval
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
@@ -171,7 +174,16 @@ class Svc(object):
             self.volume_extractor = utils.Volume_Extractor(self.diffusion_args.data.block_size)
             
         if os.path.exists(cluster_model_path):
-            self.cluster_model = cluster.get_cluster_model(cluster_model_path)
+            if self.feature_retrieval:
+                with open(cluster_model_path,"rb") as f:
+                    self.cluster_model = pickle.load(f)
+                self.big_npy = None
+                self.now_spk_id = -1
+            else:
+                self.cluster_model = cluster.get_cluster_model(cluster_model_path)
+        else:
+            self.feature_retrieval=False
+
         if self.shallow_diffusion : self.nsf_hifigan_enhance = False
         if self.nsf_hifigan_enhance:
             from modules.enhancer import Enhancer
@@ -211,9 +223,30 @@ class Svc(object):
         c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
 
         if cluster_infer_ratio !=0:
-            cluster_c = cluster.get_cluster_center_result(self.cluster_model, c.cpu().numpy().T, speaker).T
-            cluster_c = torch.FloatTensor(cluster_c).to(self.dev)
-            c = cluster_infer_ratio * cluster_c + (1 - cluster_infer_ratio) * c
+            if self.feature_retrieval:
+                speaker_id = self.spk2id.get(speaker)
+                if speaker_id is None:
+                    raise RuntimeError("The name you entered is not in the speaker list!")
+                if not speaker_id and type(speaker) is int:
+                    if len(self.spk2id.__dict__) >= speaker:
+                        speaker_id = speaker
+                feature_index = self.cluster_model[speaker_id]
+                feat_np = c.transpose(0,1).cpu().numpy()
+                if self.big_npy is not None or self.now_spk_id != speaker_id:
+                   self.big_npy = feature_index.reconstruct_n(0, feature_index.ntotal)
+                   self.now_spk_id = speaker_id
+                print("starting feature retrieval...")
+                score, ix = feature_index.search(feat_np, k=8)
+                weight = np.square(1 / score)
+                weight /= weight.sum(axis=1, keepdims=True)
+                npy = np.sum(self.big_npy[ix] * np.expand_dims(weight, axis=2), axis=1)
+                c = cluster_infer_ratio * npy + (1 - cluster_infer_ratio) * feat_np
+                c = torch.FloatTensor(c).to(self.dev).transpose(0,1)
+                print("end feature retrieval...")
+            else:
+                cluster_c = cluster.get_cluster_center_result(self.cluster_model, c.cpu().numpy().T, speaker).T
+                cluster_c = torch.FloatTensor(cluster_c).to(self.dev)
+                c = cluster_infer_ratio * cluster_c + (1 - cluster_infer_ratio) * c
 
         c = c.unsqueeze(0)
         return c, f0, uv

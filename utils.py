@@ -15,6 +15,8 @@ from scipy.io.wavfile import read
 import torch
 from torch.nn import functional as F
 from modules.commons import sequence_mask
+import faiss
+import tqdm
 
 MATPLOTLIB_FLAG = False
 
@@ -416,6 +418,39 @@ def change_rms(data1, sr1, data2, sr2, rate):  # 1是输入音频，2是输出�
         * torch.pow(rms2, torch.tensor(rate - 1))
     )
     return data2
+
+def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI
+    print("The feature index is constructing.")
+    exp_dir = os.path.join(root_dir,spk_name)
+    listdir_res = []
+    for file in os.listdir(exp_dir):
+       if ".wav.soft.pt" in file:
+          listdir_res.append(os.path.join(exp_dir,file))
+    if len(listdir_res) == 0:
+        raise Exception("You need to run preprocess_hubert_f0.py!")
+    npys = []
+    for name in sorted(listdir_res):
+        phone = torch.load(name)[0].transpose(-1,-2).numpy()
+        npys.append(phone)
+    big_npy = np.concatenate(npys, 0)
+    big_npy_idx = np.arange(big_npy.shape[0])
+    np.random.shuffle(big_npy_idx)
+    big_npy = big_npy[big_npy_idx]
+    n_ivf = min(int(16 * np.sqrt(big_npy.shape[0])), big_npy.shape[0] // 39)
+    index = faiss.index_factory(big_npy.shape[1] , "IVF%s,Flat" % n_ivf)
+    index_ivf = faiss.extract_index_ivf(index)  #
+    index_ivf.nprobe = 1
+    index.train(big_npy)
+    batch_size_add = 8192
+    for i in range(0, big_npy.shape[0], batch_size_add):
+        index.add(big_npy[i : i + batch_size_add])
+    # faiss.write_index(
+    #     index,
+    #     f"added_{spk_name}.index"
+    # )
+    print("Successfully build index")
+    return index
+
 
 class HParams():
   def __init__(self, **kwargs):

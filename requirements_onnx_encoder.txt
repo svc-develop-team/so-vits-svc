@@ -24,3 +24,4 @@ pynvml
 transformers
 ffmpeg-python
 ffmpeg
+faiss
