@@ -1,6 +1,5 @@
 import math
 import multiprocessing
-from threading import Thread
 import os
 import argparse
 from random import shuffle
@@ -22,7 +21,6 @@ from diffusion.vocoder import Vocoder
 
 import librosa
 import numpy as np
-import platform
 
 hps = utils.get_hparams_from_file("configs/config.json")
 dconfig = du.load_config("configs/diffusion.yaml")
@@ -109,7 +107,11 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
             np.save(aug_vol_path,aug_vol.to('cpu').numpy())
 
 
-def process_batch(filenames,f0p,hmodel,diff=False,mel_extractor=None):
+def process_batch(filenames,f0p,diff=False,mel_extractor=None):
+    print("Loading speech encoder for content...")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    hmodel = utils.get_speech_encoder(speech_encoder,device=device)
+    print("Loaded speech encoder.")
     for filename in tqdm(filenames):
         process_one(filename, hmodel,f0p,diff,mel_extractor)
 
@@ -149,19 +151,9 @@ if __name__ == "__main__":
     chunks = [
         filenames[i : i + chunk_size] for i in range(0, len(filenames), chunk_size)
     ]
-    print("Loading speech encoder for content...")
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    hmodel = utils.get_speech_encoder(speech_encoder,device=device)
-    print("Loaded speech encoder.")
     print([len(c) for c in chunks])
-    if ('Windows' == platform.system()):
-        print('Windows does not support multiprocess preprocessing mode and will enter multithreaded mode.')
-        processes = [
-            Thread(target=process_batch, args=(chunk,f0p,hmodel,args.use_diff,mel_extractor)) for chunk in chunks
-        ]
-    else:
-        processes = [
-            multiprocessing.Process(target=process_batch, args=(chunk,f0p,hmodel,args.use_diff,mel_extractor)) for chunk in chunks
-        ]
+    processes = [
+        multiprocessing.Process(target=process_batch, args=(chunk,f0p,args.use_diff,mel_extractor)) for chunk in chunks
+    ]
     for p in processes:
         p.start()
