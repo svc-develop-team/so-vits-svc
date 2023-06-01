@@ -44,6 +44,7 @@ The singing voice conversion model uses SoftVC content encoder to extract source
 - Added Whisper speech encoder support
 - Added static/dynamic sound fusion
 - Added loudness embedding
+- Added feature Retrieve from [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
   
 ### 🆕 Questions about compatibility with the 4.0 model
 
@@ -312,12 +313,13 @@ Optional parameters: see the next section
 - `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
 - `-f0p` | `--f0_predictor`: Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 meaning pooling)
 - `-a` | `--auto_predict_f0`: automatic pitch prediction for voice conversion, do not enable this when converting songs as it can cause serious pitch issues.
-- `-cm` | `--cluster_model_path`: path to the clustering model, fill in any value if clustering is not trained.
-- `-cr` | `--cluster_infer_ratio`: proportion of the clustering solution, range 0-1, fill in 0 if the clustering model is not trained.
+- `-cm` | `--cluster_model_path`: Cluster model or feature retrieval index path, if there is no training cluster or feature retrieval, fill in at will.
+- `-cr` | `--cluster_infer_ratio`: The proportion of clustering scheme or feature retrieval ranges from 0 to 1. If there is no training clustering model or feature retrieval, the default is 0.
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is turned off by default.
 - `-shd` | `--shallow_diffusion`: Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is turned off by default. When this option is enabled, NSF_HIFIGAN intensifier will be disabled
 - `-usm` | `--use_spk_mix`: whether to use dynamic voice/merge their role
 - `-lea` | `--loudness_envelope_adjustment`：The input source loudness envelope replaces the output loudness envelope fusion ratio. The closer to 1, the more the output loudness envelope is used
+- `-fr` | `--feature_retrieval`：Whether to use feature retrieval? If clustering model is used, it will be disabled, and cm and cr parameters will become the index path and mixing ratio of feature retrieval
   
 Shallow diffusion settings:
 - `-dm` | `--diffusion_model_path`: Diffusion model path
@@ -328,7 +330,7 @@ Shallow diffusion settings:
   
 ### Attention
 
-If reasoning using `whisp-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to reason properly.
+If reasoning using `whisper-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to reason properly.
 
 ## 🤔 Optional Settings
 
@@ -352,6 +354,24 @@ The existing steps before clustering do not need to be changed. All you need to 
 - Inference process:
   - Specify `cluster_model_path` in `inference_main.py`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using clustering at all, `1` means only using clustering, and usually `0.5` is sufficient.
+
+### Feature retrieval
+
+Introduction: With the clustering scheme can reduce the timbre leakage, the character is slightly better than clustering, but it will reduce the reasoning speed, using the fusion method, can linearly control the proportion of feature retrieval and non-feature retrieval.
+
+- Training process：
+  First, it needs to be executed after generating hubert and f0：
+
+```shell
+python train_index.py -c configs/config.json
+```
+
+The output of the model will be in `logs/44k/feature_and_index.pkl`
+
+- Inference process：
+  - The `--feature_retrieval` needs to be formulated first, and the clustering mode automatically switches to the feature retrieval mode.
+  - Specify `cluster_model_path` in `inference_main.py`.
+  - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using feature retrieval at all, `1` means only using feature retrieval, and usually `0.5` is sufficient.
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 
