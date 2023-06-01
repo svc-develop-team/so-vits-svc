@@ -94,7 +94,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
   - Place it under the `pretrain` director
 
-##### **5. If OnnxHubert/ContentVec as the encoder**
+##### **5. If dphubert as the encoder**
+- download model at [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
+  - Place it under the `pretrain` director
+
+##### **6. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   - Place it under the `pretrain` directory
 
@@ -109,6 +113,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft"
 - "whisper-ppg"
 - "cnhubertlarge"
+- "dphubert"
 
 #### **Optional(Strongly recommend)**
 
@@ -221,7 +226,7 @@ dataset
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder has four choices
+speech_encoder has 6 choices
 
 ```
 vec768l12
@@ -229,6 +234,7 @@ vec256l9
 hubertsoft
 whisper-ppg
 cnhubertlarge
+dphubert
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12

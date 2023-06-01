@@ -96,7 +96,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 + 下载模型 [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
   + 放在`pretrain`目录下
 
-##### **5. 若使用OnnxHubert/ContentVec作为声音编码器**
+##### **5. 若使用dphubert作为声音编码器**
++ 下载模型 [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
+  + 放在`pretrain`目录下
+
+##### **6. 若使用OnnxHubert/ContentVec作为声音编码器**
 + 下载模型 [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   + 放在`pretrain`目录下
 
@@ -111,6 +115,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft"
 - "whisper-ppg"
 - "cnhubertlarge"
+- "dphubert"
   
 #### **可选项(强烈建议使用)**
 
@@ -223,7 +228,7 @@ dataset
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder拥有四个选择
+speech_encoder拥有六个选择
 
 ```
 vec768l12
@@ -231,6 +236,7 @@ vec256l9
 hubertsoft
 whisper-ppg
 cnhubertlarge
+dphubert
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12
@@ -337,7 +343,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 ### 注意！
 
-如果使用`whisper-ppg` speech encoder 进行推理，需要将`--clip`设置为25，`-lg`设置为1。否则将无法正常推理。
+如果使用`whisper-ppg` 声音编码器进行推理，需要将`--clip`设置为25，`-lg`设置为1。否则将无法正常推理。
 
 ## 🤔 可选项
 
