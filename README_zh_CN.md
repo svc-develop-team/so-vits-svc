@@ -89,12 +89,16 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   + 放在`pretrain`目录下
 
 ##### **3. 若使用Whisper-ppg作为声音编码器**
-- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
-  - 放在`pretrain`目录下
++ 下载模型 [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
+  + 放在`pretrain`目录下
  
-##### **4. 若使用OnnxHubert/ContentVec作为声音编码器**
-- download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
-  - 放在`pretrain`目录下
+##### **4. 若使用cnhubertlarge作为声音编码器**
++ 下载模型 [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
+  + 放在`pretrain`目录下
+
+##### **5. 若使用OnnxHubert/ContentVec作为声音编码器**
++ 下载模型 [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
+  + 放在`pretrain`目录下
 
 #### **编码器列表**
 - "vec768l12"
@@ -106,7 +110,8 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft-onnx"
 - "hubertsoft"
 - "whisper-ppg"
-
+- "cnhubertlarge"
+  
 #### **可选项(强烈建议使用)**
 
 + 预训练底模文件： `G_0.pth` `D_0.pth`
@@ -225,6 +230,7 @@ vec768l12
 vec256l9
 hubertsoft
 whisper-ppg
+cnhubertlarge
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12

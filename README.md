@@ -90,7 +90,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
   - Place it under the `pretrain` director
   
-##### **4. If OnnxHubert/ContentVec as the encoder**
+##### **4. If cnhubertlarge as the encoder**
+- download model at [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
+  - Place it under the `pretrain` director
+
+##### **5. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   - Place it under the `pretrain` directory
 
@@ -104,6 +108,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft-onnx"
 - "hubertsoft"
 - "whisper-ppg"
+- "cnhubertlarge"
 
 #### **Optional(Strongly recommend)**
 
@@ -223,6 +228,7 @@ vec768l12
 vec256l9
 hubertsoft
 whisper-ppg
+cnhubertlarge
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
