@@ -257,7 +257,14 @@ After enabling loudness embedding, the trained model will match the loudness of 
   
 * `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
 
+* `vocoder_name` : Select a vocoder. The default is `nsf-hifigan`.
 
+##### **List of Vocoders**
+
+```
+nsf-hifigan
+nsf-snake-hifigan
+```
 
 ### 3. Generate hubert and f0
 

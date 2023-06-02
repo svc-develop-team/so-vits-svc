@@ -13,7 +13,6 @@ from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
 
 import utils
 from modules.commons import init_weights, get_padding
-from vdecoder.hifigan.models import Generator
 from utils import f0_to_coarse
 
 class ResidualCouplingBlock(nn.Module):
@@ -321,6 +320,7 @@ class SynthesizerTrn(nn.Module):
                  n_speakers,
                  sampling_rate=44100,
                  vol_embedding=False,
+                 vocoder_name = "nsf-hifigan",
                  **kwargs):
 
         super().__init__()
@@ -368,7 +368,19 @@ class SynthesizerTrn(nn.Module):
             "upsample_kernel_sizes": upsample_kernel_sizes,
             "gin_channels": gin_channels,
         }
-        self.dec = Generator(h=hps)
+        
+        
+        if vocoder_name == "nsf-hifigan":
+            from vdecoder.hifigan.models import Generator
+            self.dec = Generator(h=hps)
+        elif vocoder_name == "nsf-snake-hifigan":
+            from vdecoder.hifiganwithsnake.models import Generator
+            self.dec = Generator(h=hps)
+        else:
+            print("[?] Unkown vocoder: use default(nsf-hifigan)")
+            from vdecoder.hifigan.models import Generator
+            self.dec = Generator(h=hps)
+
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
         self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
         self.f0_decoder = F0Decoder(

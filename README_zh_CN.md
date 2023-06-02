@@ -259,6 +259,14 @@ python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 
 * `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
 
+* `vocoder_name` : 选择一种声码器，默认为`nsf-hifigan`.
+
+##### **声码器列表**
+
+```
+nsf-hifigan
+nsf-snake-hifigan
+```
 
 ### 3. 生成hubert与f0
 
