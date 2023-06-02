@@ -17,11 +17,11 @@ onnxsim
 onnxoptimizer
 fairseq==0.12.2
 librosa==0.9.1
-tensorboard
+tensorboard==1.15
 tensorboardX
 transformers
 edge_tts
 pyyaml
 pynvml
 ffmpeg
-faiss
+faiss-gpu

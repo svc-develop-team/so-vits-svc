@@ -311,6 +311,8 @@ class Generator(torch.nn.Module):
         self.cond = nn.Conv1d(h['gin_channels'], h['upsample_initial_channel'], 1)
 
     def forward(self, x, f0, g=None):
+        import pdb
+        pdb.set_trace()
         # print(1,x.shape,f0.shape,f0[:, None].shape)
         f0 = self.f0_upsamp(f0[:, None]).transpose(1, 2)  # bs,n,t
         # print(2,f0.shape)

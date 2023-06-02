@@ -1,7 +1,7 @@
 {
   "train": {
     "log_interval": 200,
-    "eval_interval": 800,
+    "eval_interval": 5000,
     "seed": 1234,
     "epochs": 10000,
     "learning_rate": 0.0001,
@@ -10,7 +10,7 @@
       0.99
     ],
     "eps": 1e-09,
-    "batch_size": 6,
+    "batch_size": 64,
     "fp16_run": false,
     "lr_decay": 0.999875,
     "segment_size": 10240,
@@ -21,7 +21,7 @@
     "use_sr": true,
     "max_speclen": 512,
     "port": "8001",
-    "keep_ckpts": 3,
+    "keep_ckpts": 10,
     "all_in_mem": false,
     "vol_aug":false
   },

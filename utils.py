@@ -23,6 +23,8 @@ MATPLOTLIB_FLAG = False
 logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logger = logging
 
+# TODO: check the f0_max and f0_min
+# The range may be vary?
 f0_bin = 256
 f0_max = 1100.0
 f0_min = 50.0
@@ -369,8 +371,9 @@ def get_logger(model_dir, filename="train.log"):
 
 
 def repeat_expand_2d(content, target_len):
+    '''scale the input sequence to target length
+    '''
     # content : [h, t]
-
     src_len = content.shape[-1]
     target = torch.zeros([content.shape[0], target_len], dtype=torch.float).to(content.device)
     temp = torch.arange(src_len+1) * target_len / src_len

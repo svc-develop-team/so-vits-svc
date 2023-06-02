@@ -50,6 +50,8 @@ def main():
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = hps.train.port
 
+    # DEBUG
+    run(0, 1, hps)
     mp.spawn(run, nprocs=n_gpus, args=(n_gpus, hps,))
 
 
@@ -70,6 +72,7 @@ def run(rank, n_gpus, hps):
     all_in_mem = hps.train.all_in_mem   # If you have enough memory, turn on this option to avoid disk IO and speed up training.
     train_dataset = TextAudioSpeakerLoader(hps.data.training_files, hps, all_in_mem=all_in_mem)
     num_workers = 5 if multiprocessing.cpu_count() > 4 else multiprocessing.cpu_count()
+
     if all_in_mem:
         num_workers = 0
     train_loader = DataLoader(train_dataset, num_workers=num_workers, shuffle=False, pin_memory=True,

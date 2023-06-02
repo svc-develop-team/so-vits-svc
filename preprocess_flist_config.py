@@ -9,7 +9,6 @@ import wave
 
 import diffusion.logger.utils as du
 
-config_template = json.load(open("configs_template/config_template.json"))
 
 pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
 
@@ -25,12 +24,14 @@ def get_wav_duration(file_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--train_list", type=str, default="./filelists/train.txt", help="path to train list")
-    parser.add_argument("--val_list", type=str, default="./filelists/val.txt", help="path to val list")
+    parser.add_argument("--configs_template", type=str, default="./configs_template", help="path the configs template dir")
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg'")
     parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
+    parser.add_argument("--output_dir", type=str, default="./filelists", help="path to configs dir")
     args = parser.parse_args()
+
+    os.makedirs(args.output_dir, exist_ok=True)
     
     train = []
     val = []
@@ -59,27 +60,30 @@ if __name__ == "__main__":
     shuffle(train)
     shuffle(val)
             
-    print("Writing", args.train_list)
-    with open(args.train_list, "w") as f:
+    print("Writing", f'{args.output_dir}/train.txt')
+    with open(os.path.join(args.output_dir, 'train.txt'), "w") as f:
         for fname in tqdm(train):
             wavpath = fname
             f.write(wavpath + "\n")
         
-    print("Writing", args.val_list)
-    with open(args.val_list, "w") as f:
+    print("Writing", f'{args.output_dir}/val.txt')
+    with open(os.path.join(args.output_dir, 'val.txt'), "w") as f:
         for fname in tqdm(val):
             wavpath = fname
             f.write(wavpath + "\n")
 
 
-    d_config_template = du.load_config("configs_template/diffusion_template.yaml")
+    d_config_template = du.load_config(f"{args.configs_template}/diffusion_template.yaml")
     d_config_template["model"]["n_spk"] = spk_id
     d_config_template["data"]["encoder"] = args.speech_encoder
     d_config_template["spk"] = spk_dict
     
+    config_template = json.load(open(f"{args.configs_template}/config_template.json"))
     config_template["spk"] = spk_dict
     config_template["model"]["n_speakers"] = spk_id
     config_template["model"]["speech_encoder"] = args.speech_encoder
+    config_template["data"]["training_files"] = os.path.join(args.output_dir, "train.txt")
+    config_template["data"]["validation_files"] = os.path.join(args.output_dir, "val.txt")
     
     if args.speech_encoder == "vec768l12":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 768
@@ -94,8 +98,8 @@ if __name__ == "__main__":
     if args.vol_aug:
         config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
 
-    print("Writing configs/config.json")
-    with open("configs/config.json", "w") as f:
+    print(f"Writing {args.output_dir}/config.json")
+    with open(f"{args.output_dir}/config.json", "w") as f:
         json.dump(config_template, f, indent=2)
-    print("Writing configs/diffusion_template.yaml")
-    du.save_config("configs/diffusion.yaml",d_config_template)
+    print(f"Writing {args.output_dir}/diffusion_template.yaml")
+    du.save_config(f"{args.output_dir}/diffusion.yaml",d_config_template)

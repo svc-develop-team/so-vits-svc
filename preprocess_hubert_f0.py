@@ -22,8 +22,27 @@ from diffusion.vocoder import Vocoder
 import librosa
 import numpy as np
 
-hps = utils.get_hparams_from_file("configs/config.json")
-dconfig = du.load_config("configs/diffusion.yaml")
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--config_dir", type=str, default="configs/", help="path to config dir"
+)
+parser.add_argument(
+    "--in_dir", type=str, default="dataset/44k", help="path to input dir"
+)
+parser.add_argument( 
+    '--use_diff',action='store_true', help='Whether to use the diffusion model'
+)
+parser.add_argument( 
+    '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
+)
+parser.add_argument( 
+    '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
+)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+args = parser.parse_args()
+
+hps = utils.get_hparams_from_file(f"{args.config_dir}/config.json")
+dconfig = du.load_config(f"{args.config_dir}/diffusion.yaml")
 sampling_rate = hps.data.sampling_rate
 hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
@@ -117,21 +136,6 @@ def process_batch(filenames,f0p,diff=False,mel_extractor=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--in_dir", type=str, default="dataset/44k", help="path to input dir"
-    )
-    parser.add_argument( 
-        '--use_diff',action='store_true', help='Whether to use the diffusion model'
-    )
-    parser.add_argument( 
-        '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
-    )
-    parser.add_argument( 
-        '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
-    )
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    args = parser.parse_args()
     f0p = args.f0_predictor
     print(speech_encoder)
     print(f0p)
