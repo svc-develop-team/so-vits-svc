@@ -66,7 +66,7 @@ class ResBlock1(torch.nn.Module):
         for c1, c2, a1, a2 in zip(self.convs1, self.convs2, acts1, acts2):
             xt = a1(x)
             xt = c1(xt)
-            xt = a2(x)
+            xt = a2(xt)
             xt = c2(xt)
             x = xt + x
         return x
