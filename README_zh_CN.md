@@ -78,6 +78,10 @@
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   + 放在`pretrain`目录下
 
+或者下载下面的ContentVec，大小只有199MB，但效果相同:
++ contentvec ：[hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
+  + 将文件名改为`checkpoint_best_legacy_500.pt`后，放在`pretrain`目录下
+
 ```shell
 # contentvec
 wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt

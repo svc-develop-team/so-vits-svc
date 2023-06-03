@@ -76,6 +76,10 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
 
+Or download the following ContentVec, which is only 199MB in size but has the same effect:
+- contentvec ：[hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
+  - Change the file name to `checkpoint_best_legacy_500.pt` and place it in the `pretrain` directory
+
 ```shell
 # contentvec
 wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
