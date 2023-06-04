@@ -323,7 +323,7 @@ class CrepePitchExtractor(BasePitchExtractor):
         else:
             pd = torchcrepe.filter.median(pd, 3)
 
-        pd = torchcrepe.threshold.Silence(-60.0)(pd, x, sampling_rate, 512)
+        pd = torchcrepe.threshold.Silence(-60.0)(pd, x, sampling_rate, self.hop_length)
         f0 = torchcrepe.threshold.At(self.threshold)(f0, pd)
         
         if self.use_fast_filters:
