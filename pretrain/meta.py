@@ -12,9 +12,17 @@ def download_dict():
             "url": "https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt",
             "output": "./pretrain/hubert-soft-0d54a1f4.pt"
         },
+        "whisper-ppg-small": {
+            "url": "https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt",
+            "output": "./pretrain/small.pt"
+        },
         "whisper-ppg": {
             "url": "https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt",
             "output": "./pretrain/medium.pt"
+        },
+        "whisper-ppg-large": {
+            "url": "https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt",
+            "output": "./pretrain/large-v2.pt"
         }
     }
 
