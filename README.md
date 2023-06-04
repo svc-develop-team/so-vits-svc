@@ -358,7 +358,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ### Feature retrieval
 
-Introduction: With the clustering scheme can reduce the timbre leakage, the character is slightly better than clustering, but it will reduce the reasoning speed, using the fusion method, can linearly control the proportion of feature retrieval and non-feature retrieval.
+Introduction: As with the clustering scheme, the timbre leakage can be reduced, the character is slightly better than clustering, but it will reduce the reasoning speed, using the fusion method, can linearly control the proportion of feature retrieval and non-feature retrieval.
 
 - Training process：
   First, it needs to be executed after generating hubert and f0：
