@@ -75,8 +75,15 @@
 **以下编码器需要选择一个使用**
 
 ##### **1. 若使用contentvec作为声音编码器（推荐）**
+
+`vec768l12`与`vec256l9` 需要该编码器
+
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   + 放在`pretrain`目录下
+
+或者下载下面的ContentVec，大小只有199MB，但效果相同:
++ contentvec ：[hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
+  + 将文件名改为`checkpoint_best_legacy_500.pt`后，放在`pretrain`目录下
 
 ```shell
 # contentvec
@@ -89,12 +96,21 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   + 放在`pretrain`目录下
 
 ##### **3. 若使用Whisper-ppg作为声音编码器**
-- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
-  - 放在`pretrain`目录下
++ 下载模型 [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), 该模型适配`whisper-ppg`
++ 下载模型 [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), 该模型适配`whisper-ppg-large`
+  + 放在`pretrain`目录下
  
-##### **4. 若使用OnnxHubert/ContentVec作为声音编码器**
-- download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
-  - 放在`pretrain`目录下
+##### **4. 若使用cnhubertlarge作为声音编码器**
++ 下载模型 [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
+  + 放在`pretrain`目录下
+
+##### **5. 若使用dphubert作为声音编码器**
++ 下载模型 [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
+  + 放在`pretrain`目录下
+
+##### **6. 若使用OnnxHubert/ContentVec作为声音编码器**
++ 下载模型 [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
+  + 放在`pretrain`目录下
 
 #### **编码器列表**
 - "vec768l12"
@@ -106,6 +122,9 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft-onnx"
 - "hubertsoft"
 - "whisper-ppg"
+- "cnhubertlarge"
+- "dphubert"
+- "whisper-ppg-large"
 
 #### **可选项(强烈建议使用)**
 
@@ -196,13 +215,16 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder拥有四个选择
+speech_encoder拥有七个选择
 
 ```
 vec768l12
 vec256l9
 hubertsoft
 whisper-ppg
+whisper-ppg-large
+cnhubertlarge
+dphubert
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12
@@ -225,6 +247,14 @@ python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 
 * `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
 
+* `vocoder_name` : 选择一种声码器，默认为`nsf-hifigan`.
+
+##### **声码器列表**
+
+```
+nsf-hifigan
+nsf-snake-hifigan
+```
 
 ### 3. 生成hubert与f0
 
@@ -309,7 +339,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 ### 注意！
 
-如果使用`whisper-ppg` speech encoder 进行推理，需要将`--clip`设置为25，`-lg`设置为1。否则将无法正常推理。
+如果使用`whisper-ppg` 声音编码器进行推理，需要将`--clip`设置为25，`-lg`设置为1。否则将无法正常推理。
 
 ## 🤔 可选项
 
@@ -336,7 +366,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 ### 特征检索
 
-介绍：跟聚类方案可以减小音色泄漏，咬字比聚类稍好，但会降低推理速度，采用了融合的方式，可以线性控制特征检索与非特征检索的占比，
+介绍：跟聚类方案一样可以减小音色泄漏，咬字比聚类稍好，但会降低推理速度，采用了融合的方式，可以线性控制特征检索与非特征检索的占比，
 
 + 训练过程：
   首先需要在生成hubert与f0后执行：

@@ -73,8 +73,15 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 **The following encoder needs to select one to use**
 
 ##### **1. If using contentvec as speech encoder(recommended)**
+
+`vec768l12` and `vec256l9` require the encoder
+
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
+
+Or download the following ContentVec, which is only 199MB in size but has the same effect:
+- contentvec ：[hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
+  - Change the file name to `checkpoint_best_legacy_500.pt` and place it in the `pretrain` directory
 
 ```shell
 # contentvec
@@ -87,10 +94,19 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   - Place it under the `pretrain` directory
 
 ##### **3. If whisper-ppg as the encoder**
-- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
+- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), the model fits `whisper-ppg`
+- or download model at [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), the model fits `whisper-ppg-large`
   - Place it under the `pretrain` director
   
-##### **4. If OnnxHubert/ContentVec as the encoder**
+##### **4. If cnhubertlarge as the encoder**
+- download model at [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
+  - Place it under the `pretrain` director
+
+##### **5. If dphubert as the encoder**
+- download model at [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
+  - Place it under the `pretrain` director
+
+##### **6. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   - Place it under the `pretrain` directory
 
@@ -104,6 +120,9 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "hubertsoft-onnx"
 - "hubertsoft"
 - "whisper-ppg"
+- "cnhubertlarge"
+- "dphubert"
+- "whisper-ppg-large"
 
 #### **Optional(Strongly recommend)**
 
@@ -194,13 +213,16 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder has four choices
+speech_encoder has 7 choices
 
 ```
 vec768l12
 vec256l9
 hubertsoft
 whisper-ppg
+cnhubertlarge
+dphubert
+whisper-ppg-large
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
@@ -223,7 +245,14 @@ After enabling loudness embedding, the trained model will match the loudness of 
   
 * `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
 
+* `vocoder_name` : Select a vocoder. The default is `nsf-hifigan`.
 
+##### **List of Vocoders**
+
+```
+nsf-hifigan
+nsf-snake-hifigan
+```
 
 ### 3. Generate hubert and f0
 
@@ -335,7 +364,7 @@ The existing steps before clustering do not need to be changed. All you need to 
 
 ### Feature retrieval
 
-Introduction: With the clustering scheme can reduce the timbre leakage, the character is slightly better than clustering, but it will reduce the reasoning speed, using the fusion method, can linearly control the proportion of feature retrieval and non-feature retrieval.
+Introduction: As with the clustering scheme, the timbre leakage can be reduced, the character is slightly better than clustering, but it will reduce the reasoning speed, using the fusion method, can linearly control the proportion of feature retrieval and non-feature retrieval.
 
 - Training process：
   First, it needs to be executed after generating hubert and f0：
