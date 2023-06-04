@@ -2,12 +2,12 @@ ffmpeg-python
 Flask
 Flask_Cors
 gradio>=3.7.0
-numpy==1.23.0
-pyworld==0.2.5
+numpy==1.23.5
+pyworld
 scipy==1.10.0
 SoundFile==0.12.1
-torch==1.13.1
-torchaudio==0.13.1
+torch
+torchaudio
 torchcrepe
 tqdm
 scikit-maad
@@ -24,4 +24,4 @@ edge_tts
 pyyaml
 pynvml
 ffmpeg
-faiss
+faiss-cpu
