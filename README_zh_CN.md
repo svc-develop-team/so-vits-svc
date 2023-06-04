@@ -94,6 +94,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 ##### **3. 若使用Whisper-ppg作为声音编码器**
 + 下载模型 [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
++ 或者下载模型 [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt)（设置时选择‘whisper-ppg-large’）
   + 放在`pretrain`目录下
  
 ##### **4. 若使用cnhubertlarge作为声音编码器**
