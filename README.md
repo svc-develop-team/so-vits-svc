@@ -73,6 +73,9 @@ After conducting tests, we believe that the project runs stably on `Python 3.8.9
 **The following encoder needs to select one to use**
 
 ##### **1. If using contentvec as speech encoder(recommended)**
+
+`vec768l12` and `vec256l9` require the encoder
+
 - ContentVec: [checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   - Place it under the `pretrain` directory
 
@@ -91,8 +94,8 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   - Place it under the `pretrain` directory
 
 ##### **3. If whisper-ppg as the encoder**
-- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
-- or download model at [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt)(choose 'whisper-ppg-large')
+- download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), the model fits `whisper-ppg`
+- or download model at [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), the model fits `whisper-ppg-large`
   - Place it under the `pretrain` director
   
 ##### **4. If cnhubertlarge as the encoder**
@@ -119,6 +122,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "whisper-ppg"
 - "cnhubertlarge"
 - "dphubert"
+- "whisper-ppg-large"
 
 #### **Optional(Strongly recommend)**
 
@@ -209,7 +213,7 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder has 6 choices
+speech_encoder has 7 choices
 
 ```
 vec768l12
@@ -218,6 +222,7 @@ hubertsoft
 whisper-ppg
 cnhubertlarge
 dphubert
+whisper-ppg-large
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12

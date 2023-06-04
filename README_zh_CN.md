@@ -75,6 +75,9 @@
 **以下编码器需要选择一个使用**
 
 ##### **1. 若使用contentvec作为声音编码器（推荐）**
+
+`vec768l12`与`vec256l9` 需要该编码器
+
 + contentvec ：[checkpoint_best_legacy_500.pt](https://ibm.box.com/s/z1wgl1stco8ffooyatzdwsqn2psd9lrr)
   + 放在`pretrain`目录下
 
@@ -93,8 +96,8 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
   + 放在`pretrain`目录下
 
 ##### **3. 若使用Whisper-ppg作为声音编码器**
-+ 下载模型 [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt)
-+ 或者下载模型 [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt)（设置时选择‘whisper-ppg-large’）
++ 下载模型 [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), 该模型适配`whisper-ppg`
++ 下载模型 [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), 该模型适配`whisper-ppg-large`
   + 放在`pretrain`目录下
  
 ##### **4. 若使用cnhubertlarge作为声音编码器**
@@ -121,7 +124,8 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "whisper-ppg"
 - "cnhubertlarge"
 - "dphubert"
-  
+- "whisper-ppg-large"
+
 #### **可选项(强烈建议使用)**
 
 + 预训练底模文件： `G_0.pth` `D_0.pth`
@@ -211,13 +215,14 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder拥有六个选择
+speech_encoder拥有七个选择
 
 ```
 vec768l12
 vec256l9
 hubertsoft
 whisper-ppg
+whisper-ppg-large
 cnhubertlarge
 dphubert
 ```
