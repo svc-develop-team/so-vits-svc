@@ -139,7 +139,7 @@ def main():
             isdiffusion = "sovits"
             if shallow_diffusion : isdiffusion = "sovdiff"
             if only_diffusion : isdiffusion = "diff"
-            if type(spk) != type('aa'):
+            if type(spk) != type('aa') or type(spk) != type(1):
                 spk = "spk_mix"
             res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}.{wav_format}'
             soundfile.write(res_path, audio, svc_model.target_sample, format=wav_format)
