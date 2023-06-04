@@ -232,7 +232,7 @@ class Svc(object):
                         speaker_id = speaker
                 feature_index = self.cluster_model[speaker_id]
                 feat_np = c.transpose(0,1).cpu().numpy()
-                if self.big_npy is not None or self.now_spk_id != speaker_id:
+                if self.big_npy is None or self.now_spk_id != speaker_id:
                    self.big_npy = feature_index.reconstruct_n(0, feature_index.ntotal)
                    self.now_spk_id = speaker_id
                 print("starting feature retrieval...")
