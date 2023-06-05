@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--configs_template", type=str, default="./configs_template", help="path the configs template dir")
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
-    parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg'")
+    parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg','cnhubertlarge','dphubert','whisper-ppg-large'")
     parser.add_argument("--decoder", type=str, choices=["vits_decoder", "nsf_decoder"], default="nsf_decoder", help="The decoder used in vits")
     parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
     parser.add_argument("--output_dir", type=str, default="./filelists", help="path to configs dir")
@@ -87,16 +87,19 @@ if __name__ == "__main__":
     config_template["data"]["training_files"] = os.path.join(args.output_dir, "train.txt")
     config_template["data"]["validation_files"] = os.path.join(args.output_dir, "val.txt")
     
-    if args.speech_encoder == "vec768l12":
+    if args.speech_encoder == "vec768l12" or args.speech_encoder == "dphubert":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 768
         d_config_template["data"]["encoder_out_channels"] = 768
     elif args.speech_encoder == "vec256l9" or args.speech_encoder == 'hubertsoft':
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 256
         d_config_template["data"]["encoder_out_channels"] = 256
-    elif args.speech_encoder == "whisper-ppg" :
+    elif args.speech_encoder == "whisper-ppg" or args.speech_encoder == 'cnhubertlarge':
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 1024
         d_config_template["data"]["encoder_out_channels"] = 1024
-    
+    elif args.speech_encoder == "whisper-ppg-large":
+        config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 1280
+        d_config_template["data"]["encoder_out_channels"] = 1280
+        
     if args.vol_aug:
         config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
 

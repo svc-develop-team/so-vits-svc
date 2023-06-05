@@ -132,6 +132,15 @@ def get_speech_encoder(speech_encoder,device=None,**kargs):
     elif speech_encoder == "whisper-ppg":
         from vencoder.WhisperPPG import WhisperPPG
         speech_encoder_object = WhisperPPG(device = device)
+    elif speech_encoder == "cnhubertlarge":
+        from vencoder.CNHubertLarge import CNHubertLarge
+        speech_encoder_object = CNHubertLarge(device = device)
+    elif speech_encoder == "dphubert":
+        from vencoder.DPHubert import DPHubert
+        speech_encoder_object = DPHubert(device = device)
+    elif speech_encoder == "whisper-ppg-large":
+        from vencoder.WhisperPPGLarge import WhisperPPGLarge
+        speech_encoder_object = WhisperPPGLarge(device = device)
     else:
         raise Exception("Unknown speech encoder")
     return speech_encoder_object 
