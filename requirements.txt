@@ -23,5 +23,4 @@ transformers
 edge_tts
 pyyaml
 pynvml
-ffmpeg
 faiss-cpu
