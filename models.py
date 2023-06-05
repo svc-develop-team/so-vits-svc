@@ -13,7 +13,8 @@ from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
 
 import utils
 from modules.commons import init_weights, get_padding
-from vdecoder.hifigan.models import Generator
+from vdecoder.hifigan.models import Generator as GeneratorNSF
+from vdecoder.hifigan.vits_models import Generator as GeneratorVITS
 from utils import f0_to_coarse
 
 class ResidualCouplingBlock(nn.Module):
@@ -368,7 +369,11 @@ class SynthesizerTrn(nn.Module):
             "upsample_kernel_sizes": upsample_kernel_sizes,
             "gin_channels": gin_channels,
         }
-        self.dec = Generator(h=hps)
+
+        if kwargs["decoder"] == "nsf_decoder":
+            self.dec = GeneratorNSF(h=hps)
+        elif kwargs["decoder"] == "vits_decoder":
+            self.dec = GeneratorVITS(h=hps)
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
         self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
         self.f0_decoder = F0Decoder(
@@ -381,6 +386,7 @@ class SynthesizerTrn(nn.Module):
             p_dropout,
             spk_channels=gin_channels
         )
+        # TODO (yi.liu): Do we need it in speech conversion
         self.emb_uv = nn.Embedding(2, hidden_channels)
         self.character_mix = False
 

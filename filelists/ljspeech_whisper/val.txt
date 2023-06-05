@@ -1,0 +1,2 @@
+dataset/44k/ljspeech_whisper/ljspeech/LJ021-0109.wav
+dataset/44k/ljspeech_whisper/ljspeech/LJ016-0049.wav

@@ -1,0 +1,48 @@
+data:
+  block_size: 512
+  cnhubertsoft_gate: 10
+  duration: 2
+  encoder: vec768l12
+  encoder_hop_size: 320
+  encoder_out_channels: 768
+  encoder_sample_rate: 16000
+  extensions:
+  - wav
+  sampling_rate: 44100
+  training_files: filelists/train.txt
+  validation_files: filelists/val.txt
+device: cuda
+env:
+  expdir: logs/44k/diffusion
+  gpu_id: 0
+infer:
+  method: dpm-solver
+  speedup: 10
+model:
+  n_chans: 512
+  n_hidden: 256
+  n_layers: 20
+  n_spk: 1
+  type: Diffusion
+  use_pitch_aug: true
+spk:
+  ljspeech: 0
+train:
+  amp_dtype: fp32
+  batch_size: 48
+  cache_all_data: true
+  cache_device: cpu
+  cache_fp16: true
+  decay_step: 100000
+  epochs: 100000
+  gamma: 0.5
+  interval_force_save: 10000
+  interval_log: 10
+  interval_val: 2000
+  lr: 0.0002
+  num_workers: 2
+  save_opt: false
+  weight_decay: 0
+vocoder:
+  ckpt: pretrain/nsf_hifigan/model
+  type: nsf-hifigan

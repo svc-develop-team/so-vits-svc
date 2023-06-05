@@ -50,8 +50,8 @@ def main():
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = hps.train.port
 
-    # DEBUG
-    run(0, 1, hps)
+    # # DEBUG
+    # run(0, 1, hps)
     mp.spawn(run, nprocs=n_gpus, args=(n_gpus, hps,))
 
 
