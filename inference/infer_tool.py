@@ -140,19 +140,10 @@ class Svc(object):
             self.target_sample = self.hps_ms.data.sampling_rate
             self.hop_size = self.hps_ms.data.hop_length
             self.spk2id = self.hps_ms.spk
-            try:
-                self.unit_interpolate_mode = self.hps_ms.unit_interpolate_mode
-            except Exception as e:
-                self.unit_interpolate_mode = 'left'
-            try:
-                self.vol_embedding = self.hps_ms.model.vol_embedding
-            except Exception as e:
-                self.vol_embedding = False
-            try:
-                self.speech_encoder = self.hps_ms.model.speech_encoder
-            except Exception as e:
-                self.speech_encoder = 'vec768l12'
-
+            self.unit_interpolate_mode = self.hps_ms.data.unit_interpolate_mode if self.hps_ms.data.unit_interpolate_mode is not None else 'left'
+            self.vol_embedding = self.hps_ms.model.vol_embedding if self.hps_ms.model.vol_embedding is not None else False
+            self.speech_encoder = self.hps_ms.model.speech_encoder if self.hps_ms.model.speech_encoder is not None else 'vec768l12'
+ 
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
         if self.shallow_diffusion or self.only_diffusion:
             if os.path.exists(diffusion_model_path) and os.path.exists(diffusion_model_path):

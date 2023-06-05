@@ -509,6 +509,9 @@ class HParams():
   def get(self,index):
     return self.__dict__.get(index)
 
+  def __getattr__(self,index):          
+    return self.get(index)
+  
 class Volume_Extractor:
     def __init__(self, hop_size = 512):
         self.hop_size = hop_size
