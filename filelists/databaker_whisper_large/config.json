@@ -40,7 +40,7 @@
   "model": {
     "inter_channels": 192,
     "hidden_channels": 192,
-    "filter_channels": 768,
+    "filter_channels": 1280,
     "n_heads": 2,
     "n_layers": 6,
     "kernel_size": 3,
@@ -85,13 +85,13 @@
     ],
     "n_layers_q": 3,
     "use_spectral_norm": false,
-    "gin_channels": 768,
-    "ssl_dim": 768,
+    "gin_channels": 1280,
+    "ssl_dim": 1280,
     "n_speakers": 1,
     "speech_encoder": "whisper-ppg-large",
     "speaker_embedding": false,
     "vol_embedding": false,
-    "decoder": "nsf_decoder"
+    "vocoder_name": "nsf-hifigan"
   },
   "spk": {
     "SSB3000": 0

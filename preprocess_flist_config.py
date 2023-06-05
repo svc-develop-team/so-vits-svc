@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--configs_template", type=str, default="./configs_template", help="path the configs template dir")
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg','cnhubertlarge','dphubert','whisper-ppg-large'")
-    parser.add_argument("--decoder", type=str, choices=["vits_decoder", "nsf_decoder"], default="nsf_decoder", help="The decoder used in vits")
+    parser.add_argument("--speech_decoder", type=str, choices=["vits-hifigan", "nsf-hifigan"], default="nsf-hifigan", help="The vocoder used in vits")
     parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
     parser.add_argument("--output_dir", type=str, default="./filelists", help="path to configs dir")
     args = parser.parse_args()
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     config_template["spk"] = spk_dict
     config_template["model"]["n_speakers"] = spk_id
     config_template["model"]["speech_encoder"] = args.speech_encoder
-    config_template["model"]["decoder"] = args.decoder
+    config_template["model"]["vocoder_name"] = args.speech_decoder
     config_template["data"]["training_files"] = os.path.join(args.output_dir, "train.txt")
     config_template["data"]["validation_files"] = os.path.join(args.output_dir, "val.txt")
     

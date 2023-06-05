@@ -4,7 +4,7 @@ data:
   duration: 2
   encoder: whisper-ppg-large
   encoder_hop_size: 320
-  encoder_out_channels: 768
+  encoder_out_channels: 1280
   encoder_sample_rate: 16000
   extensions:
   - wav

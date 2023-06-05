@@ -56,11 +56,10 @@
     "gin_channels": 768,
     "ssl_dim": 768,
     "n_speakers": 200,
-    "vocoder_name":"nsf-hifigan",
     "speech_encoder":"vec768l12",
     "speaker_embedding":false,
     "vol_embedding":false,
-    "decoder": "nsf_decoder"
+    "vocoder_name":"nsf-hifigan"
   },
   "spk": {
     "nyaru": 0,
