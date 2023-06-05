@@ -377,26 +377,31 @@ def get_logger(model_dir, filename="train.log"):
   return logger
 
 
-# def repeat_expand_2d(content, target_len):
-#     # content : [h, t]
+def repeat_expand_2d(content, target_len, mode = 'left'):
+    # content : [h, t]
+    return repeat_expand_2d_left(content, target_len) if mode == 'left' else repeat_expand_2d_other(content, target_len, mode)
 
-#     src_len = content.shape[-1]
-#     target = torch.zeros([content.shape[0], target_len], dtype=torch.float).to(content.device)
-#     temp = torch.arange(src_len+1) * target_len / src_len
-#     current_pos = 0
-#     for i in range(target_len):
-#         if i < temp[current_pos+1]:
-#             target[:, i] = content[:, current_pos]
-#         else:
-#             current_pos += 1
-#             target[:, i] = content[:, current_pos]
 
-#     return target
 
+def repeat_expand_2d_left(content, target_len):
+    # content : [h, t]
+
+    src_len = content.shape[-1]
+    target = torch.zeros([content.shape[0], target_len], dtype=torch.float).to(content.device)
+    temp = torch.arange(src_len+1) * target_len / src_len
+    current_pos = 0
+    for i in range(target_len):
+        if i < temp[current_pos+1]:
+            target[:, i] = content[:, current_pos]
+        else:
+            current_pos += 1
+            target[:, i] = content[:, current_pos]
+
+    return target
 
 
 # mode : 'nearest'| 'linear'| 'bilinear'| 'bicubic'| 'trilinear'| 'area'
-def repeat_expand_2d(content, target_len, mode = 'nearest'):
+def repeat_expand_2d_other(content, target_len, mode = 'nearest'):
     # content : [h, t]
     content = content[None,:,:]
     target = F.interpolate(content,size=target_len,mode=mode)[0]

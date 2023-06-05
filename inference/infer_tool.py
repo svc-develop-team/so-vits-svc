@@ -141,6 +141,10 @@ class Svc(object):
             self.hop_size = self.hps_ms.data.hop_length
             self.spk2id = self.hps_ms.spk
             try:
+                self.unit_interpolate_mode = self.hps_ms.unit_interpolate_mode
+            except Exception as e:
+                self.unit_interpolate_mode = 'left'
+            try:
                 self.vol_embedding = self.hps_ms.model.vol_embedding
             except Exception as e:
                 self.vol_embedding = False
@@ -158,6 +162,7 @@ class Svc(object):
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
                     self.speech_encoder = self.diffusion_args.data.encoder
+                    self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode!=None else 'left'
                 if spk_mix_enable:
                     self.diffusion_model.init_spkmix(len(self.spk2id))
             else:
@@ -220,7 +225,7 @@ class Svc(object):
         wav16k = librosa.resample(wav, orig_sr=self.target_sample, target_sr=16000)
         wav16k = torch.from_numpy(wav16k).to(self.dev)
         c = self.hubert_model.encoder(wav16k)
-        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
+        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1],self.unit_interpolate_mode)
 
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
@@ -299,7 +304,7 @@ class Svc(object):
                     audio16k = librosa.resample(audio.detach().cpu().numpy(), orig_sr=self.target_sample, target_sr=16000)
                     audio16k = torch.from_numpy(audio16k).to(self.dev)
                     c = self.hubert_model.encoder(audio16k)
-                    c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
+                    c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1],self.unit_interpolate_mode)
                 f0 = f0[:,:,None]
                 c = c.transpose(-1,-2)
                 audio_mel = self.diffusion_model(
