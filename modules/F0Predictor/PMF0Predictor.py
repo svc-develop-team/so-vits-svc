@@ -23,9 +23,17 @@ class PMF0Predictor(F0Predictor):
         nzindex = nzindex.astype(np.float32)
         time_org = self.hop_length / self.sampling_rate * nzindex
         time_frame = np.arange(f0.shape[0]) * self.hop_length / self.sampling_rate
+
+        if data.shape[0] <= 0:
+            return np.zeros(f0.shape[0], dtype=np.float32),np.zeros(f0.shape[0], dtype=np.float32)
+
+        if data.shape[0] == 1:
+            return np.ones(f0.shape[0], dtype=np.float32) * f0[0],np.ones(f0.shape[0], dtype=np.float32)
+
         f0 = np.interp(time_frame, time_org, data, left=data[0], right=data[-1])
         
         return f0,vuv_vector
+    
 
     def compute_f0(self,wav,p_len=None):
         x = wav
