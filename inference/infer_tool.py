@@ -136,7 +136,7 @@ class Svc(object):
             self.dev = torch.device(device)
         self.net_g_ms = None
         if not self.only_diffusion:
-            self.hps_ms = utils.get_hparams_from_file(config_path)
+            self.hps_ms = utils.get_hparams_from_file(config_path,True)
             self.target_sample = self.hps_ms.data.sampling_rate
             self.hop_size = self.hps_ms.data.hop_length
             self.spk2id = self.hps_ms.spk
