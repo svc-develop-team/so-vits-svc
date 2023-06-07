@@ -2,13 +2,14 @@ import os
 import argparse
 import librosa
 import numpy as np
+from threading import Semaphore, Thread
 from multiprocessing import Pool, cpu_count
 from scipy.io import wavfile
 from tqdm import tqdm
 
 
 def process(item):
-    spkdir, wav_name, args = item
+    spkdir, wav_name, args, semaphore = item
     # speaker 's5', 'p280', 'p315' are excluded,
     speaker = spkdir.replace("\\", "/").split("/")[-1]
     wav_path = os.path.join(args.in_dir, speaker, wav_name)
@@ -29,7 +30,9 @@ def process(item):
             args.sr2,
             (wav2 * np.iinfo(np.int16).max).astype(np.int16)
         )
-
+    if semaphore:
+        semaphore.release()
+        print(f"{wav_name} resample finished.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -37,6 +40,8 @@ if __name__ == "__main__":
     parser.add_argument("--in_dir", type=str, default="./dataset_raw", help="path to source dir")
     parser.add_argument("--out_dir2", type=str, default="./dataset/44k", help="path to target dir")
     parser.add_argument("--skip_loudnorm", action="store_true", help="Skip loudness matching if you have done it")
+    parser.add_argument("--use_thread", type=int, default=0, help="Thread nums to resample, enable this function when this parameter is not null")
+
     args = parser.parse_args()
     processs = 30 if cpu_count() > 60 else (cpu_count()-2 if cpu_count() > 4 else 1)
     pool = Pool(processes=processs)
@@ -45,5 +50,19 @@ if __name__ == "__main__":
         spk_dir = os.path.join(args.in_dir, speaker)
         if os.path.isdir(spk_dir):
             print(spk_dir)
-            for _ in tqdm(pool.imap_unordered(process, [(spk_dir, i, args) for i in os.listdir(spk_dir) if i.endswith("wav")])):
-                pass
+            if(args.use_thread):
+                threads = []
+                max_threads = int(args.use_thread)
+                semaphore = Semaphore(max_threads)
+                for i in os.listdir(spk_dir):
+                    if i.endswith("wav"):
+                        semaphore.acquire()
+                        params = (spk_dir, i, args, semaphore)
+                        thread = Thread(target=process, args=(params,))
+                        threads.append(thread)
+                        thread.start()
+                for t in threads:
+                    t.join()
+            else:
+                for _ in tqdm(pool.imap_unordered(process, [(spk_dir, i, args, None) for i in os.listdir(spk_dir) if i.endswith("wav")])):
+                    pass
