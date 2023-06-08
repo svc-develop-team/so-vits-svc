@@ -20,12 +20,20 @@ CUDA_VISIBLE_DEVICES=3 python preprocess_hubert_f0.py \
 
 CUDA_VISIBLE_DEVICES=6,7 python train.py -c filelists/ljspeech_whisper/config.json -m ljspeech_whisper
 
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_140000.pth" -c "filelists/ljspeech_whisper/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/vc/wav.scp --output_dir logs/ljspeech_whisper/test
 
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_140000.pth" -c "filelists/ljspeech_whisper/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/databaker/wav_test.scp --output_dir logs/ljspeech_whisper/test
+# test
 
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_140000.pth" -c "filelists/ljspeech_whisper/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/ljspeech_whisper/test
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_230000.pth" -c "filelists/ljspeech_whisper/config.json" \
+    -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
+    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/vctk/wav_test.scp --output_dir logs/ljspeech_whisper/vctk
 
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_230000.pth" -c "filelists/ljspeech_whisper/config.json" \
+    -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
+    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/databaker/wav_test.scp --output_dir logs/ljspeech_whisper/databaker
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_230000.pth" -c "filelists/ljspeech_whisper/config.json" \
+    -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp --output_dir logs/ljspeech_whisper/xiaolin
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_whisper/G_230000.pth" -c "filelists/ljspeech_whisper/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/ljspeech_whisper/jams
