@@ -97,16 +97,16 @@ class BasePitchExtractor:
         f0 = torch.index_select(f0, dim=0, index=nzindex).cpu().numpy()
         time_org = self.hop_length / sampling_rate * nzindex.cpu().numpy()
         time_frame = np.arange(pad_to) * self.hop_length / sampling_rate
+        
+        vuv_vector = F.interpolate(vuv_vector[None,None,:],size=pad_to)[0][0]
 
         if f0.shape[0] <= 0:
-            return torch.zeros(pad_to, dtype=torch.float, device=x.device),torch.zeros(pad_to, dtype=torch.float, device=x.device)
-
+            return torch.zeros(pad_to, dtype=torch.float, device=x.device),vuv_vector.cpu().numpy()
         if f0.shape[0] == 1:
-            return torch.ones(pad_to, dtype=torch.float, device=x.device) * f0[0],torch.ones(pad_to, dtype=torch.float, device=x.device)
+            return torch.ones(pad_to, dtype=torch.float, device=x.device) * f0[0],vuv_vector.cpu().numpy()
     
         # 大概可以用 torch 重写?
         f0 = np.interp(time_frame, time_org, f0, left=f0[0], right=f0[-1])
-        vuv_vector = F.interpolate(vuv_vector[None,None,:],size=pad_to)[0][0]
         #vuv_vector = np.ceil(scipy.ndimage.zoom(vuv_vector,pad_to/len(vuv_vector),order = 0))
         
         return f0,vuv_vector.cpu().numpy()
