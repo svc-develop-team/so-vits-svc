@@ -38,7 +38,6 @@ parser.add_argument(
 parser.add_argument( 
     '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
 )
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 args = parser.parse_args()
 
 hps = utils.get_hparams_from_file(f"{args.config_dir}/config.json")
@@ -48,12 +47,11 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
+def process_one(filename, hmodel, f0p, diff=False, mel_extractor=None, device="cuda"):
     # print(filename)
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
     audio_norm = audio_norm.unsqueeze(0)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     soft_path = filename + ".soft.pt"
     if not os.path.exists(soft_path):
@@ -126,26 +124,28 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
             np.save(aug_vol_path,aug_vol.to('cpu').numpy())
 
 
-def process_batch(filenames,f0p,diff=False,mel_extractor=None):
+def process_batch(filenames, f0p, diff=False, device="cuda"):
     print("Loading speech encoder for content...")
-    device = "cuda" if torch.cuda.is_available() else "cpu"
     hmodel = utils.get_speech_encoder(speech_encoder,device=device)
+    if args.use_diff:
+        print("use_diff")
+        print("Loading Mel Extractor...")
+        mel_extractor = Vocoder(dconfig.vocoder.type, dconfig.vocoder.ckpt, device=device)
+        print("Loaded Mel Extractor.")
+    else:
+        mel_extractor = None
     print("Loaded speech encoder.")
     for filename in tqdm(filenames):
-        process_one(filename, hmodel,f0p,diff,mel_extractor)
+        process_one(filename, hmodel, f0p, diff, mel_extractor, device)
 
 
 if __name__ == "__main__":
     f0p = args.f0_predictor
     print(speech_encoder)
     print(f0p)
-    if args.use_diff:
-        print("use_diff")
-        print("Loading Mel Extractor...")
-        mel_extractor = Vocoder(dconfig.vocoder.type, dconfig.vocoder.ckpt, device = device)
-        print("Loaded Mel Extractor.")
-    else:
-        mel_extractor = None
+    assert torch.cuda.is_available(), "CUDA is not available."
+    available_devices = [torch.device(f'cuda:{i}') for i in range(torch.cuda.device_count())]
+
     filenames = glob(f"{args.in_dir}/*/*.wav", recursive=True)  # [:10]
     shuffle(filenames)
     multiprocessing.set_start_method("spawn", force=True)
@@ -156,8 +156,11 @@ if __name__ == "__main__":
         filenames[i : i + chunk_size] for i in range(0, len(filenames), chunk_size)
     ]
     print([len(c) for c in chunks])
+
     processes = [
-        multiprocessing.Process(target=process_batch, args=(chunk,f0p,args.use_diff,mel_extractor)) for chunk in chunks
+        multiprocessing.Process(
+            target=process_batch,
+            args=(chunk, f0p, args.use_diff, available_devices[i % torch.cuda.device_count()])) for i, chunk in enumerate(chunks)
     ]
     for p in processes:
         p.start()
