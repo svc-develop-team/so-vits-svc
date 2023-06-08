@@ -134,7 +134,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 Get Sovits Pre-trained model from svc-develop-team(TBD) or anywhere else.
 
-Diffusion model references [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) diffusion model. The pre-trained diffusion model is universal with the DDSP-SVC's. You can go to [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) to get the pre-trained diffusion model.
+Diffusion model references [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC) diffusion model. The pre-trained diffusion model is universal with the DDSP-SVC's. You can go to [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC) to get the pre-trained diffusion model.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
