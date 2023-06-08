@@ -21,18 +21,18 @@ CUDA_VISIBLE_DEVICES=0 python preprocess_hubert_f0.py \
 CUDA_VISIBLE_DEVICES=6,7 python train.py -c filelists/databaker_contentvec/config.json -m databaker_contentvec
 
 
+# test
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_230000.pth" -c "filelists/databaker_contentvec/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp --output_dir logs/databaker_contentvec/xiaolin
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_230000.pth" -c "filelists/databaker_contentvec/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/databaker_contentvec/jams
 
 
 
 
 
 
-
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_contentvec/G_50000.pth" -c "filelists/ljspeech_contentvec/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/vc/wav.scp --output_dir logs/ljspeech_contentvec/test
-
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_contentvec_nsf/G_50000.pth" -c "filelists/ljspeech_contentvec_nsf/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/vc/wav.scp --output_dir logs/ljspeech_contentvec_nsf/test
-
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_contentvec/G_120000.pth" -c "filelists/ljspeech_contentvec/config.json" -s ljspeech -f0p dio -a --slice_db -100 --clip 25 -lg 1 \
-    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/ljspeech_contentvec/test

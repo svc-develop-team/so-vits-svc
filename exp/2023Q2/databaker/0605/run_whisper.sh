@@ -35,3 +35,13 @@ CUDA_VISIBLE_DEVICES=6 python preprocess_hubert_f0.py \
     --num_processes 4
 
 CUDA_VISIBLE_DEVICES=6,7 python train.py -c filelists/databaker_whisper_large/config.json -m databaker_whisper_large
+
+# test
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_whisper_large/G_220000.pth" -c "filelists/databaker_whisper_large/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp --output_dir logs/databaker_whisper_large/xiaolin
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_whisper_large/G_220000.pth" -c "filelists/databaker_whisper_large/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/databaker_whisper_large/jams
