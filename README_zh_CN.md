@@ -136,7 +136,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 从svc-develop-team(待定)或任何其他地方获取Sovits底模
 
-扩散模型引用了[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)的Diffusion Model，底模与[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)的扩散模型底模通用，可以去[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)获取扩散模型的底模
+扩散模型引用了[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)的Diffusion Model，底模与[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)的扩散模型底模通用，可以去[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)获取扩散模型的底模
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
 
