@@ -5,6 +5,7 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 from scipy.io import wavfile
 from tqdm import tqdm
+from tools.wav import normalize_wav
 
 
 def process(item):
@@ -12,7 +13,7 @@ def process(item):
     # speaker 's5', 'p280', 'p315' are excluded,
     speaker = spkdir.replace("\\", "/").split("/")[-1]
     wav_path = os.path.join(args.in_dir, speaker, wav_name)
-    if os.path.exists(wav_path) and '.wav' in wav_path:
+    if os.path.exists(wav_path) and ('.wav' in wav_path or '.flac' in wav_path):
         os.makedirs(os.path.join(args.out_dir2, speaker), exist_ok=True)
         wav, sr = librosa.load(wav_path, sr=None)
         wav, _ = librosa.effects.trim(wav, top_db=40)
@@ -20,9 +21,11 @@ def process(item):
         if peak > 1.0:
             wav = 0.98 * wav / peak
         wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
+
         if not args.skip_loudnorm:
-            wav2 /= max(wav2.max(), -wav2.min())
-        save_name = wav_name
+            # wav2 /= max(wav2.max(), -wav2.min())
+            wav2 = normalize_wav(wav2, max_value=1.0)
+        save_name = wav_name if wav_name.endswith(".wav") else wav_name.rsplit(".", 1)[0] + '.wav'
         save_path2 = os.path.join(args.out_dir2, speaker, save_name)
         wavfile.write(
             save_path2,
@@ -45,5 +48,7 @@ if __name__ == "__main__":
         spk_dir = os.path.join(args.in_dir, speaker)
         if os.path.isdir(spk_dir):
             print(spk_dir)
-            for _ in tqdm(pool.imap_unordered(process, [(spk_dir, i, args) for i in os.listdir(spk_dir) if i.endswith("wav")])):
+            for _ in tqdm(pool.imap_unordered(
+                process, [(spk_dir, i, args) for i in os.listdir(spk_dir) if i.endswith("wav") or i.endswith("flac")]
+            )):
                 pass
