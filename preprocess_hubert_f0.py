@@ -1,27 +1,23 @@
-import math
-import multiprocessing
 import os
-import argparse
-from random import shuffle
-import random
-
+import utils
 import torch
+import random
+import librosa
+import logging
+import argparse
+import multiprocessing
+import numpy as np
+import diffusion.logger.utils as du
+
 from glob import glob
 from tqdm import tqdm
+from random import shuffle
+from diffusion.vocoder import Vocoder
 from modules.mel_processing import spectrogram_torch
-from threading import Semaphore, Thread
-import json
 
-import utils
-import logging
 logging.getLogger("numba").setLevel(logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-import diffusion.logger.utils as du 
-from diffusion.vocoder import Vocoder
-
-import librosa
-import numpy as np
 
 hps = utils.get_hparams_from_file("configs/config.json")
 dconfig = du.load_config("configs/diffusion.yaml")
@@ -30,10 +26,8 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None,semaphore=None):
+def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
     # print(filename)
-    if semaphore:
-      print(f"start process {filename}")
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
     audio_norm = audio_norm.unsqueeze(0)
@@ -108,31 +102,22 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None,semaphore=Non
             np.save(aug_mel_path,np.asanyarray((aug_mel,keyshift),dtype=object))
         if not os.path.exists(aug_vol_path):
             np.save(aug_vol_path,aug_vol.to('cpu').numpy())
-    if semaphore:
-        semaphore.release()
-        print(f"{filename} preprocess hubert f0 finished.")
 
-def process_batch(filenames,f0p,diff=False,mel_extractor=None,max_threads=0):
+def process_loader(batch):
+    file, hmodel, f0p, diff, mel_extractor = batch
+    process_one(file, hmodel, f0p, diff, mel_extractor)
+
+def process_all_files(filenames, num_processes, f0p, args, mel_extractor):
     print("Loading speech encoder for content...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    hmodel = utils.get_speech_encoder(speech_encoder,device=device)
+    hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     print("Loaded speech encoder.")
-    
-    if max_threads:
-        print("use thread to process...")
-        threads = []
-        semaphore = Semaphore(max_threads)
-        for filename in filenames:
-            semaphore.acquire()
-            thread = Thread(target=process_one, args=(filename, hmodel,f0p,diff,mel_extractor,semaphore,))
-            threads.append(thread)
-            thread.start()
-        for t in threads:
-            t.join()
-    else:
-        for filename in tqdm(filenames):
-            process_one(filename, hmodel,f0p,diff,mel_extractor)
 
+    with multiprocessing.Pool(num_processes) as pool:
+        tasks = [(filename, hmodel, f0p, args.use_diff, mel_extractor) for filename in filenames]
+        results = list(tqdm(pool.imap_unordered(process_loader, tasks), total=len(filenames)))
+        pool.close()
+        pool.join()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -146,19 +131,13 @@ if __name__ == "__main__":
         '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
     )
     parser.add_argument( 
-        '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
-    )
-    parser.add_argument(
-        "--use_thread", type=int, default=0, help="Thread nums to process f0, enable this function when this parameter is not null"
+        '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores, input 0 to use all available CPU cores'
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args = parser.parse_args()
     f0p = args.f0_predictor
-    max_threads = int(args.use_thread)
     print(speech_encoder)
     print(f0p)
-    print(max_threads)
-        
     if args.use_diff:
         print("use_diff")
         print("Loading Mel Extractor...")
@@ -171,17 +150,7 @@ if __name__ == "__main__":
     multiprocessing.set_start_method("spawn", force=True)
     
     num_processes = args.num_processes
-    chunk_size = int(math.ceil(len(filenames) / num_processes))
-    chunks = [
-        filenames[i : i + chunk_size] for i in range(0, len(filenames), chunk_size)
-    ]
-    print([len(c) for c in chunks])
-    if max_threads:
-        for chunk in chunks:
-            process_batch(chunk,f0p,args.use_diff,mel_extractor,max_threads)
-    else:
-        processes = [
-            multiprocessing.Process(target=process_batch, args=(chunk,f0p,args.use_diff,mel_extractor,max_threads)) for chunk in chunks
-        ]
-        for p in processes:
-            p.start()
+    if num_processes == 0:
+        num_processes = os.cpu_count()
+
+    process_all_files(filenames, num_processes, f0p, args, mel_extractor)
