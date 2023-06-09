@@ -127,6 +127,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "cnhubertlarge"
 - "dphubert"
 - "whisper-ppg-large"
+- "wavlmbase+"
 
 #### **Optional(Strongly recommend)**
 
@@ -227,6 +228,7 @@ whisper-ppg
 cnhubertlarge
 dphubert
 whisper-ppg-large
+wavlmbase+
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
