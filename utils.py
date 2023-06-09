@@ -139,6 +139,9 @@ def get_speech_encoder(speech_encoder,device=None,**kargs):
     elif speech_encoder == "whisper-ppg-large":
         from vencoder.WhisperPPGLarge import WhisperPPGLarge
         speech_encoder_object = WhisperPPGLarge(device = device)
+    elif speech_encoder == "wavlmbase+":
+        from vencoder.WavLMBasePlus import WavLMBasePlus
+        speech_encoder_object = WavLMBasePlus(device = device)
     else:
         raise Exception("Unknown speech encoder")
     return speech_encoder_object 
@@ -334,11 +337,11 @@ def get_hparams_from_dir(model_dir):
   return hparams
 
 
-def get_hparams_from_file(config_path):
+def get_hparams_from_file(config_path, infer_mode = False):
   with open(config_path, "r") as f:
     data = f.read()
   config = json.loads(data)
-  hparams =HParams(**config)
+  hparams =HParams(**config) if not infer_mode else InferHParams(**config)
   return hparams
 
 
@@ -377,7 +380,13 @@ def get_logger(model_dir, filename="train.log"):
   return logger
 
 
-def repeat_expand_2d(content, target_len):
+def repeat_expand_2d(content, target_len, mode = 'left'):
+    # content : [h, t]
+    return repeat_expand_2d_left(content, target_len) if mode == 'left' else repeat_expand_2d_other(content, target_len, mode)
+
+
+
+def repeat_expand_2d_left(content, target_len):
     # content : [h, t]
 
     src_len = content.shape[-1]
@@ -391,6 +400,14 @@ def repeat_expand_2d(content, target_len):
             current_pos += 1
             target[:, i] = content[:, current_pos]
 
+    return target
+
+
+# mode : 'nearest'| 'linear'| 'bilinear'| 'bicubic'| 'trilinear'| 'area'
+def repeat_expand_2d_other(content, target_len, mode = 'nearest'):
+    # content : [h, t]
+    content = content[None,:,:]
+    target = F.interpolate(content,size=target_len,mode=mode)[0]
     return target
 
 
@@ -494,6 +511,18 @@ class HParams():
 
   def get(self,index):
     return self.__dict__.get(index)
+
+  
+class InferHParams(HParams):
+  def __init__(self, **kwargs):
+    for k, v in kwargs.items():
+      if type(v) == dict:
+        v = InferHParams(**v)
+      self[k] = v
+
+  def __getattr__(self,index):
+    return self.get(index)
+
 
 class Volume_Extractor:
     def __init__(self, hop_size = 512):
