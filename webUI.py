@@ -160,7 +160,7 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             k_step,
             use_spk_mix,
             second_encoding,
-            loudness_envelope_adjustment,
+            loudness_envelope_adjustment
         )
         model.clear_empty()
         os.remove(temp_path)
