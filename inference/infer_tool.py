@@ -136,19 +136,14 @@ class Svc(object):
             self.dev = torch.device(device)
         self.net_g_ms = None
         if not self.only_diffusion:
-            self.hps_ms = utils.get_hparams_from_file(config_path)
+            self.hps_ms = utils.get_hparams_from_file(config_path,True)
             self.target_sample = self.hps_ms.data.sampling_rate
             self.hop_size = self.hps_ms.data.hop_length
             self.spk2id = self.hps_ms.spk
-            try:
-                self.vol_embedding = self.hps_ms.model.vol_embedding
-            except Exception as e:
-                self.vol_embedding = False
-            try:
-                self.speech_encoder = self.hps_ms.model.speech_encoder
-            except Exception as e:
-                self.speech_encoder = 'vec768l12'
-
+            self.unit_interpolate_mode = self.hps_ms.data.unit_interpolate_mode if self.hps_ms.data.unit_interpolate_mode is not None else 'left'
+            self.vol_embedding = self.hps_ms.model.vol_embedding if self.hps_ms.model.vol_embedding is not None else False
+            self.speech_encoder = self.hps_ms.model.speech_encoder if self.hps_ms.model.speech_encoder is not None else 'vec768l12'
+ 
         self.nsf_hifigan_enhance = nsf_hifigan_enhance
         if self.shallow_diffusion or self.only_diffusion:
             if os.path.exists(diffusion_model_path) and os.path.exists(diffusion_model_path):
@@ -158,6 +153,7 @@ class Svc(object):
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
                     self.speech_encoder = self.diffusion_args.data.encoder
+                    self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode!=None else 'left'
                 if spk_mix_enable:
                     self.diffusion_model.init_spkmix(len(self.spk2id))
             else:
@@ -220,7 +216,7 @@ class Svc(object):
         wav16k = librosa.resample(wav, orig_sr=self.target_sample, target_sr=16000)
         wav16k = torch.from_numpy(wav16k).to(self.dev)
         c = self.hubert_model.encoder(wav16k)
-        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
+        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1],self.unit_interpolate_mode)
 
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
@@ -299,7 +295,7 @@ class Svc(object):
                     audio16k = librosa.resample(audio.detach().cpu().numpy(), orig_sr=self.target_sample, target_sr=16000)
                     audio16k = torch.from_numpy(audio16k).to(self.dev)
                     c = self.hubert_model.encoder(audio16k)
-                    c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1])
+                    c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[1],self.unit_interpolate_mode)
                 f0 = f0[:,:,None]
                 c = c.transpose(-1,-2)
                 audio_mel = self.diffusion_model(

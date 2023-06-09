@@ -31,6 +31,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         self.filter_length = hparams.data.filter_length
         self.hop_length = hparams.data.hop_length
         self.win_length = hparams.data.win_length
+        self.unit_interpolate_mode = hparams.data.unit_interpolate_mode
         self.sampling_rate = hparams.data.sampling_rate
         self.use_sr = hparams.train.use_sr
         self.spec_len = hparams.train.max_speclen
@@ -73,7 +74,7 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         uv = torch.FloatTensor(np.array(uv,dtype=float))
 
         c = torch.load(filename+ ".soft.pt")
-        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[0])
+        c = utils.repeat_expand_2d(c.squeeze(0), f0.shape[0], mode=self.unit_interpolate_mode)
         if self.vol_emb:
             volume_path = filename + ".vol.npy"
             volume = np.load(volume_path)

@@ -13,39 +13,25 @@ class DioF0Predictor(F0Predictor):
         '''
         对F0进行插值处理
         '''
+        vuv_vector = np.zeros_like(f0, dtype=np.float32)
+        vuv_vector[f0 > 0.0] = 1.0
+        vuv_vector[f0 <= 0.0] = 0.0
     
-        data = np.reshape(f0, (f0.size, 1))
-    
-        vuv_vector = np.zeros((data.size, 1), dtype=np.float32)
-        vuv_vector[data > 0.0] = 1.0
-        vuv_vector[data <= 0.0] = 0.0
-    
-        ip_data = data
-    
-        frame_number = data.size
-        last_value = 0.0
-        for i in range(frame_number):
-            if data[i] <= 0.0:
-                j = i + 1
-                for j in range(i + 1, frame_number):
-                    if data[j] > 0.0:
-                        break
-                if j < frame_number - 1:
-                    if last_value > 0.0:
-                        step = (data[j] - data[i - 1]) / float(j - i)
-                        for k in range(i, j):
-                            ip_data[k] = data[i - 1] + step * (k - i + 1)
-                    else:
-                        for k in range(i, j):
-                            ip_data[k] = data[j]
-                else:
-                    for k in range(i, frame_number):
-                        ip_data[k] = last_value
-            else:
-                ip_data[i] = data[i] #这里可能存在一个没有必要的拷贝
-                last_value = data[i]
-    
-        return ip_data[:,0], vuv_vector[:,0]
+        nzindex = np.nonzero(f0)[0]
+        data = f0[nzindex]
+        nzindex = nzindex.astype(np.float32)
+        time_org = self.hop_length / self.sampling_rate * nzindex
+        time_frame = np.arange(f0.shape[0]) * self.hop_length / self.sampling_rate
+
+        if data.shape[0] <= 0:
+            return np.zeros(f0.shape[0], dtype=np.float32),vuv_vector
+
+        if data.shape[0] == 1:
+            return np.ones(f0.shape[0], dtype=np.float32) * f0[0],vuv_vector
+
+        f0 = np.interp(time_frame, time_org, data, left=data[0], right=data[-1])
+        
+        return f0,vuv_vector
 
     def resize_f0(self,x, target_len):
         source = np.array(x)
