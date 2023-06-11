@@ -35,7 +35,8 @@
     "win_length": 2048,
     "n_mel_channels": 80,
     "mel_fmin": 0.0,
-    "mel_fmax": 22050
+    "mel_fmax": 22050,
+    "unit_interpolate_mode":"nearest"
   },
   "model": {
     "inter_channels": 192,

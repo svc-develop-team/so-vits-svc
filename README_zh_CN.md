@@ -108,7 +108,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 + 下载模型 [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
   + 放在`pretrain`目录下
 
-##### **6. 若使用OnnxHubert/ContentVec作为声音编码器**
+##### **6. 若使用WavLM作为声音编码器**
++ 下载模型 [WavLM-Base+.pt](https://valle.blob.core.windows.net/share/wavlm/WavLM-Base+.pt?sv=2020-08-04&st=2023-03-01T07%3A51%3A05Z&se=2033-03-02T07%3A51%3A00Z&sr=c&sp=rl&sig=QJXmSJG9DbMKf48UDIU1MfzIro8HQOf3sqlNXiflY1I%3D), 该模型适配`wavlmbase+`
+  + 放在`pretrain`目录下
+
+##### **7. 若使用OnnxHubert/ContentVec作为声音编码器**
 + 下载模型 [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   + 放在`pretrain`目录下
 
@@ -125,6 +129,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "cnhubertlarge"
 - "dphubert"
 - "whisper-ppg-large"
+- "wavlmbase+"
 
 #### **可选项(强烈建议使用)**
 
@@ -136,7 +141,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 从svc-develop-team(待定)或任何其他地方获取Sovits底模
 
-扩散模型引用了[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)的Diffusion Model，底模与[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)的扩散模型底模通用，可以去[DDSP-SVC](https://github.com/yxlllc/DDSP-SVC)获取扩散模型的底模
+扩散模型引用了[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)的Diffusion Model，底模与[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)的扩散模型底模通用，可以去[Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC)获取扩散模型的底模
 
 虽然底模一般不会引起什么版权问题，但还是请注意一下，比如事先询问作者，又或者作者在模型描述中明确写明了可行的用途
 
@@ -215,7 +220,7 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder拥有七个选择
+speech_encoder拥有以下选择
 
 ```
 vec768l12
@@ -225,6 +230,7 @@ whisper-ppg
 whisper-ppg-large
 cnhubertlarge
 dphubert
+wavlmbase+
 ```
 
 如果省略speech_encoder参数，默认值为vec768l12

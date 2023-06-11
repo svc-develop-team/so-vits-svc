@@ -106,7 +106,11 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - download model at [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
   - Place it under the `pretrain` director
 
-##### **6. If OnnxHubert/ContentVec as the encoder**
+##### **6. If WavLM is used as the encoder**
+- download model at  [WavLM-Base+.pt](https://valle.blob.core.windows.net/share/wavlm/WavLM-Base+.pt?sv=2020-08-04&st=2023-03-01T07%3A51%3A05Z&se=2033-03-02T07%3A51%3A00Z&sr=c&sp=rl&sig=QJXmSJG9DbMKf48UDIU1MfzIro8HQOf3sqlNXiflY1I%3D), the model fits `wavlmbase+`
+  - Place it under the `pretrain` director
+
+##### **7. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
   - Place it under the `pretrain` directory
 
@@ -123,6 +127,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 - "cnhubertlarge"
 - "dphubert"
 - "whisper-ppg-large"
+- "wavlmbase+"
 
 #### **Optional(Strongly recommend)**
 
@@ -134,7 +139,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 
 Get Sovits Pre-trained model from svc-develop-team(TBD) or anywhere else.
 
-Diffusion model references [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) diffusion model. The pre-trained diffusion model is universal with the DDSP-SVC's. You can go to [DDSP-SVC](https://github.com/yxlllc/DDSP-SVC) to get the pre-trained diffusion model.
+Diffusion model references [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC) diffusion model. The pre-trained diffusion model is universal with the DDSP-SVC's. You can go to [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC) to get the pre-trained diffusion model.
 
 Although the pretrained model generally does not cause any copyright problems, please pay attention to it. For example, ask the author in advance, or the author has indicated the feasible use in the description clearly.
 
@@ -213,7 +218,7 @@ python resample.py --skip_loudnorm
 python preprocess_flist_config.py --speech_encoder vec768l12
 ```
 
-speech_encoder has 7 choices
+speech_encoder has the following options
 
 ```
 vec768l12
@@ -223,6 +228,7 @@ whisper-ppg
 cnhubertlarge
 dphubert
 whisper-ppg-large
+wavlmbase+
 ```
 
 If the speech_encoder argument is omitted, the default value is vec768l12
