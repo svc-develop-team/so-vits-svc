@@ -33,6 +33,7 @@ model = None
 spk = None
 debug = False
 
+# pynb
 cuda = {}
 if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
