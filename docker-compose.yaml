@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  sovitssvc-dev:
+    build:
+      context: .
+      args:
+      - uid=1001
+      - gid=1001
+      - username=mluser
+      - project_name=sovitssvc
+    container_name: ml-dev
+    image: sovitssvc-dev-image
+    shm_size: '24gb'
+    tty: true
+    volumes: 
+      - $PWD:/home/mluser/sovitssvc
+    command: '/bin/bash'
+    ports:
+      - 16981-16990:16981-16990
+    runtime: nvidia
+    #deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #      - driver: nvidia
+    #        capabilities: [gpu]
