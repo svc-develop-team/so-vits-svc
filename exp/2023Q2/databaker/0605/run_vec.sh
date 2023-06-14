@@ -31,6 +31,13 @@ CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_23000
     -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
     --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/databaker_contentvec/jams
 
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_230000.pth" -c "filelists/databaker_contentvec/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/datasets/magicdata_tts_train/MDT-TTS-G005/happy/wav_test.scp --output_dir logs/databaker_contentvec/happy
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_230000.pth" -c "filelists/databaker_contentvec/config.json" \
+    -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/datasets/magicdata_tts_train/MDT-TTS-G005/pride/wav_test.scp --output_dir logs/databaker_contentvec/pride
 
 
 

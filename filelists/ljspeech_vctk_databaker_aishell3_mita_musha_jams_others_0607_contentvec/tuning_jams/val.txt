@@ -1,0 +1,2 @@
+dataset/44k/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607/SSB3003/SSB3003040290.wav
+dataset/44k/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607/SSB3003/SSB3003040218.wav

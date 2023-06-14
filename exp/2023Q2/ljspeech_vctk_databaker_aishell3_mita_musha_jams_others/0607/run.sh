@@ -78,7 +78,7 @@ CUDA_VISIBLE_DEVICES=2 python preprocess_hubert_f0.py \
     --in_dir dataset/44k/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607 \
     --num_processes 4
 
-CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python preprocess_hubert_f0.py \
+CUDA_VISIBLE_DEVICES=1,3,4,5,6,7 python preprocess_hubert_f0.py \
     --config_dir filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large \
     --f0_predictor dio \
     --in_dir dataset/44k/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large \
@@ -87,24 +87,83 @@ CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python preprocess_hubert_f0.py \
 
 
 ## train the base model
-CUDA_VISIBLE_DEVICES=4,5 python train.py \
+CUDA_VISIBLE_DEVICES=4,5,6,7 python train.py \
     -c filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json \
     -m ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec
 
-CUDA_VISIBLE_DEVICES=6,7 python train.py \
+CUDA_VISIBLE_DEVICES=2,3 python train.py \
     -c filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/config.json \
     -m ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large
 
 
-
-
 ## test
 
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_170000.pth" -c "filelists/databaker_contentvec/config.json" \
+# Databaker
+CUDA_VISIBLE_DEVICES=6 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
     -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
-    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp --output_dir logs/databaker_contentvec/test
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3000_xiaolin
 
-CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/databaker_contentvec/G_170000.pth" -c "filelists/databaker_contentvec/config.json" \
+CUDA_VISIBLE_DEVICES=6 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
     -s SSB3000 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
-    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp --output_dir logs/databaker_contentvec/test
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3000_jams
 
+
+
+# Jams
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3003_xiaolin
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3003_jams
+
+
+CUDA_VISIBLE_DEVICES=6 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/datasets/magicdata_tts_train/MDT-TTS-G005/pride/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3003_pride
+
+CUDA_VISIBLE_DEVICES=6 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/G_365000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs1/yi.liu/src/fvae-vc/data/raw/keynote_202305_v1/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_contentvec/SSB3003_keynote_202305_v1
+
+
+
+
+
+# whisper
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/G_225000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/jams/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/jams
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/G_225000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/exp/fvae-vc/data/raw/xiaolin/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/xiaolin
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/G_225000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/datasets/magicdata_tts_train/MDT-TTS-G005/happy/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/happy
+
+CUDA_VISIBLE_DEVICES=1 python inference.py -m "logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/G_225000.pth" \
+    -c "filelists/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/config.json" \
+    -s SSB3003 -f0p dio -a --slice_db -50 --clip 25 -lg 1 \
+    --wav_scp /nfs2/guang.liang/datasets/magicdata_tts_train/MDT-TTS-G005/pride/wav_test.scp \
+    --output_dir logs/ljspeech_vctk_databaker_aishell3_mita_musha_jams_others_0607_whisper_large/pride
