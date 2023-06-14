@@ -1,5 +1,3 @@
-# 马上要高考了，SvcDevelopTeam在此助各位考生高考旗开得胜，超常发挥。
-
 # SoftVC VITS Singing Voice Conversion
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
