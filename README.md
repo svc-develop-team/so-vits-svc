@@ -2,7 +2,7 @@
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
-#### ✨ A studio that contains f0 curve editor, speaker mix timeline editor and other features (The purpose of the Onnx model) : [MoeVoiceStudio(Comming soon)](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
+#### ✨ A studio that contains f0 curve editor, speaker mix timeline editor and other features (The purpose of the Onnx model) : [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
 
 #### ✨ A fork with a greatly improved interface: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
