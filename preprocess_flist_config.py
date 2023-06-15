@@ -100,5 +100,5 @@ if __name__ == "__main__":
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
         json.dump(config_template, f, indent=2)
-    print("Writing configs/diffusion_template.yaml")
+    print("Writing configs/diffusion.yaml")
     du.save_config("configs/diffusion.yaml",d_config_template)
