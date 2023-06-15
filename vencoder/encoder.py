@@ -6,7 +6,7 @@ class SpeechEncoder(object):
 
     def encoder(self,wav):
         '''
-        input: wav:[batchsize,signal_length]
+        input: wav:[signal_length]
         output: embedding:[batchsize,hidden_dim,wav_frame]
         '''
         pass

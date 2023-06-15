@@ -67,6 +67,7 @@ class GaussianDiffusion(nn.Module):
                 max_beta=0.02,
                 spec_min=-12, 
                 spec_max=2):
+        
         super().__init__()
         self.denoise_fn = denoise_fn
         self.out_dims = out_dims
@@ -78,7 +79,7 @@ class GaussianDiffusion(nn.Module):
 
         timesteps, = betas.shape
         self.num_timesteps = int(timesteps)
-        self.k_step = k_step
+        self.k_step = k_step if k_step>0 and k_step<timesteps else timesteps
 
         self.noise_list = deque(maxlen=4)
 

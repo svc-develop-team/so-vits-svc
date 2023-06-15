@@ -245,14 +245,28 @@ python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 
 #### 此时可以在生成的config.json与diffusion.yaml修改部分参数
 
+##### config.json
+
 * `keep_ckpts`：训练时保留最后几个模型，`0`为保留所有，默认只保留最后`3`个
 
-* `all_in_mem`,`cache_all_data`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量 **远大于** 数据集体积时可以启用
+* `all_in_mem`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量 **远大于** 数据集体积时可以启用
 
 * `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
 
 * `vocoder_name` : 选择一种声码器，默认为`nsf-hifigan`.
 
+##### diffusion.yaml
+
+* `cache_all_data`：加载所有数据集到内存中，某些平台的硬盘IO过于低下、同时内存容量 **远大于** 数据集体积时可以启用
+
+* `duration`：训练时音频切片时长，可根据显存大小调整，**注意，该值必须小于训练集内音频的最短时间！**
+
+* `batch_size`：单次训练加载到GPU的数据量，调整到低于显存容量的大小即可
+
+* `timesteps` : 扩散模型总步数，默认为1000.
+
+* `k_step_max` : 训练时可仅训练`k_step_max`步扩散以节约训练时间，注意，该值必须小于`timesteps`，0为训练全部整个扩散模型，**注意，如果不训练整个扩散模型将无法使用仅扩散推理!**
+  
 ##### **声码器列表**
 
 ```
@@ -289,18 +303,18 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 
 ## 🏋️‍♀️ 训练
 
+### 主模型训练
+
+```shell
+python train.py -c configs/config.json -m 44k
+```
+
 ### 扩散模型（可选）
 
 尚若需要浅扩散功能，需要训练扩散模型，扩散模型训练方法为:
 
 ```shell
 python train_diff.py -c configs/diffusion.yaml
-```
-
-### 主模型训练
-
-```shell
-python train.py -c configs/config.json -m 44k
 ```
 
 模型训练结束后，模型文件保存在`logs/44k`目录下，扩散模型在`logs/44k/diffusion`下
