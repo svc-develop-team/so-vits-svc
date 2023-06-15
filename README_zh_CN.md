@@ -265,7 +265,7 @@ python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 
 * `timesteps` : 扩散模型总步数，默认为1000.
 
-* `k_step_max` : 训练时可仅训练`k_step_max`步扩散以节约训练时间，注意，该值必须小于`timesteps`，0为训练全部整个扩散模型，**注意，如果不训练整个扩散模型将无法使用仅扩散推理!**
+* `k_step_max` : 训练时可仅训练`k_step_max`步扩散以节约训练时间，注意，该值必须小于`timesteps`，0为训练整个扩散模型，**注意，如果不训练整个扩散模型将无法使用仅扩散模型推理!**
   
 ##### **声码器列表**
 

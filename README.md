@@ -265,7 +265,7 @@ After enabling loudness embedding, the trained model will match the loudness of 
 
 * `timesteps`: The total number of steps in the diffusion model, which defaults to 1000.
 
-* `k_step_max`: Training can only train 'k_step_max' step diffusion to save training time, note that the value must be less than 'timesteps', 0 is to train the entire diffusion model, **Note: if you do not train the entire diffusion model will not be able to use only_diffusion!**
+* `k_step_max`: Training can only train `k_step_max` step diffusion to save training time, note that the value must be less than `timesteps`, 0 is to train the entire diffusion model, **Note: if you do not train the entire diffusion model will not be able to use only_diffusion!**
 
 ##### **List of Vocoders**
 
