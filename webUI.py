@@ -1,5 +1,6 @@
 import io
 import os
+os.system("start http://127.0.0.1:7860")
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
 import gradio as gr
