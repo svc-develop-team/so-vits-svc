@@ -1,6 +1,5 @@
 import io
 import os
-os.system("start http://127.0.0.1:7860")
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
 import gradio as gr
@@ -210,7 +209,7 @@ def vc_fn2(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, nois
     output_file=tts_func(text2tts,tts_rate,tts_voice)
 
     #调整采样率
-    sr2=44100
+    sr2=model.target_sample
     wav, sr = librosa.load(output_file)
     wav2 = librosa.resample(wav, orig_sr=sr, target_sr=sr2)
     save_path2= text2tts[0:10]+"_44k"+".wav"
@@ -374,6 +373,7 @@ with gr.Blocks(
         debug_button.change(debug_change,[],[])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix],[sid,sid_output])
         model_unload_button.click(modelUnload,[],[sid,sid_output])
+    os.system("start http://127.0.0.1:7860")
     app.launch()
 
 
