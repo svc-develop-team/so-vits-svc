@@ -64,7 +64,8 @@ class LowPassFilter1d(nn.Module):
                  stride: int = 1,
                  padding: bool = True,
                  padding_mode: str = 'replicate',
-                 kernel_size: int = 12):
+                 kernel_size: int = 12,
+                 C=None):
         # kernel_size should be even number for stylegan3 setup,
         # in this implementation, odd number is also possible.
         super().__init__()
@@ -81,15 +82,26 @@ class LowPassFilter1d(nn.Module):
         self.padding_mode = padding_mode
         filter = kaiser_sinc_filter1d(cutoff, half_width, kernel_size)
         self.register_buffer("filter", filter)
+        self.conv1d_block = None
+        if C is not None:
+            self.conv1d_block = (nn.Conv1d(C,C,kernel_size,stride=self.stride, groups=C, bias=False), 1)
+            self.conv1d_block[0].weight = nn.Parameter(self.filter.expand(C, -1, -1))
+            self.conv1d_block[0].requires_grad_(False)
 
     #input [B, C, T]
     def forward(self, x):
-        _, C, _ = x.shape
+        if self.conv1d_block is None:
+            _, C, _ = x.shape
 
-        if self.padding:
-            x = F.pad(x, (self.pad_left, self.pad_right),
-                      mode=self.padding_mode)
-        out = F.conv1d(x, self.filter.expand(C, -1, -1),
-                       stride=self.stride, groups=C)
+            if self.padding:
+                x = F.pad(x, (self.pad_left, self.pad_right),
+                            mode=self.padding_mode)
+            out = F.conv1d(x, self.filter.expand(C, -1, -1),
+                            stride=self.stride, groups=C)
+        else:
+            if self.padding:
+                x = F.pad(x, (self.pad_left, self.pad_right),
+                            mode=self.padding_mode)
+            out = self.conv1d_block[0](x)
 
         return out
