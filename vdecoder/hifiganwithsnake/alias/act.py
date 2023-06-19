@@ -112,17 +112,18 @@ class SnakeAlias(nn.Module):
                  up_ratio: int = 2,
                  down_ratio: int = 2,
                  up_kernel_size: int = 12,
-                 down_kernel_size: int = 12):
+                 down_kernel_size: int = 12,
+                 C = None):
         super().__init__()
         self.up_ratio = up_ratio
         self.down_ratio = down_ratio
         self.act = SnakeBeta(channels, alpha_logscale=True)
-        self.upsample = UpSample1d(up_ratio, up_kernel_size)
-        self.downsample = DownSample1d(down_ratio, down_kernel_size)
+        self.upsample = UpSample1d(up_ratio, up_kernel_size, C)
+        self.downsample = DownSample1d(down_ratio, down_kernel_size, C)
 
     # x: [B,C,T]
-    def forward(self, x):
-        x = self.upsample(x)
+    def forward(self, x, C=None):
+        x = self.upsample(x, C)
         x = self.act(x)
         x = self.downsample(x)
 
