@@ -373,8 +373,12 @@ with gr.Blocks(
         debug_button.change(debug_change,[],[])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix],[sid,sid_output])
         model_unload_button.click(modelUnload,[],[sid,sid_output])
-    os.system("start http://127.0.0.1:7860")
-    app.launch()
+    os.system("start  http://localhost:7860")
+    app.queue(concurrency_count=511, max_size=1022).launch(
+    server_name="0.0.0.0",
+    server_port=7860,
+    share=True,
+    )
 
 
  
