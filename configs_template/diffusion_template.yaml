@@ -27,7 +27,7 @@ vocoder:
   ckpt: 'pretrain/nsf_hifigan/model'
 infer:
   speedup: 10
-  method: 'dpm-solver' # 'pndm' or 'dpm-solver'
+  method: 'dpm-solver++' # 'pndm' or 'dpm-solver' or 'ddim' or 'unipc' or 'dpm-solver++'
 env:
   expdir: logs/44k/diffusion
   gpu_id: 0
