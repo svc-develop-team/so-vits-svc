@@ -50,22 +50,10 @@ def process(item):
         save_path2 = os.path.join(args.out_dir2, speaker, wav_name)
         save_wav_to_path(resampled_wav, save_path2, args.sr2)
 
-def process_all_speakers(speakers, args):
-    process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
-    
-    with ThreadPoolExecutor(max_workers=process_count) as executor:
-        for speaker in speakers:
-            spk_dir = os.path.join(args.in_dir, speaker)
-            if os.path.isdir(spk_dir):
-                print(spk_dir)
-                futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
-                for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
-                    pass
-
-# multi process 
 # def process_all_speakers(speakers, args):
 #     process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
-#     with ProcessPoolExecutor(max_workers=process_count) as executor:
+
+#     with ThreadPoolExecutor(max_workers=process_count) as executor:
 #         for speaker in speakers:
 #             spk_dir = os.path.join(args.in_dir, speaker)
 #             if os.path.isdir(spk_dir):
@@ -73,6 +61,18 @@ def process_all_speakers(speakers, args):
 #                 futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
 #                 for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
 #                     pass
+
+# multi process
+def process_all_speakers(speakers, args):
+    process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
+    with ProcessPoolExecutor(max_workers=process_count) as executor:
+        for speaker in speakers:
+            spk_dir = os.path.join(args.in_dir, speaker)
+            if os.path.isdir(spk_dir):
+                print(spk_dir)
+                futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
+                for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
+                    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
