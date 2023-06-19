@@ -2,34 +2,77 @@ import os
 import argparse
 import librosa
 import numpy as np
+import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count
 from scipy.io import wavfile
 from tqdm import tqdm
 
 
+def load_wav(wav_path):
+    return librosa.load(wav_path, sr=None)
+
+def trim_wav(wav, top_db=40):
+    return librosa.effects.trim(wav, top_db=top_db)
+
+def normalize_peak(wav, threshold=1.0):
+    peak = np.abs(wav).max()
+    if peak > threshold:
+        wav = 0.98 * wav / peak
+    return wav
+
+def resample_wav(wav, sr, target_sr):
+    return librosa.resample(wav, orig_sr=sr, target_sr=target_sr)
+
+def save_wav_to_path(wav, save_path, sr):
+    wavfile.write(
+        save_path,
+        sr,
+        (wav * np.iinfo(np.int16).max).astype(np.int16)
+    )
+
 def process(item):
     spkdir, wav_name, args = item
-    # speaker 's5', 'p280', 'p315' are excluded,
     speaker = spkdir.replace("\\", "/").split("/")[-1]
+
     wav_path = os.path.join(args.in_dir, speaker, wav_name)
     if os.path.exists(wav_path) and '.wav' in wav_path:
         os.makedirs(os.path.join(args.out_dir2, speaker), exist_ok=True)
-        wav, sr = librosa.load(wav_path, sr=None)
-        wav, _ = librosa.effects.trim(wav, top_db=40)
-        peak = np.abs(wav).max()
-        if peak > 1.0:
-            wav = 0.98 * wav / peak
-        wav2 = librosa.resample(wav, orig_sr=sr, target_sr=args.sr2)
-        if not args.skip_loudnorm:
-            wav2 /= max(wav2.max(), -wav2.min())
-        save_name = wav_name
-        save_path2 = os.path.join(args.out_dir2, speaker, save_name)
-        wavfile.write(
-            save_path2,
-            args.sr2,
-            (wav2 * np.iinfo(np.int16).max).astype(np.int16)
-        )
 
+        wav, sr = load_wav(wav_path)
+        wav, _ = trim_wav(wav)
+        wav = normalize_peak(wav)
+        resampled_wav = resample_wav(wav, sr, args.sr2)
+
+        if not args.skip_loudnorm:
+            resampled_wav /= max(resampled_wav.max(), -resampled_wav.min())
+
+        save_path2 = os.path.join(args.out_dir2, speaker, wav_name)
+        save_wav_to_path(resampled_wav, save_path2, args.sr2)
+
+# def process_all_speakers(speakers, args):
+#     process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
+
+#     with ThreadPoolExecutor(max_workers=process_count) as executor:
+#         for speaker in speakers:
+#             spk_dir = os.path.join(args.in_dir, speaker)
+#             if os.path.isdir(spk_dir):
+#                 print(spk_dir)
+#                 futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
+#                 for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
+#                     pass
+
+# multi process
+def process_all_speakers(speakers, args):
+    process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
+    with ProcessPoolExecutor(max_workers=process_count) as executor:
+        for speaker in speakers:
+            spk_dir = os.path.join(args.in_dir, speaker)
+            if os.path.isdir(spk_dir):
+                print(spk_dir)
+                futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
+                for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
+                    pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -38,12 +81,7 @@ if __name__ == "__main__":
     parser.add_argument("--out_dir2", type=str, default="./dataset/44k", help="path to target dir")
     parser.add_argument("--skip_loudnorm", action="store_true", help="Skip loudness matching if you have done it")
     args = parser.parse_args()
-    processs = 30 if cpu_count() > 60 else (cpu_count()-2 if cpu_count() > 4 else 1)
-    pool = Pool(processes=processs)
 
-    for speaker in os.listdir(args.in_dir):
-        spk_dir = os.path.join(args.in_dir, speaker)
-        if os.path.isdir(spk_dir):
-            print(spk_dir)
-            for _ in tqdm(pool.imap_unordered(process, [(spk_dir, i, args) for i in os.listdir(spk_dir) if i.endswith("wav")])):
-                pass
+    print(f"CPU count: {cpu_count()}")
+    speakers = os.listdir(args.in_dir)
+    process_all_speakers(speakers, args)
