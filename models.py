@@ -453,8 +453,8 @@ class SynthesizerTrn(nn.Module):
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # vol proj
         vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
-           
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
+
+        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2) + vol
         
         if predict_f0:
             lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
