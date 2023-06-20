@@ -54,6 +54,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=Path, default="./dataset/44k",
                         help='path of training data directory')
+    parser.add_argument("--spk", type=str, default=None, help='Specify a single speaker')
     parser.add_argument('--output', type=Path, default="logs/44k",
                         help='path of model output directory')
     parser.add_argument('--gpu',action='store_true', default=False ,
@@ -68,12 +69,15 @@ if __name__ == "__main__":
     n_clusters = 10000
     
     ckpt = {}
+    import pdb
+    pdb.set_trace()
     for spk in os.listdir(dataset):
-        if os.path.isdir(dataset/spk):
-            print(f"train kmeans for {spk}...")
-            in_dir = dataset/spk
-            x = train_cluster(in_dir, n_clusters,use_minibatch=False,verbose=False,use_gpu=use_gpu)
-            ckpt[spk] = x
+        if args.spk is None or spk == args.spk:
+            if os.path.isdir(dataset/spk):
+                print(f"train kmeans for {spk}...")
+                in_dir = dataset/spk
+                x = train_cluster(in_dir, n_clusters,use_minibatch=False,verbose=False,use_gpu=use_gpu)
+                ckpt[spk] = x
 
     checkpoint_path = checkpoint_dir / f"kmeans_{n_clusters}.pt"
     checkpoint_path.parent.mkdir(exist_ok=True, parents=True)

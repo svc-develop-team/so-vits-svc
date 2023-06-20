@@ -236,7 +236,7 @@ class Svc(object):
                    self.big_npy = feature_index.reconstruct_n(0, feature_index.ntotal)
                    self.now_spk_id = speaker_id
                 print("starting feature retrieval...")
-                score, ix = feature_index.search(feat_np, k=8)
+                score, ix = feature_index.search(feat_np.copy(), k=8)
                 weight = np.square(1 / score)
                 weight /= weight.sum(axis=1, keepdims=True)
                 npy = np.sum(self.big_npy[ix] * np.expand_dims(weight, axis=2), axis=1)
