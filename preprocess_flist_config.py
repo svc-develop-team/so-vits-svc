@@ -34,6 +34,9 @@ if __name__ == "__main__":
 
     os.makedirs(args.output_dir, exist_ok=True)
     
+    d_config_template = du.load_config(f"{args.configs_template}/diffusion_template.yaml")
+    config_template = json.load(open(f"{args.configs_template}/config_template.json"))
+
     train = []
     val = []
     idx = 0
@@ -49,7 +52,9 @@ if __name__ == "__main__":
                 continue
             if not pattern.match(file):
                 print(f"warning：文件名{file}中包含非字母数字下划线，可能会导致错误。（也可能不会）")
-            if get_wav_duration(file) < 0.3:
+
+            if get_wav_duration(file) < (
+                config_template['train']['segment_size'] / config_template['data']['sampling_rate'] + 0.05):
                 print("skip too short audio:", file)
                 continue
             new_wavs.append(file)
@@ -74,12 +79,10 @@ if __name__ == "__main__":
             f.write(wavpath + "\n")
 
 
-    d_config_template = du.load_config(f"{args.configs_template}/diffusion_template.yaml")
     d_config_template["model"]["n_spk"] = spk_id
     d_config_template["data"]["encoder"] = args.speech_encoder
     d_config_template["spk"] = spk_dict
     
-    config_template = json.load(open(f"{args.configs_template}/config_template.json"))
     config_template["spk"] = spk_dict
     config_template["model"]["n_speakers"] = spk_id
     config_template["model"]["speech_encoder"] = args.speech_encoder
