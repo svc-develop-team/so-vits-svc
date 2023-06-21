@@ -295,7 +295,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
             c = c[:1].to(f'{device}:0')
             f0 = f0[:1].to(f'{device}:0')
             uv= uv[:1].to(f'{device}:0')
-            if volume!=None:
+            if not volume:
                 volume = volume[:1].to(f'{device}:0')
             mel = spec_to_mel_torch(
                 spec,
