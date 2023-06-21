@@ -48,9 +48,6 @@ device = (
 
 def main():
     """Assume Single Node Multi GPUs Training Only"""
-    assert (
-        torch.cuda.is_available() or torch.backends.mps.is_available()
-    ), "CPU training is not allowed."
     hps = utils.get_hparams()
 
     n_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 1
