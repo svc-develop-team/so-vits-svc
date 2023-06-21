@@ -2,8 +2,10 @@ from vencoder.encoder import SpeechEncoder
 import torch
 from fairseq import checkpoint_utils
 
+
 class CNHubertLarge(SpeechEncoder):
-    def __init__(self,vec_path = "pretrain/chinese-hubert-large-fairseq-ckpt.pt",device=None):
+    def __init__(self, vec_path="pretrain/chinese-hubert-large-fairseq-ckpt.pt", device=None):
+        super().__init__()
         print("load model(s) from {}".format(vec_path))
         self.hidden_dim = 1024
         models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
@@ -20,7 +22,7 @@ class CNHubertLarge(SpeechEncoder):
     def encoder(self, wav):
         feats = wav
         if feats.dim() == 2:  # double channels
-          feats = feats.mean(-1)
+            feats = feats.mean(-1)
         assert feats.dim() == 1, feats.dim()
         feats = feats.view(1, -1)
         padding_mask = torch.BoolTensor(feats.shape).fill_(False)
@@ -29,5 +31,5 @@ class CNHubertLarge(SpeechEncoder):
           "padding_mask": padding_mask.to(wav.device)
         }
         with torch.no_grad():
-          logits = self.model.extract_features(**inputs)
+            logits = self.model.extract_features(**inputs)
         return logits[0].transpose(1, 2)

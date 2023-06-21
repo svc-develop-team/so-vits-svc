@@ -2,8 +2,10 @@ from vencoder.encoder import SpeechEncoder
 import torch
 from vencoder.wavlm.WavLM import WavLM, WavLMConfig
 
+
 class WavLMBasePlus(SpeechEncoder):
-    def __init__(self,vec_path = "pretrain/WavLM-Base+.pt",device=None):
+    def __init__(self, vec_path="pretrain/WavLM-Base+.pt", device=None):
+        super().__init__()
         print("load model(s) from {}".format(vec_path))
         checkpoint = torch.load(vec_path)
         self.cfg = WavLMConfig(checkpoint['cfg'])
@@ -19,11 +21,11 @@ class WavLMBasePlus(SpeechEncoder):
     def encoder(self, wav):
         feats = wav
         if feats.dim() == 2:  # double channels
-          feats = feats.mean(-1)
+            feats = feats.mean(-1)
         assert feats.dim() == 1, feats.dim()
         if self.cfg.normalize:
-            feats = torch.nn.functional.layer_norm(feats , feats.shape)
+            feats = torch.nn.functional.layer_norm(feats, feats.shape)
         with torch.no_grad():
             with torch.inference_mode():
-              units = self.model.extract_features(feats[None,:])[0]
-              return units.transpose(1,2)
+                units = self.model.extract_features(feats[None, :])[0]
+                return units.transpose(1, 2)
