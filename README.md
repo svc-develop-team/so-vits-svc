@@ -404,13 +404,13 @@ python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="
 
 **Refer to `webui.py` file for stable Timbre mixing of the gadget/lab feature.**
 
-Introduction: This function can combine multiple sound models into one sound model (convex combination or linear combination of multiple model parameters) to create sound lines that do not exist in reality
+Introduction: This function can combine multiple models into one model (convex combination or linear combination of multiple model parameters) to create mixed voice that do not exist in reality
 
 **Note:**
 1. This function only supports single-speaker models
-2. If the multi-speaker model is forced to be used, it is necessary to ensure that the number of speakers in multiple models is the same, so that the voices under the same SpaekerID can be mixed
-3. Ensure that the model fields in config.json of all models to be mixed are the same
-4. The output hybrid model can use any config.json of the model to be synthesized, but the clustering model will not be used
+2. If you intend to use a multi-speaker model regardless, it is crucial to ensure that the number of speakers in each model is the same. This ensures that voices with the same SpeakerID can be properly mixed.
+3. Ensure that the `model` fields in config.json of all models to be mixed are the same
+4. The mixed model can use any config.json file from the models being synthesized. However, the clustering model will not be functional after mixed.
 5. When batch uploading models, it is best to put the models into a folder and upload them together after selecting them
 6. It is suggested to adjust the mixing ratio between 0 and 100, or to other numbers, but unknown effects will occur in the linear combination mode
 7. After mixing, the file named output.pth will be saved in the root directory of the project
