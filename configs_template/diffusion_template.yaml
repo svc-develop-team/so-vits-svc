@@ -17,7 +17,9 @@ model:
   n_layers: 20
   n_chans: 512
   n_hidden: 256
-  use_pitch_aug: true  
+  use_pitch_aug: true
+  timesteps : 1000
+  k_step_max: 0 # must <= timesteps, If it is 0, train all
   n_spk: 1 # max number of different speakers
 device: cuda
 vocoder:
@@ -25,7 +27,7 @@ vocoder:
   ckpt: 'pretrain/nsf_hifigan/model'
 infer:
   speedup: 10
-  method: 'dpm-solver' # 'pndm' or 'dpm-solver'
+  method: 'dpm-solver++' # 'pndm' or 'dpm-solver' or 'ddim' or 'unipc' or 'dpm-solver++'
 env:
   expdir: logs/44k/diffusion
   gpu_id: 0
