@@ -47,13 +47,12 @@ device = (
 
 
 def main():
-    """Assume Single Node Multi GPUs Training Only"""
     hps = utils.get_hparams()
 
     n_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 1
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = hps.train.port
-    print("run")
+
     if torch.cuda.is_available():
         mp.spawn(
             run,
@@ -77,7 +76,7 @@ def run(rank, n_gpus, hps):
         writer = SummaryWriter(log_dir=hps.model_dir)
         writer_eval = SummaryWriter(log_dir=os.path.join(hps.model_dir, "eval"))
 
-    # for pytorch on win, backend use gloo
+    # for pytorch on win and mac, backend use gloo
     dist.init_process_group(
         backend="gloo" if os.name == "nt" or "posix" else "nccl",
         init_method="env://",
