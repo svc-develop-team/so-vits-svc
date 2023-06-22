@@ -67,6 +67,7 @@ class GaussianDiffusion(nn.Module):
                 max_beta=0.02,
                 spec_min=-12, 
                 spec_max=2):
+        
         super().__init__()
         self.denoise_fn = denoise_fn
         self.out_dims = out_dims
@@ -78,7 +79,7 @@ class GaussianDiffusion(nn.Module):
 
         timesteps, = betas.shape
         self.num_timesteps = int(timesteps)
-        self.k_step = k_step
+        self.k_step = k_step if k_step>0 and k_step<timesteps else timesteps
 
         self.noise_list = deque(maxlen=4)
 
@@ -138,6 +139,18 @@ class GaussianDiffusion(nn.Module):
 
         model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start=x_recon, x_t=x, t=t)
         return model_mean, posterior_variance, posterior_log_variance
+
+    @torch.no_grad()
+    def p_sample_ddim(self, x, t, interval, cond):
+        """
+        Use the DDIM method from
+        """
+        a_t = extract(self.alphas_cumprod, t, x.shape)
+        a_prev = extract(self.alphas_cumprod, torch.max(t - interval, torch.zeros_like(t)), x.shape)
+
+        noise_pred = self.denoise_fn(x, t, cond=cond)
+        x_prev = a_prev.sqrt() * (x / a_t.sqrt() + (((1 - a_prev) / a_prev).sqrt()-((1 - a_t) / a_t).sqrt()) * noise_pred)
+        return x_prev
 
     @torch.no_grad()
     def p_sample(self, x, t, cond, clip_denoised=True, repeat_noise=False):
@@ -239,7 +252,7 @@ class GaussianDiffusion(nn.Module):
                 x = self.q_sample(x_start=norm_spec, t=torch.tensor([t - 1], device=device).long())
                         
             if method is not None and infer_speedup > 1:
-                if method == 'dpm-solver':
+                if method == 'dpm-solver' or method == 'dpm-solver++':
                     from .dpm_solver_pytorch import NoiseScheduleVP, model_wrapper, DPM_Solver
                     # 1. Define the noise schedule.
                     noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
@@ -267,17 +280,20 @@ class GaussianDiffusion(nn.Module):
                     # (We recommend singlestep DPM-Solver for unconditional sampling)
                     # You can adjust the `steps` to balance the computation
                     # costs and the sample quality.
-                    dpm_solver = DPM_Solver(model_fn, noise_schedule)
-
+                    if method == 'dpm-solver':
+                        dpm_solver = DPM_Solver(model_fn, noise_schedule, algorithm_type="dpmsolver")
+                    elif method == 'dpm-solver++':
+                        dpm_solver = DPM_Solver(model_fn, noise_schedule, algorithm_type="dpmsolver++")
+                        
                     steps = t // infer_speedup
                     if use_tqdm:
                         self.bar = tqdm(desc="sample time step", total=steps)
                     x = dpm_solver.sample(
                         x,
                         steps=steps,
-                        order=3,
+                        order=2,
                         skip_type="time_uniform",
-                        method="singlestep",
+                        method="multistep",
                     )
                     if use_tqdm:
                         self.bar.close()
@@ -298,6 +314,63 @@ class GaussianDiffusion(nn.Module):
                                 x, torch.full((b,), i, device=device, dtype=torch.long),
                                 infer_speedup, cond=cond
                             )
+                elif method == 'ddim':
+                    if use_tqdm:
+                        for i in tqdm(
+                                reversed(range(0, t, infer_speedup)), desc='sample time step',
+                                total=t // infer_speedup,
+                        ):
+                            x = self.p_sample_ddim(
+                                x, torch.full((b,), i, device=device, dtype=torch.long),
+                                infer_speedup, cond=cond
+                            )
+                    else:
+                        for i in reversed(range(0, t, infer_speedup)):
+                            x = self.p_sample_ddim(
+                                x, torch.full((b,), i, device=device, dtype=torch.long),
+                                infer_speedup, cond=cond
+                            )
+                elif method == 'unipc':
+                    from .uni_pc import NoiseScheduleVP, model_wrapper, UniPC
+                    # 1. Define the noise schedule.
+                    noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
+
+                    # 2. Convert your discrete-time `model` to the continuous-time
+                    # noise prediction model. Here is an example for a diffusion model
+                    # `model` with the noise prediction type ("noise") .
+                    def my_wrapper(fn):
+                        def wrapped(x, t, **kwargs):
+                            ret = fn(x, t, **kwargs)
+                            if use_tqdm:
+                                self.bar.update(1)
+                            return ret
+
+                        return wrapped
+
+                    model_fn = model_wrapper(
+                        my_wrapper(self.denoise_fn),
+                        noise_schedule,
+                        model_type="noise",  # or "x_start" or "v" or "score"
+                        model_kwargs={"cond": cond}
+                    )
+
+                    # 3. Define uni_pc and sample by multistep UniPC.
+                    # You can adjust the `steps` to balance the computation
+                    # costs and the sample quality.
+                    uni_pc = UniPC(model_fn, noise_schedule, variant='bh2')
+
+                    steps = t // infer_speedup
+                    if use_tqdm:
+                        self.bar = tqdm(desc="sample time step", total=steps)
+                    x = uni_pc.sample(
+                        x,
+                        steps=steps,
+                        order=2,
+                        skip_type="time_uniform",
+                        method="multistep",
+                    )
+                    if use_tqdm:
+                        self.bar.close()
                 else:
                     raise NotImplementedError(method)
             else:

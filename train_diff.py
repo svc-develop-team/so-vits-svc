@@ -41,8 +41,12 @@ if __name__ == '__main__':
                 vocoder.dimension,
                 args.model.n_layers,
                 args.model.n_chans,
-                args.model.n_hidden)
+                args.model.n_hidden,
+                args.model.timesteps,
+                args.model.k_step_max
+                )
     
+    print(f' > INFO: now model timesteps is {model.timesteps}, and k_step_max is {model.k_step_max}')
     
     # load parameters
     optimizer = torch.optim.AdamW(model.parameters())

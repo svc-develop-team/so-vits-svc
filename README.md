@@ -80,7 +80,7 @@ Based on our testing, we have determined that the project runs stable on `Python
   - Place it under the `pretrain` directory
 
 Or download the following ContentVec, which is only 199MB in size but has the same effect:
-- contentvec ：[hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
+- ContentVec: [hubert_base.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt)
   - Change the file name to `checkpoint_best_legacy_500.pt` and place it in the `pretrain` directory
 
 ```shell
@@ -90,7 +90,7 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 ```
 
 ##### **2. If hubertsoft is used as the speech encoder**
-- soft vc hubert：[hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
+- soft vc hubert: [hubert-soft-0d54a1f4.pt](https://github.com/bshall/hubert/releases/download/v0.1/hubert-soft-0d54a1f4.pt)
   - Place it under the `pretrain` directory
 
 ##### **3. If whisper-ppg as the encoder**
@@ -155,7 +155,7 @@ If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will nee
 wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
 \unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
-# URL：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
+# URL: https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
 
 ## 📊 Dataset Preparation
@@ -247,11 +247,23 @@ After enabling loudness embedding, the trained model will match the loudness of 
 
 * `keep_ckpts`: Keep the the the number of previous models during training. Set to `0` to keep them all. Default is `3`.
 
-* `all_in_mem`, `cache_all_data`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
+* `all_in_mem`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
   
 * `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the GPU memory capacity.
 
-* `vocoder_name` : Select a vocoder. The default is `nsf-hifigan`.
+* `vocoder_name`: Select a vocoder. The default is `nsf-hifigan`.
+
+##### diffusion.yaml
+
+* `cache_all_data`: Load all dataset to RAM. It can be enabled when the disk IO of some platforms is too low and the system memory is **much larger** than your dataset.
+
+* `duration`: The duration of the audio slicing during training, can be adjusted according to the size of the video memory, **Note: this value must be less than the minimum time of the audio in the training set!**
+
+* `batch_size`: The amount of data loaded to the GPU for a single training session can be adjusted to a size lower than the video memory capacity.
+
+* `timesteps`: The total number of steps in the diffusion model, which defaults to 1000.
+
+* `k_step_max`: Training can only train `k_step_max` step diffusion to save training time, note that the value must be less than `timesteps`, 0 is to train the entire diffusion model, **Note: if you do not train the entire diffusion model will not be able to use only_diffusion!**
 
 ##### **List of Vocoders**
 
@@ -289,18 +301,18 @@ After completing the above steps, the dataset directory will contain the preproc
 
 ## 🏋️‍♀️ Training
 
+### Sovits Model
+
+```shell
+python train.py -c configs/config.json -m 44k
+```
+
 ### Diffusion Model (optional)
 
 If the shallow diffusion function is needed, the diffusion model needs to be trained. The diffusion model training method is as follows:
 
 ```shell
 python train_diff.py -c configs/diffusion.yaml
-```
-
-### Sovits Model
-
-```shell
-python train.py -c configs/config.json -m 44k
 ```
 
 During training, the model files will be saved to `logs/44k`, and the diffusion model will be saved to `logs/44k/diffusion`
@@ -340,7 +352,7 @@ Shallow diffusion settings:
 - `-ks` | `--k_step`: The larger the number of k_steps, the closer it is to the result of the diffusion model. The default is 100
 - `-od` | `--only_diffusion`: Whether to use Only diffusion mode, which does not load the sovits model to only use diffusion model inference
 - `-se` | `--second_encoding`：which involves applying an additional encoding to the original audio before shallow diffusion. This option can yield varying results - sometimes positive and sometimes negative.
-  
+
 ### Attention
 
 If inferencing using `whisper-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to infer properly.
@@ -373,8 +385,8 @@ No changes are required in the existing steps. Simply train an additional cluste
 
 Introduction: As with the clustering scheme, the timbre leakage can be reduced, the enunciation is slightly better than clustering, but it will reduce the inference speed. By employing the fusion method, it becomes possible to linearly control the balance between feature retrieval and non-feature retrieval, allowing for fine-tuning of the desired proportion.
 
-- Training process：
-  First, it needs to be executed after generating hubert and f0：
+- Training process: 
+  First, it needs to be executed after generating hubert and f0: 
 
 ```shell
 python train_index.py -c configs/config.json
@@ -382,7 +394,7 @@ python train_index.py -c configs/config.json
 
 The output of the model will be in `logs/44k/feature_and_index.pkl`
 
-- Inference process：
+- Inference process: 
   - The `--feature_retrieval` needs to be formulated first, and the clustering mode automatically switches to the feature retrieval mode.
   - Specify `cluster_model_path` in `inference_main.py`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using feature retrieval at all, `1` means only using feature retrieval, and usually `0.5` is sufficient.
