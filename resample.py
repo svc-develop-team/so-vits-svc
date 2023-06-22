@@ -52,7 +52,6 @@ def process(item):
         if not args.skip_loudnorm:
             resampled_wav /= max(resampled_wav.max(), -resampled_wav.min())
 
-        print(type(resampled_wav))
         save_path2 = os.path.join(args.out_dir2, speaker, wav_name)
         save_wav_to_path(resampled_wav, save_path2, args.sr2)
 
