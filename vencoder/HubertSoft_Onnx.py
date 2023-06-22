@@ -2,24 +2,28 @@ from vencoder.encoder import SpeechEncoder
 import onnxruntime
 import torch
 
+
 class HubertSoft_Onnx(SpeechEncoder):
-    def __init__(self,vec_path = "pretrain/hubert-soft.onnx",device=None):
+    def __init__(self, vec_path="pretrain/hubert-soft.onnx", device=None):
+        super().__init__()
         print("load model(s) from {}".format(vec_path))
         self.hidden_dim = 256
         if device is None:
             self.dev = torch.device("cpu")
         else:
             self.dev = torch.device(device)
-        if device == 'cpu' or device == torch.device("cpu") or device is None:
-            providers = ['CPUExecutionProvider']
-        elif device == 'cuda' or device == torch.device("cuda"):
+
+        if device == 'cuda' or device == torch.device("cuda"):
             providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        else:
+            providers = ['CPUExecutionProvider']
+            
         self.model = onnxruntime.InferenceSession(vec_path, providers=providers)
 
     def encoder(self, wav):
         feats = wav
         if feats.dim() == 2:  # double channels
-          feats = feats.mean(-1)
+            feats = feats.mean(-1)
         assert feats.dim() == 1, feats.dim()
         feats = feats.view(1, -1)
         feats = feats.unsqueeze(0).cpu().detach().numpy()
