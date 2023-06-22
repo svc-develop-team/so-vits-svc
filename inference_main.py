@@ -141,7 +141,8 @@ def main():
             if only_diffusion : isdiffusion = "diff"
             if use_spk_mix:
                 spk = "spk_mix"
-            res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}.{wav_format}'
+            f0_predictor = f0p
+            res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}_{f0_predictor}.{wav_format}'
             soundfile.write(res_path, audio, svc_model.target_sample, format=wav_format)
             svc_model.clear_empty()
             
