@@ -37,7 +37,7 @@ def save_wav_to_path(wav, save_path, sr):
 
 
 def process(item):
-    spkdir, wav_name = item
+    spkdir, wav_name, args = item
     speaker = spkdir.replace("\\", "/").split("/")[-1]
 
     wav_path = os.path.join(args.in_dir, speaker, wav_name)
@@ -79,7 +79,7 @@ def process_all_speakers():
             spk_dir = os.path.join(args.in_dir, speaker)
             if os.path.isdir(spk_dir):
                 print(spk_dir)
-                futures = [executor.submit(process, (spk_dir, i)) for i in os.listdir(spk_dir) if i.endswith("wav")]
+                futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
                 for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
                     pass
 
