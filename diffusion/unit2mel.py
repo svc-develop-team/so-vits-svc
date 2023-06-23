@@ -49,7 +49,7 @@ def load_model_vocoder(
     model.to(device)
     model.load_state_dict(ckpt['model'])
     model.eval()
-    print(f'Loaded diffusion model, sampler is {ckpt["infer"]["methold"]}, speedup: {ckpt["infer"]["speedup"]} ')
+    print(f'Loaded diffusion model, sampler is {args.infer.method}, speedup: {args.infer.speedup} ')
     return model, vocoder, args
 
 
