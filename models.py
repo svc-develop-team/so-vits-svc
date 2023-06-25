@@ -321,6 +321,9 @@ class SynthesizerTrn(nn.Module):
                  sampling_rate=44100,
                  vol_embedding=False,
                  vocoder_name = "nsf-hifigan",
+                 use_depthwise_conv = False,
+                 use_depthwise_transposeconv = False,
+                 use_automatic_f0_prediction = True,
                  **kwargs):
 
         super().__init__()
@@ -343,6 +346,8 @@ class SynthesizerTrn(nn.Module):
         self.ssl_dim = ssl_dim
         self.vol_embedding = vol_embedding
         self.emb_g = nn.Embedding(n_speakers, gin_channels)
+        self.use_depthwise_conv = use_depthwise_conv
+        self.use_automatic_f0_prediction = use_automatic_f0_prediction
         if vol_embedding:
            self.emb_vol = nn.Linear(1, hidden_channels)
 
@@ -367,9 +372,12 @@ class SynthesizerTrn(nn.Module):
             "upsample_initial_channel": upsample_initial_channel,
             "upsample_kernel_sizes": upsample_kernel_sizes,
             "gin_channels": gin_channels,
+            "use_depthwise_conv":use_depthwise_conv,
+            "use_depthwise_transposeconv":use_depthwise_transposeconv
         }
         
-        
+        modules.set_Conv1dModel(self.use_depthwise_conv)
+
         if vocoder_name == "nsf-hifigan":
             from vdecoder.hifigan.models import Generator
             self.dec = Generator(h=hps)
@@ -383,16 +391,17 @@ class SynthesizerTrn(nn.Module):
 
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
         self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
-        self.f0_decoder = F0Decoder(
-            1,
-            hidden_channels,
-            filter_channels,
-            n_heads,
-            n_layers,
-            kernel_size,
-            p_dropout,
-            spk_channels=gin_channels
-        )
+        if self.use_automatic_f0_prediction:
+            self.f0_decoder = F0Decoder(
+                1,
+                hidden_channels,
+                filter_channels,
+                n_heads,
+                n_layers,
+                kernel_size,
+                p_dropout,
+                spk_channels=gin_channels
+            )
         self.emb_uv = nn.Embedding(2, hidden_channels)
         self.character_mix = False
 
@@ -412,12 +421,16 @@ class SynthesizerTrn(nn.Module):
         # ssl prenet
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
-
+        
         # f0 predict
-        lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
-        norm_lf0 = utils.normalize_f0(lf0, x_mask, uv)
-        pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g)
-
+        if self.use_automatic_f0_prediction:
+            lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
+            norm_lf0 = utils.normalize_f0(lf0, x_mask, uv)
+            pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g)
+        else:
+            lf0 = 0
+            norm_lf0 = 0
+            pred_lf0 = 0
         # encoder
         z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask, f0=f0_to_coarse(f0))
         z, m_q, logs_q, spec_mask = self.enc_q(spec, spec_lengths, g=g)
@@ -431,6 +444,7 @@ class SynthesizerTrn(nn.Module):
 
         return o, ids_slice, spec_mask, (z, z_p, m_p, logs_p, m_q, logs_q), pred_lf0, norm_lf0, lf0
 
+    @torch.no_grad()
     def infer(self, c, f0, uv, g=None, noice_scale=0.35, seed=52468, predict_f0=False, vol = None):
 
         if c.device == torch.device("cuda"):
@@ -453,10 +467,10 @@ class SynthesizerTrn(nn.Module):
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # vol proj
         vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
-
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2) + vol
+           
+        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
         
-        if predict_f0:
+        if self.use_automatic_f0_prediction and predict_f0:
             lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
             norm_lf0 = utils.normalize_f0(lf0, x_mask, uv, random_scale=False)
             pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g)

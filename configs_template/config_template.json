@@ -60,7 +60,10 @@
     "vocoder_name":"nsf-hifigan",
     "speech_encoder":"vec768l12",
     "speaker_embedding":false,
-    "vol_embedding":false
+    "vol_embedding":false,
+    "use_depthwise_conv":false,
+    "use_depthwise_transposeconv":false,
+    "use_automatic_f0_prediction": true
   },
   "spk": {
     "nyaru": 0,

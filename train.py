@@ -209,7 +209,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 loss_kl = kl_loss(z_p, logs_q, m_p, logs_p, z_mask) * hps.train.c_kl
                 loss_fm = feature_loss(fmap_r, fmap_g)
                 loss_gen, losses_gen = generator_loss(y_d_hat_g)
-                loss_lf0 = F.mse_loss(pred_lf0, lf0)
+                loss_lf0 = F.mse_loss(pred_lf0, lf0) if net_g.module.use_automatic_f0_prediction else 0
                 loss_gen_all = loss_gen + loss_fm + loss_mel + loss_kl + loss_lf0
         optim_g.zero_grad()
         scaler.scale(loss_gen_all).backward()
@@ -241,12 +241,16 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 image_dict = {
                     "slice/mel_org": utils.plot_spectrogram_to_numpy(y_mel[0].data.cpu().numpy()),
                     "slice/mel_gen": utils.plot_spectrogram_to_numpy(y_hat_mel[0].data.cpu().numpy()),
-                    "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy()),
-                    "all/lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
-                                                          pred_lf0[0, 0, :].detach().cpu().numpy()),
-                    "all/norm_lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
-                                                               norm_lf0[0, 0, :].detach().cpu().numpy())
+                    "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy())
                 }
+
+                if net_g.module.use_automatic_f0_prediction:
+                    image_dict.module.update({
+                        "all/lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
+                                                              pred_lf0[0, 0, :].detach().cpu().numpy()),
+                        "all/norm_lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
+                                                                   norm_lf0[0, 0, :].detach().cpu().numpy())
+                    })
 
                 utils.summarize(
                     writer=writer,

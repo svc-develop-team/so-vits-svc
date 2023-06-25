@@ -21,7 +21,10 @@ def plot_spectrogram(spectrogram):
 
 def init_weights(m, mean=0.0, std=0.01):
     classname = m.__class__.__name__
-    if classname.find("Conv") != -1:
+    if "Depthwise_Separable" in classname:
+      m.depth_conv.weight.data.normal_(mean, std)
+      m.point_conv.weight.data.normal_(mean, std)
+    elif classname.find("Conv") != -1:
         m.weight.data.normal_(mean, std)
 
 
