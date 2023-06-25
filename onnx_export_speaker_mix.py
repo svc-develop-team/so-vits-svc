@@ -127,7 +127,7 @@ def main():
         "Characters": spklist
     }
 
-    MoeVSConfJson = json.dumps(MoeVSConf)
+    json.dumps(MoeVSConf)
     with open(f"checkpoints/{path}.json", 'w') as MoeVsConfFile:
         json.dump(MoeVSConf, MoeVsConfFile, indent = 4)
 

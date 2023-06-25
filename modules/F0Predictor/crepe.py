@@ -1,14 +1,13 @@
 from typing import Optional,Union
 try:
     from typing import Literal
-except Exception as e:
+except Exception:
     from typing_extensions import Literal
 import numpy as np
 import torch
 import torchcrepe
 from torch import nn
 from torch.nn import functional as F
-import scipy
 
 #from:https://github.com/fishaudio/fish-diffusion
 
@@ -334,7 +333,7 @@ class CrepePitchExtractor(BasePitchExtractor):
         f0 = torch.where(torch.isnan(f0), torch.full_like(f0, 0), f0)[0]
 
         if torch.all(f0 == 0):
-            rtn = f0.cpu().numpy() if pad_to==None else np.zeros(pad_to)
+            rtn = f0.cpu().numpy() if pad_to is None else np.zeros(pad_to)
             return rtn,rtn
         
         return self.post_process(x, sampling_rate, f0, pad_to)

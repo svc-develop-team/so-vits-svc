@@ -1,12 +1,7 @@
-import hashlib
-import json
 import logging
 import os
-import time
-from pathlib import Path
 import io
 import librosa
-import maad
 import numpy as np
 from inference import slicer
 import parselmouth
@@ -14,7 +9,6 @@ import soundfile
 import torch
 import torchaudio
 
-from hubert import hubert_model
 import utils
 from models import SynthesizerTrn
 logging.getLogger('numba').setLevel(logging.WARNING)
@@ -93,7 +87,7 @@ class VitsSvc(object):
     def set_device(self, device):
         self.device = torch.device(device)
         self.hubert_soft.to(self.device)
-        if self.SVCVITS != None:
+        if self.SVCVITS is not None:
             self.SVCVITS.to(self.device)
 
     def loadCheckpoint(self, path):

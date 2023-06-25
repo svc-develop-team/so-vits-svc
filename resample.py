@@ -3,8 +3,8 @@ import argparse
 import librosa
 import numpy as np
 import concurrent.futures
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from multiprocessing import Pool, cpu_count
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
 from scipy.io import wavfile
 from tqdm import tqdm
 

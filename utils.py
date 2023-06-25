@@ -6,17 +6,12 @@ import argparse
 import logging
 import json
 import subprocess
-import warnings
-import random
-import functools
 import librosa
 import numpy as np
 from scipy.io.wavfile import read
 import torch
 from torch.nn import functional as F
-from modules.commons import sequence_mask
 import faiss
-import tqdm
 
 MATPLOTLIB_FLAG = False
 
@@ -201,15 +196,20 @@ def clean_checkpoints(path_to_models='logs/44k/', n_ckpts_to_keep=2, sort_by_tim
                         False -> lexicographically delete ckpts
   """
   ckpts_files = [f for f in os.listdir(path_to_models) if os.path.isfile(os.path.join(path_to_models, f))]
-  name_key = (lambda _f: int(re.compile('._(\d+)\.pth').match(_f).group(1)))
-  time_key = (lambda _f: os.path.getmtime(os.path.join(path_to_models, _f)))
+  def name_key(_f):
+      return int(re.compile("._(\\d+)\\.pth").match(_f).group(1))
+  def time_key(_f):
+      return os.path.getmtime(os.path.join(path_to_models, _f))
   sort_key = time_key if sort_by_time else name_key
-  x_sorted = lambda _x: sorted([f for f in ckpts_files if f.startswith(_x) and not f.endswith('_0.pth')], key=sort_key)
+  def x_sorted(_x):
+      return sorted([f for f in ckpts_files if f.startswith(_x) and not f.endswith("_0.pth")], key=sort_key)
   to_del = [os.path.join(path_to_models, fn) for fn in
             (x_sorted('G')[:-n_ckpts_to_keep] + x_sorted('D')[:-n_ckpts_to_keep])]
-  del_info = lambda fn: logger.info(f".. Free up space by deleting ckpt {fn}")
-  del_routine = lambda x: [os.remove(x), del_info(x)]
-  rs = [del_routine(fn) for fn in to_del]
+  def del_info(fn):
+      return logger.info(f".. Free up space by deleting ckpt {fn}")
+  def del_routine(x):
+      return [os.remove(x), del_info(x)]
+  [del_routine(fn) for fn in to_del]
 
 def summarize(writer, global_step, scalars={}, histograms={}, images={}, audios={}, audio_sampling_rate=22050):
   for k, v in scalars.items():

@@ -2,7 +2,6 @@ from collections import deque
 from functools import partial
 from inspect import isfunction
 import torch.nn.functional as F
-import librosa.sequence
 import numpy as np
 from torch.nn import Conv1d
 from torch.nn import Mish
@@ -27,8 +26,10 @@ def extract(a, t):
 
 
 def noise_like(shape, device, repeat=False):
-    repeat_noise = lambda: torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
-    noise = lambda: torch.randn(shape, device=device)
+    def repeat_noise():
+        return torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
+    def noise():
+        return torch.randn(shape, device=device)
     return repeat_noise() if repeat else noise()
 
 
@@ -577,7 +578,7 @@ class GaussianDiffusion(nn.Module):
         noise_list = torch.zeros((0, 1, 1, self.mel_bins, n_frames), device=device)
 
         ot = step_range[0]
-        ot_1 = torch.full((1,), ot, device=device, dtype=torch.long)
+        torch.full((1,), ot, device=device, dtype=torch.long)
 
         for t in step_range:
             t_1 = torch.full((1,), t, device=device, dtype=torch.long)

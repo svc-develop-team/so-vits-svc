@@ -6,12 +6,7 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('numba').setLevel(logging.WARNING)
 
 import os
-import json
-import argparse
-import itertools
-import math
 import torch
-from torch import nn, optim
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -287,7 +282,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
             c = c[:1].cuda(0)
             f0 = f0[:1].cuda(0)
             uv= uv[:1].cuda(0)
-            if volume!=None:
+            if volume is not None:
                 volume = volume[:1].cuda(0)
             mel = spec_to_mel_torch(
                 spec,
@@ -314,7 +309,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
                 f"gt/audio_{batch_idx}": y[0]
             })
         image_dict.update({
-            f"gen/mel": utils.plot_spectrogram_to_numpy(y_hat_mel[0].cpu().numpy()),
+            "gen/mel": utils.plot_spectrogram_to_numpy(y_hat_mel[0].cpu().numpy()),
             "gt/mel": utils.plot_spectrogram_to_numpy(mel[0].cpu().numpy())
         })
     utils.summarize(

@@ -21,7 +21,6 @@ from models import SynthesizerTrn
 import pickle
 
 from diffusion.unit2mel import load_model_vocoder
-import yaml
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
@@ -153,7 +152,7 @@ class Svc(object):
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
                     self.speech_encoder = self.diffusion_args.data.encoder
-                    self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode!=None else 'left'
+                    self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode is not None else 'left'
                 if spk_mix_enable:
                     self.diffusion_model.init_spkmix(len(self.spk2id))
             else:
@@ -290,7 +289,7 @@ class Svc(object):
                 audio = torch.FloatTensor(wav).to(self.dev)
                 audio_mel = None
             if self.only_diffusion or self.shallow_diffusion:
-                vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev) if vol==None else vol[:,:,None]
+                vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev) if vol is None else vol[:,:,None]
                 if self.shallow_diffusion and second_encoding:
                     audio16k = librosa.resample(audio.detach().cpu().numpy(), orig_sr=self.target_sample, target_sr=16000)
                     audio16k = torch.from_numpy(audio16k).to(self.dev)

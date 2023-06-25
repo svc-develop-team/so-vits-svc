@@ -11,7 +11,7 @@ import math
 
 import torch
 from torch import nn, Tensor
-from torch.nn import Module, Parameter
+from torch.nn import Module
 
 from .hardconcrete import HardConcrete
 from .pruning_utils import (

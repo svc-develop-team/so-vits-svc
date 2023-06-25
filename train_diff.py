@@ -1,4 +1,3 @@
-import os
 import argparse
 import torch
 from torch.optim import lr_scheduler

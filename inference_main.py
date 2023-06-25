@@ -1,14 +1,7 @@
-import io
 import logging
-import time
-from pathlib import Path
 from spkmix import spk_mix_map
-import librosa
-import matplotlib.pyplot as plt
-import numpy as np
 import soundfile
 from inference import infer_tool
-from inference import slicer
 from inference.infer_tool import Svc
 
 logging.getLogger('numba').setLevel(logging.WARNING)

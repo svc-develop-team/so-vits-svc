@@ -4,9 +4,7 @@ import yaml
 import torch
 import torch.nn as nn
 import numpy as np
-from wavenet import WaveNet
 import torch.nn.functional as F
-import diffusion
 
 class DotDict(dict):
     def __getattr__(*args):         
@@ -147,8 +145,8 @@ class Unit2Mel(nn.Module):
                 spks.update({i:1.0/float(self.n_spk)})
         spk_mix = torch.tensor(spk_mix)
         spk_mix = spk_mix.repeat(n_frames, 1)
-        orgouttt = self.init_spkembed(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
-        outtt = self.forward(hubert, mel2ph, f0, volume, spk_mix)
+        self.init_spkembed(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
+        self.forward(hubert, mel2ph, f0, volume, spk_mix)
         if export_encoder:
             torch.onnx.export(
                 self,
@@ -182,8 +180,8 @@ class Unit2Mel(nn.Module):
                 spk_mix.append(1.0/float(self.n_spk))
                 spks.update({i:1.0/float(self.n_spk)})
         spk_mix = torch.tensor(spk_mix)
-        orgouttt = self.orgforward(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
-        outtt = self.forward(hubert, mel2ph, f0, volume, spk_mix)
+        self.orgforward(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
+        self.forward(hubert, mel2ph, f0, volume, spk_mix)
 
         torch.onnx.export(
                 self,

@@ -1,4 +1,3 @@
-import io
 import os
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
@@ -13,8 +12,6 @@ import re
 import json
 
 import subprocess
-import edge_tts
-import asyncio
 from scipy.io import wavfile
 import librosa
 import torch
@@ -42,7 +39,7 @@ if torch.cuda.is_available():
 
 def upload_mix_append_file(files,sfiles):
     try:
-        if(sfiles == None):
+        if(sfiles is None):
             file_paths = [file.name for file in files]
         else:
             file_paths = [file.name for file in chain(files,sfiles)]
@@ -68,7 +65,7 @@ def mix_submit_click(js,mode):
 
 def updata_mix_info(files):
     try:
-        if files == None : return mix_model_output1.update(value="")
+        if files is None : return mix_model_output1.update(value="")
         p = {file.name:100 for file in files}
         return mix_model_output1.update(value=json.dumps(p,indent=2))
     except Exception as e:
