@@ -44,7 +44,7 @@ def load_model(model_path, device='cuda'):
 
 
 class ResBlock1(torch.nn.Module):
-    def __init__(self, h, channels, kernel_size=3, dilation=(1, 3, 5)):
+    def __init__(self, h, channels, kernel_size=3, dilation=(1, 3, 5), C=None):
         super(ResBlock1, self).__init__()
         self.h = h
         self.convs1 = nn.ModuleList([
@@ -69,15 +69,15 @@ class ResBlock1(torch.nn.Module):
 
         self.num_layers = len(self.convs1) + len(self.convs2)
         self.activations = nn.ModuleList([
-            SnakeAlias(channels) for _ in range(self.num_layers)
+            SnakeAlias(channels, C=C) for _ in range(self.num_layers)
         ])
 
-    def forward(self, x):
+    def forward(self, x, DIM=None):
         acts1, acts2 = self.activations[::2], self.activations[1::2]
         for c1, c2, a1, a2 in zip(self.convs1, self.convs2, acts1, acts2):
-            xt = a1(x)
+            xt = a1(x, DIM)
             xt = c1(xt)
-            xt = a2(xt)
+            xt = a2(xt, DIM)
             xt = c2(xt)
             x = xt + x
         return x
@@ -89,7 +89,7 @@ class ResBlock1(torch.nn.Module):
             remove_weight_norm_modules(l)
 
 class ResBlock2(torch.nn.Module):
-    def __init__(self, h, channels, kernel_size=3, dilation=(1, 3)):
+    def __init__(self, h, channels, kernel_size=3, dilation=(1, 3), C=None):
         super(ResBlock2, self).__init__()
         self.h = h
         self.convs = nn.ModuleList([
@@ -102,12 +102,12 @@ class ResBlock2(torch.nn.Module):
         
         self.num_layers = len(self.convs)
         self.activations = nn.ModuleList([
-            SnakeAlias(channels) for _ in range(self.num_layers)
+            SnakeAlias(channels, C=C) for _ in range(self.num_layers)
         ])
 
-    def forward(self, x):
+    def forward(self, x, DIM=None):
         for c,a in zip(self.convs, self.activations):
-            xt = a(x)
+            xt = a(x, DIM)
             xt = c(xt)
             x = xt + x
         return x
@@ -324,14 +324,17 @@ class Generator(torch.nn.Module):
             else:
                 self.noise_convs.append(Conv1d(1, c_cur, kernel_size=1))
         self.resblocks = nn.ModuleList()
+        self.snakes = nn.ModuleList()
         for i in range(len(self.ups)):
             ch = h["upsample_initial_channel"] // (2 ** (i + 1))
+            self.snakes.append(SnakeAlias(h["upsample_initial_channel"] // (2 ** (i)), C = h["upsample_initial_channel"] >> i))
             for j, (k, d) in enumerate(zip(h["resblock_kernel_sizes"], h["resblock_dilation_sizes"])):
                 self.resblocks.append(resblock(h, ch, k, d))
 
         self.conv_post = weight_norm_modules(Conv1dModel(ch, 1, 7, 1, padding=3))
         self.ups.apply(init_weights)
         self.conv_post.apply(init_weights)
+        self.snake_post = SnakeAlias(ch, C = h["upsample_initial_channel"] >> len(self.ups))
         self.cond = nn.Conv1d(h['gin_channels'], h['upsample_initial_channel'], 1)
         
     def forward(self, x, f0, g=None):
@@ -344,8 +347,9 @@ class Generator(torch.nn.Module):
         x = x + self.cond(g)
         # print(124,x.shape,har_source.shape)
         for i in range(self.num_upsamples):
+            # print(f"self.snakes.{i}.pre:", x.shape)
             x = self.snakes[i](x)
-            # print(3,x.shape)
+            # print(f"self.snakes.{i}.after:", x.shape)
             x = self.ups[i](x)
             x_source = self.noise_convs[i](har_source)
             # print(4,x_source.shape,har_source.shape,x.shape)
@@ -356,6 +360,7 @@ class Generator(torch.nn.Module):
                     xs = self.resblocks[i * self.num_kernels + j](x)
                 else:
                     xs += self.resblocks[i * self.num_kernels + j](x)
+            # print(f"self.resblocks.{i}.after:", xs.shape)
             x = xs / self.num_kernels
         x = self.snake_post(x)
         x = self.conv_post(x)
