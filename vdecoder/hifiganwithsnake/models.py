@@ -316,7 +316,7 @@ class Generator(torch.nn.Module):
             c_cur = h["upsample_initial_channel"] // (2 ** (i + 1))
             self.ups.append(weight_norm_modules(
                 ConvTranspose1dModel(h["upsample_initial_channel"] // (2 ** i), h["upsample_initial_channel"] // (2 ** (i + 1)),
-                                k, u, padding=(k - u +1 ) // 2)))
+                                k, u, padding=(k - u + 1 ) // 2)))
             if i + 1 < len(h["upsample_rates"]):  #
                 stride_f0 = np.prod(h["upsample_rates"][i + 1:])
                 self.noise_convs.append(Conv1dModel(
@@ -329,7 +329,7 @@ class Generator(torch.nn.Module):
             ch = h["upsample_initial_channel"] // (2 ** (i + 1))
             self.snakes.append(SnakeAlias(h["upsample_initial_channel"] // (2 ** (i)), C = h["upsample_initial_channel"] >> i))
             for j, (k, d) in enumerate(zip(h["resblock_kernel_sizes"], h["resblock_dilation_sizes"])):
-                self.resblocks.append(resblock(h, ch, k, d))
+                self.resblocks.append(resblock(h, ch, k, d, C = h["upsample_initial_channel"] >> (i + 1)))
 
         self.conv_post = weight_norm_modules(Conv1dModel(ch, 1, 7, 1, padding=3))
         self.ups.apply(init_weights)
