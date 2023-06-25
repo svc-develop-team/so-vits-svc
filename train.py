@@ -245,7 +245,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 }
 
                 if net_g.module.use_automatic_f0_prediction:
-                    image_dict.module.update({
+                    image_dict.update({
                         "all/lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
                                                               pred_lf0[0, 0, :].detach().cpu().numpy()),
                         "all/norm_lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
