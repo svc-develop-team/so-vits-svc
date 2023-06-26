@@ -4,9 +4,8 @@ from torch.nn import functional as F
 
 import modules.attentions as attentions
 import modules.modules as modules
-
-
 from utils import f0_to_coarse
+
 
 class ResidualCouplingBlock(nn.Module):
     def __init__(self,

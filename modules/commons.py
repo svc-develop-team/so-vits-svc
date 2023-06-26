@@ -1,6 +1,8 @@
 import math
+
 import torch
 from torch.nn import functional as F
+
 
 def slice_pitch_segments(x, ids_str, segment_size=4):
   ret = torch.zeros_like(x[:, :segment_size])

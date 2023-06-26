@@ -1,16 +1,18 @@
+import io
 import logging
 import os
-import io
+
 import librosa
 import numpy as np
-from inference import slicer
 import parselmouth
 import soundfile
 import torch
 import torchaudio
 
 import utils
+from inference import slicer
 from models import SynthesizerTrn
+
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 

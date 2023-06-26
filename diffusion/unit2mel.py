@@ -1,11 +1,14 @@
 import os
-import yaml
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
+import yaml
+
 from .diffusion import GaussianDiffusion
-from .wavenet import WaveNet
 from .vocoder import Vocoder
+from .wavenet import WaveNet
+
 
 class DotDict(dict):
     def __getattr__(*args):         

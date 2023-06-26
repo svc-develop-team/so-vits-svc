@@ -7,26 +7,26 @@
 # https://github.com/pytorch/fairseq
 # --------------------------------------------------------
 
-import math
 import logging
+import math
 from typing import List, Optional, Tuple
 
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import LayerNorm
+
 from vencoder.wavlm.modules import (
     Fp32GroupNorm,
     Fp32LayerNorm,
+    GLU_Linear,
     GradMultiply,
     MultiheadAttention,
     SamePad,
-    init_bert_params,
-    get_activation_fn,
     TransposeLast,
-    GLU_Linear,
+    get_activation_fn,
+    init_bert_params,
 )
 
 logger = logging.getLogger(__name__)

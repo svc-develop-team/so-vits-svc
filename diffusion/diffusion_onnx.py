@@ -1,14 +1,14 @@
+import math
 from collections import deque
 from functools import partial
 from inspect import isfunction
-import torch.nn.functional as F
+
 import numpy as np
-from torch.nn import Conv1d
-from torch.nn import Mish
 import torch
+import torch.nn.functional as F
 from torch import nn
+from torch.nn import Conv1d, Mish
 from tqdm import tqdm
-import math
 
 
 def exists(x):
@@ -390,7 +390,11 @@ class GaussianDiffusion(nn.Module):
                         
             if method is not None and infer_speedup > 1:
                 if method == 'dpm-solver':
-                    from .dpm_solver_pytorch import NoiseScheduleVP, model_wrapper, DPM_Solver
+                    from .dpm_solver_pytorch import (
+                        DPM_Solver,
+                        NoiseScheduleVP,
+                        model_wrapper,
+                    )
                     # 1. Define the noise schedule.
                     noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
 

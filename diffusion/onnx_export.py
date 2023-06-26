@@ -1,10 +1,12 @@
-from diffusion_onnx import GaussianDiffusion
 import os
-import yaml
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 import torch.nn.functional as F
+import yaml
+from diffusion_onnx import GaussianDiffusion
+
 
 class DotDict(dict):
     def __getattr__(*args):         

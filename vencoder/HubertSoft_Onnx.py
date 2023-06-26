@@ -1,6 +1,7 @@
-from vencoder.encoder import SpeechEncoder
 import onnxruntime
 import torch
+
+from vencoder.encoder import SpeechEncoder
 
 
 class HubertSoft_Onnx(SpeechEncoder):

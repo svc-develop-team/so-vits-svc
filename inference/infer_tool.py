@@ -1,15 +1,16 @@
+import gc
 import hashlib
 import io
 import json
 import logging
 import os
+import pickle
 import time
 from pathlib import Path
-from inference import slicer
-import gc
 
 import librosa
 import numpy as np
+
 # import onnxruntime
 import soundfile
 import torch
@@ -17,10 +18,9 @@ import torchaudio
 
 import cluster
 import utils
-from models import SynthesizerTrn
-import pickle
-
 from diffusion.unit2mel import load_model_vocoder
+from inference import slicer
+from models import SynthesizerTrn
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 

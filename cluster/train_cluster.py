@@ -1,17 +1,17 @@
-import time
-import tqdm
-import os
-from pathlib import Path
-import logging
 import argparse
-from kmeans import KMeansGPU
-import torch
+import logging
+import os
+import time
+from pathlib import Path
+
 import numpy as np
-from sklearn.cluster import KMeans,MiniBatchKMeans
+import torch
+import tqdm
+from kmeans import KMeansGPU
+from sklearn.cluster import KMeans, MiniBatchKMeans
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-import torch
 
 def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=False):#gpu_minibatch真拉，虽然库支持但是也不考虑
     logger.info(f"Loading features from {in_dir}")

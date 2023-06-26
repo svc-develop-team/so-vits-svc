@@ -1,7 +1,9 @@
-import os
-import yaml
 import json
+import os
+
 import torch
+import yaml
+
 
 def traverse_dir(
         root_dir,

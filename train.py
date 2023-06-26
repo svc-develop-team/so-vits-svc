@@ -6,27 +6,24 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('numba').setLevel(logging.WARNING)
 
 import os
+
 import torch
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.cuda.amp import GradScaler, autocast
 from torch.nn import functional as F
+from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-import torch.multiprocessing as mp
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.cuda.amp import autocast, GradScaler
 
 import modules.commons as commons
 import utils
-from data_utils import TextAudioSpeakerLoader, TextAudioCollate
+from data_utils import TextAudioCollate, TextAudioSpeakerLoader
 from models import (
-    SynthesizerTrn,
     MultiPeriodDiscriminator,
+    SynthesizerTrn,
 )
-from modules.losses import (
-    kl_loss,
-    generator_loss, discriminator_loss, feature_loss
-)
-
+from modules.losses import discriminator_loss, feature_loss, generator_loss, kl_loss
 from modules.mel_processing import mel_spectrogram_torch, spec_to_mel_torch
 
 torch.backends.cudnn.benchmark = True

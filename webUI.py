@@ -1,4 +1,11 @@
+import json
+import logging
 import os
+import re
+import subprocess
+import time
+import traceback
+from itertools import chain
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
 import gradio as gr
@@ -6,20 +13,12 @@ import gradio.processing_utils as gr_pu
 import librosa
 import numpy as np
 import soundfile
-from inference.infer_tool import Svc
-import logging
-import re
-import json
-
-import subprocess
-from scipy.io import wavfile
-import librosa
 import torch
-import time
-import traceback
-from itertools import chain
-from utils import mix_model
+from scipy.io import wavfile
+
 from compress_model import removeOptimizer
+from inference.infer_tool import Svc
+from utils import mix_model
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)

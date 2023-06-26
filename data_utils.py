@@ -1,12 +1,13 @@
 import os
 import random
+
 import numpy as np
 import torch
 import torch.utils.data
 
 import utils
-from modules.mel_processing import spectrogram_torch, spectrogram_torch
-from utils import load_wav_to_torch, load_filepaths_and_text
+from modules.mel_processing import spectrogram_torch
+from utils import load_filepaths_and_text, load_wav_to_torch
 
 # import h5py
 

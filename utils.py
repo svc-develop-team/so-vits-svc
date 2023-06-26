@@ -1,17 +1,18 @@
-import os
-import glob
-import re
-import sys
 import argparse
-import logging
+import glob
 import json
+import logging
+import os
+import re
 import subprocess
+import sys
+
+import faiss
 import librosa
 import numpy as np
-from scipy.io.wavfile import read
 import torch
+from scipy.io.wavfile import read
 from torch.nn import functional as F
-import faiss
 
 MATPLOTLIB_FLAG = False
 

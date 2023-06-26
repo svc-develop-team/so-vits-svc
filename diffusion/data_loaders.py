@@ -1,12 +1,14 @@
 import os
 import random
-import numpy as np
+
 import librosa
+import numpy as np
 import torch
-import random
-from utils import repeat_expand_2d
-from tqdm import tqdm
 from torch.utils.data import Dataset
+from tqdm import tqdm
+
+from utils import repeat_expand_2d
+
 
 def traverse_dir(
         root_dir,

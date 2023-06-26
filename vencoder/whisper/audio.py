@@ -5,10 +5,9 @@ import ffmpeg
 import numpy as np
 import torch
 import torch.nn.functional as F
+from librosa.filters import mel as librosa_mel_fn
 
 from .utils import exact_div
-
-from librosa.filters import mel as librosa_mel_fn
 
 # hard-coded audio hyperparameters
 SAMPLE_RATE = 16000
