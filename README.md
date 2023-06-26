@@ -331,7 +331,7 @@ Required parameters:
 - `-c` | `--config_path`: path to the configuration file.
 - `-n` | `--clean_names`: a list of wav file names located in the `raw` folder.
 - `-t` | `--trans`: pitch shift, supports positive and negative (semitone) values.
-- `-s` | `--spk_list`: Selected speaker ID for conversion.
+- `-s` | `--spk_list`: Select the speaker ID to use for conversion.
 - `-cl` | `--clip`: Forced audio clipping, set to 0 to disable(default), setting it to a non-zero value (duration in seconds) to enable.
 
 Optional parameters: see the next section
