@@ -1,14 +1,17 @@
-import os
 import json
-from .env import AttrDict
+import os
+
 import numpy as np
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
-from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
-from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-from .utils import init_weights, get_padding
+import torch.nn.functional as F
+from torch.nn import AvgPool1d, Conv1d, Conv2d, ConvTranspose1d
+from torch.nn.utils import remove_weight_norm, spectral_norm, weight_norm
+
 from vdecoder.hifiganwithsnake.alias.act import SnakeAlias
+
+from .env import AttrDict
+from .utils import get_padding, init_weights
 
 LRELU_SLOPE = 0.1
 
@@ -211,7 +214,7 @@ class SineGen(torch.nn.Module):
         output uv: tensor(batchsize=1, length, 1)
         """
         with torch.no_grad():
-            f0_buf = torch.zeros(f0.shape[0], f0.shape[1], self.dim,
+            torch.zeros(f0.shape[0], f0.shape[1], self.dim,
                                  device=f0.device)
             # fundamental component
             fn = torch.multiply(f0, torch.FloatTensor([[range(1, self.harmonic_num + 2)]]).to(f0.device))
@@ -370,7 +373,7 @@ class DiscriminatorP(torch.nn.Module):
     def __init__(self, period, kernel_size=5, stride=3, use_spectral_norm=False):
         super(DiscriminatorP, self).__init__()
         self.period = period
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv2d(1, 32, (kernel_size, 1), (stride, 1), padding=(get_padding(5, 1), 0))),
             norm_f(Conv2d(32, 128, (kernel_size, 1), (stride, 1), padding=(get_padding(5, 1), 0))),
@@ -429,7 +432,7 @@ class MultiPeriodDiscriminator(torch.nn.Module):
 class DiscriminatorS(torch.nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(DiscriminatorS, self).__init__()
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv1d(1, 128, 15, 1, padding=7)),
             norm_f(Conv1d(128, 128, 41, 2, groups=4, padding=20)),

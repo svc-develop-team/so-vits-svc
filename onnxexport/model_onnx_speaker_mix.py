@@ -1,19 +1,11 @@
-import copy
-import math
 import torch
 from torch import nn
 from torch.nn import functional as F
 
 import modules.attentions as attentions
-import modules.commons as commons
 import modules.modules as modules
-
-from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
-from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-
-import utils
-from modules.commons import init_weights, get_padding
 from utils import f0_to_coarse
+
 
 class ResidualCouplingBlock(nn.Module):
     def __init__(self,
@@ -259,7 +251,7 @@ class SynthesizerTrn(nn.Module):
         
         x_mask = torch.unsqueeze(torch.ones_like(f0), 1).to(c.dtype)
         # vol proj
-        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
+        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol is not None and self.vol_embedding else 0
         
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2) + vol
         

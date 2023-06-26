@@ -1,5 +1,6 @@
-from vencoder.encoder import SpeechEncoder
 import torch
+
+from vencoder.encoder import SpeechEncoder
 from vencoder.wavlm.WavLM import WavLM, WavLMConfig
 
 

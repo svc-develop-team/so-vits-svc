@@ -2,15 +2,15 @@
 author: wayn391@mastertones
 '''
 
-import os
-import json
-import time
-import yaml
 import datetime
-import torch
+import os
+import time
+
 import matplotlib.pyplot as plt
-from . import utils
+import torch
+import yaml
 from torch.utils.tensorboard import SummaryWriter
+
 
 class Saver(object):
     def __init__(

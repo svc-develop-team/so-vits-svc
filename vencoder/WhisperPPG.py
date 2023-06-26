@@ -1,8 +1,8 @@
-from vencoder.encoder import SpeechEncoder
 import torch
 
-from vencoder.whisper.model import Whisper, ModelDimensions
-from vencoder.whisper.audio import pad_or_trim, log_mel_spectrogram
+from vencoder.encoder import SpeechEncoder
+from vencoder.whisper.audio import log_mel_spectrogram, pad_or_trim
+from vencoder.whisper.model import ModelDimensions, Whisper
 
 
 class WhisperPPG(SpeechEncoder):

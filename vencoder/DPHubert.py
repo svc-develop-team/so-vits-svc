@@ -1,6 +1,7 @@
-from vencoder.encoder import SpeechEncoder
 import torch
+
 from vencoder.dphubert.model import wav2vec2_model
+from vencoder.encoder import SpeechEncoder
 
 
 class DPHubert(SpeechEncoder):

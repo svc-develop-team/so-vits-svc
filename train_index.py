@@ -1,8 +1,8 @@
-import utils
-import pickle
-import os
 import argparse
+import os
+import pickle
 
+import utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

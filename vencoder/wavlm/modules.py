@@ -10,10 +10,11 @@
 import math
 import warnings
 from typing import Dict, Optional, Tuple
+
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 from torch.nn import Parameter
-import torch.nn.functional as F
 
 
 class TransposeLast(nn.Module):

@@ -1,10 +1,10 @@
 import io
+
 import numpy as np
 import soundfile
 from flask import Flask, request, send_file
 
-from inference import infer_tool
-from inference import slicer
+from inference import infer_tool, slicer
 
 app = Flask(__name__)
 

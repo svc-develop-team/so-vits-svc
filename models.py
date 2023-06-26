@@ -1,19 +1,16 @@
-import copy
-import math
 import torch
 from torch import nn
+from torch.nn import Conv1d, Conv2d
 from torch.nn import functional as F
+from torch.nn.utils import spectral_norm, weight_norm
 
 import modules.attentions as attentions
 import modules.commons as commons
 import modules.modules as modules
-
-from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
-from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-
 import utils
-from modules.commons import init_weights, get_padding
+from modules.commons import get_padding
 from utils import f0_to_coarse
+
 
 class ResidualCouplingBlock(nn.Module):
     def __init__(self,
@@ -125,7 +122,7 @@ class DiscriminatorP(torch.nn.Module):
         super(DiscriminatorP, self).__init__()
         self.period = period
         self.use_spectral_norm = use_spectral_norm
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv2d(1, 32, (kernel_size, 1), (stride, 1), padding=(get_padding(kernel_size, 1), 0))),
             norm_f(Conv2d(32, 128, (kernel_size, 1), (stride, 1), padding=(get_padding(kernel_size, 1), 0))),
@@ -160,7 +157,7 @@ class DiscriminatorP(torch.nn.Module):
 class DiscriminatorS(torch.nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(DiscriminatorS, self).__init__()
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv1d(1, 16, 15, 1, padding=7)),
             norm_f(Conv1d(16, 64, 41, 4, groups=4, padding=20)),
@@ -407,7 +404,7 @@ class SynthesizerTrn(nn.Module):
         g = self.emb_g(g).transpose(1,2)
 
         # vol proj
-        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
+        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol is not None and self.vol_embedding else 0
 
         # ssl prenet
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
@@ -452,7 +449,7 @@ class SynthesizerTrn(nn.Module):
         
         x_mask = torch.unsqueeze(commons.sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # vol proj
-        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol!=None and self.vol_embedding else 0
+        vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol is not None and self.vol_embedding else 0
 
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2) + vol
         

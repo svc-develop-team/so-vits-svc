@@ -1,6 +1,8 @@
-from vencoder.encoder import SpeechEncoder
 import onnxruntime
 import torch
+
+from vencoder.encoder import SpeechEncoder
+
 
 class ContentVec256L9_Onnx(SpeechEncoder):
     def __init__(self, vec_path="pretrain/vec-256-layer-9.onnx", device=None):

@@ -1,12 +1,14 @@
-import os
 import time
+
+import librosa
 import numpy as np
 import torch
-import librosa
-from diffusion.logger.saver import Saver
-from diffusion.logger import utils
 from torch import autocast
 from torch.cuda.amp import GradScaler
+
+from diffusion.logger import utils
+from diffusion.logger.saver import Saver
+
 
 def test(args, model, vocoder, loader_test, saver):
     print(' [*] testing...')

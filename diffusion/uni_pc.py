@@ -1,6 +1,6 @@
-import torch
-import torch.nn.functional as F
 import math
+
+import torch
 
 
 class NoiseScheduleVP:
@@ -109,7 +109,8 @@ class NoiseScheduleVP:
         elif self.schedule == 'linear':
             return -0.25 * t ** 2 * (self.beta_1 - self.beta_0) - 0.5 * t * self.beta_0
         elif self.schedule == 'cosine':
-            log_alpha_fn = lambda s: torch.log(torch.cos((s + self.cosine_s) / (1. + self.cosine_s) * math.pi / 2.))
+            def log_alpha_fn(s):
+                return torch.log(torch.cos((s + self.cosine_s) / (1.0 + self.cosine_s) * math.pi / 2.0))
             log_alpha_t =  log_alpha_fn(t) - self.cosine_log_alpha_0
             return log_alpha_t
 
@@ -147,7 +148,8 @@ class NoiseScheduleVP:
             return t.reshape((-1,))
         else:
             log_alpha = -0.5 * torch.logaddexp(-2. * lamb, torch.zeros((1,)).to(lamb))
-            t_fn = lambda log_alpha_t: torch.arccos(torch.exp(log_alpha_t + self.cosine_log_alpha_0)) * 2. * (1. + self.cosine_s) / math.pi - self.cosine_s
+            def t_fn(log_alpha_t):
+                return torch.arccos(torch.exp(log_alpha_t + self.cosine_log_alpha_0)) * 2.0 * (1.0 + self.cosine_s) / math.pi - self.cosine_s
             t = t_fn(log_alpha)
             return t
 

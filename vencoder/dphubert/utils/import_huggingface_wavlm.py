@@ -10,7 +10,7 @@ from typing import Any, Dict
 
 from torch.nn import Module
 
-from ..model import wav2vec2_model, Wav2Vec2Model, wavlm_model
+from ..model import Wav2Vec2Model, wav2vec2_model, wavlm_model
 
 _LG = logging.getLogger(__name__)
 

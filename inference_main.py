@@ -1,15 +1,10 @@
-import io
 import logging
-import time
-from pathlib import Path
-from spkmix import spk_mix_map
-import librosa
-import matplotlib.pyplot as plt
-import numpy as np
+
 import soundfile
+
 from inference import infer_tool
-from inference import slicer
 from inference.infer_tool import Svc
+from spkmix import spk_mix_map
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 chunks_dict = infer_tool.read_temp("inference/chunks_temp.json")
@@ -146,8 +141,10 @@ def main():
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             isdiffusion = "sovits"
-            if shallow_diffusion : isdiffusion = "sovdiff"
-            if only_diffusion : isdiffusion = "diff"
+            if shallow_diffusion :
+                isdiffusion = "sovdiff"
+            if only_diffusion :
+                isdiffusion = "diff"
             if use_spk_mix:
                 spk = "spk_mix"
             res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}_{f0p}.{wav_format}'

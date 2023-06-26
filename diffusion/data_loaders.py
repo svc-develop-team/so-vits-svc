@@ -1,13 +1,14 @@
 import os
 import random
-import re
-import numpy as np
+
 import librosa
+import numpy as np
 import torch
-import random
-from utils import repeat_expand_2d
-from tqdm import tqdm
 from torch.utils.data import Dataset
+from tqdm import tqdm
+
+from utils import repeat_expand_2d
+
 
 def traverse_dir(
         root_dir,
@@ -130,7 +131,7 @@ class AudioDataset(Dataset):
         with open(filelists,"r") as f:
             self.paths = f.read().splitlines()
         for name_ext in tqdm(self.paths, total=len(self.paths)):
-            name = os.path.splitext(name_ext)[0]
+            os.path.splitext(name_ext)[0]
             path_audio = name_ext
             duration = librosa.get_duration(filename = path_audio, sr = self.sample_rate)
             

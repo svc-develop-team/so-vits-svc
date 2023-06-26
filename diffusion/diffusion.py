@@ -1,10 +1,10 @@
 from collections import deque
 from functools import partial
 from inspect import isfunction
-import torch.nn.functional as F
-import librosa.sequence
+
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch import nn
 from tqdm import tqdm
 
@@ -26,8 +26,10 @@ def extract(a, t, x_shape):
 
 
 def noise_like(shape, device, repeat=False):
-    repeat_noise = lambda: torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
-    noise = lambda: torch.randn(shape, device=device)
+    def repeat_noise():
+        return torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
+    def noise():
+        return torch.randn(shape, device=device)
     return repeat_noise() if repeat else noise()
 
 
@@ -253,7 +255,11 @@ class GaussianDiffusion(nn.Module):
                         
             if method is not None and infer_speedup > 1:
                 if method == 'dpm-solver' or method == 'dpm-solver++':
-                    from .dpm_solver_pytorch import NoiseScheduleVP, model_wrapper, DPM_Solver
+                    from .dpm_solver_pytorch import (
+                        DPM_Solver,
+                        NoiseScheduleVP,
+                        model_wrapper,
+                    )
                     # 1. Define the noise schedule.
                     noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
 
@@ -331,7 +337,7 @@ class GaussianDiffusion(nn.Module):
                                 infer_speedup, cond=cond
                             )
                 elif method == 'unipc':
-                    from .uni_pc import NoiseScheduleVP, model_wrapper, UniPC
+                    from .uni_pc import NoiseScheduleVP, UniPC, model_wrapper
                     # 1. Define the noise schedule.
                     noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
 
