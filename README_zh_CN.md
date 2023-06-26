@@ -396,7 +396,7 @@ python train_index.py -c configs/config.json
 模型的输出会在`logs/44k/feature_and_index.pkl`
 
 + 推理过程：
-  + 需要首先制定`--feature_retrieval`，此时聚类方案会自动切换到特征检索方案
+  + 需要首先指定`--feature_retrieval`，此时聚类方案会自动切换到特征检索方案
   + `inference_main.py`中指定`cluster_model_path` 为模型输出文件
   + `inference_main.py`中指定`cluster_infer_ratio`，`0`为完全不使用特征检索，`1`为只使用特征检索，通常设置`0.5`即可
 
