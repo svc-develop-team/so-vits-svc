@@ -419,7 +419,7 @@ python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="
 Introduction: This function can combine multiple models into one model (convex combination or linear combination of multiple model parameters) to create mixed voice that do not exist in reality
 
 **Note:**
-1. This function only supports single-speaker models
+1. This feature is only supported for single-speaker models
 2. If you intend to use a multi-speaker model regardless, it is crucial to ensure that the number of speakers in each model is the same. This ensures that voices with the same SpeakerID can be properly mixed.
 3. Ensure that the `model` fields in config.json of all models to be mixed are the same
 4. The mixed model can use any config.json file from the models being synthesized. However, the clustering model will not be functional after mixed.
