@@ -1,11 +1,7 @@
 import logging
 import multiprocessing
-import time
-
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-logging.getLogger('numba').setLevel(logging.WARNING)
-
 import os
+import time
 
 import torch
 import torch.distributed as dist
@@ -25,6 +21,9 @@ from models import (
 )
 from modules.losses import discriminator_loss, feature_loss, generator_loss, kl_loss
 from modules.mel_processing import mel_spectrogram_torch, spec_to_mel_torch
+
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('numba').setLevel(logging.WARNING)
 
 torch.backends.cudnn.benchmark = True
 global_step = 0

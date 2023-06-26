@@ -132,8 +132,10 @@ def main():
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             isdiffusion = "sovits"
-            if shallow_diffusion : isdiffusion = "sovdiff"
-            if only_diffusion : isdiffusion = "diff"
+            if shallow_diffusion :
+                isdiffusion = "sovdiff"
+            if only_diffusion :
+                isdiffusion = "diff"
             if use_spk_mix:
                 spk = "spk_mix"
             res_path = f'results/{clean_name}_{key}_{spk}{cluster_name}_{isdiffusion}_{f0p}.{wav_format}'

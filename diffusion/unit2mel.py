@@ -24,9 +24,11 @@ def load_model_vocoder(
         device='cpu',
         config_path = None
         ):
-    if config_path is None: config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
-    else: config_file = config_path
-    
+    if config_path is None:
+        config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
+    else:
+        config_file = config_path
+
     with open(config_file, "r") as config:
         args = yaml.safe_load(config)
     args = DotDict(args)

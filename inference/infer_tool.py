@@ -179,7 +179,8 @@ class Svc(object):
         else:
             self.feature_retrieval=False
 
-        if self.shallow_diffusion : self.nsf_hifigan_enhance = False
+        if self.shallow_diffusion :
+            self.nsf_hifigan_enhance = False
         if self.nsf_hifigan_enhance:
             from modules.enhancer import Enhancer
             self.enhancer = Enhancer('nsf-hifigan', 'pretrain/nsf_hifigan/model',device=self.dev)
@@ -442,7 +443,8 @@ class Svc(object):
                 datas = [data]
             for k,dat in enumerate(datas):
                 per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
-                if clip_seconds!=0: print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
+                if clip_seconds!=0: 
+                    print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
                 # padd
                 pad_len = int(audio_sr * pad_seconds)
                 dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])

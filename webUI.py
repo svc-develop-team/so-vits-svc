@@ -45,7 +45,8 @@ def upload_mix_append_file(files,sfiles):
         p = {file:100 for file in file_paths}
         return file_paths,mix_model_output1.update(value=json.dumps(p,indent=2))
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug:
+            traceback.print_exc()
         raise gr.Error(e)
 
 def mix_submit_click(js,mode):
@@ -59,16 +60,19 @@ def mix_submit_click(js,mode):
         path = mix_model(model_path,mix_rate,mode)
         return f"成功，文件被保存在了{path}"
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug:
+            traceback.print_exc()
         raise gr.Error(e)
 
 def updata_mix_info(files):
     try:
-        if files is None : return mix_model_output1.update(value="")
+        if files is None :
+            return mix_model_output1.update(value="")
         p = {file.name:100 for file in files}
         return mix_model_output1.update(value=json.dumps(p,indent=2))
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug:
+            traceback.print_exc()
         raise gr.Error(e)
 
 def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix):
@@ -108,7 +112,8 @@ def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance,diff_
             msg += i + " "
         return sid.update(choices = spks,value=spks[0]), msg
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug:
+            traceback.print_exc()
         raise gr.Error(e)
 
     
@@ -168,7 +173,8 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
         soundfile.write(output_file, _audio, model.target_sample, format="wav")
         return "Success", output_file
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug:
+            traceback.print_exc()
         raise gr.Error(e)
 
 def tts_func(_text,_rate,_voice):
@@ -176,7 +182,8 @@ def tts_func(_text,_rate,_voice):
     # voice = "zh-CN-XiaoyiNeural"#女性，较高音
     # voice = "zh-CN-YunxiNeural"#男性
     voice = "zh-CN-YunxiNeural"#男性
-    if ( _voice == "女" ) : voice = "zh-CN-XiaoyiNeural"
+    if ( _voice == "女" ) :
+        voice = "zh-CN-XiaoyiNeural"
     output_file = _text[0:10]+".wav"
     # communicate = edge_tts.Communicate(_text, voice)
     # await communicate.save(output_file)
