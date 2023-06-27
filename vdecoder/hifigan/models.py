@@ -201,8 +201,6 @@ class SineGen(torch.nn.Module):
         output uv: tensor(batchsize=1, length, 1)
         """
         with torch.no_grad():
-            torch.zeros(f0.shape[0], f0.shape[1], self.dim,
-                                 device=f0.device)
             # fundamental component
             fn = torch.multiply(f0, torch.FloatTensor([[range(1, self.harmonic_num + 2)]]).to(f0.device))
 

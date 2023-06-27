@@ -581,9 +581,6 @@ class GaussianDiffusion(nn.Module):
         plms_noise_stage = torch.tensor(0, dtype=torch.long, device=device)
         noise_list = torch.zeros((0, 1, 1, self.mel_bins, n_frames), device=device)
 
-        ot = step_range[0]
-        torch.full((1,), ot, device=device, dtype=torch.long)
-
         for t in step_range:
             t_1 = torch.full((1,), t, device=device, dtype=torch.long)
             noise_pred = self.denoise_fn(x, t_1, cond)

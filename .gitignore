@@ -156,6 +156,7 @@ filelists/test.txt
 filelists/train.txt
 filelists/val.txt
 .idea/
+.vscode/
 .idea/modules.xml
 .idea/so-vits-svc.iml
 .idea/vcs.xml
@@ -168,3 +169,4 @@ pretrain/vec-256-layer-9.onnx
 pretrain/vec-256-layer-12.onnx
 pretrain/vec-768-layer-9.onnx
 .vscode/launch.json
+.ruff.toml

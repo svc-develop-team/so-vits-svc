@@ -121,7 +121,6 @@ class Unit2Mel(nn.Module):
         hubert_hidden_size = self.input_channel
         n_frames = 10
         hubert = torch.randn((1, n_frames, hubert_hidden_size))
-        torch.arange(end=n_frames).unsqueeze(0).long()
         f0 = torch.randn((1, n_frames))
         volume = torch.randn((1, n_frames))
         spks = {}

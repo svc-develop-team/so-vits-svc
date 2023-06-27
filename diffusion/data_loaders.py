@@ -131,7 +131,6 @@ class AudioDataset(Dataset):
         with open(filelists,"r") as f:
             self.paths = f.read().splitlines()
         for name_ext in tqdm(self.paths, total=len(self.paths)):
-            os.path.splitext(name_ext)[0]
             path_audio = name_ext
             duration = librosa.get_duration(filename = path_audio, sr = self.sample_rate)
             
