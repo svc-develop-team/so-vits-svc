@@ -331,7 +331,7 @@ Required parameters:
 - `-c` | `--config_path`: path to the configuration file.
 - `-n` | `--clean_names`: a list of wav file names located in the `raw` folder.
 - `-t` | `--trans`: pitch shift, supports positive and negative (semitone) values.
-- `-s` | `--spk_list`: Selected speaker ID for conversion.
+- `-s` | `--spk_list`: Select the speaker ID to use for conversion.
 - `-cl` | `--clip`: Forced audio clipping, set to 0 to disable(default), setting it to a non-zero value (duration in seconds) to enable.
 
 Optional parameters: see the next section
@@ -412,15 +412,15 @@ python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="
 
 ## 👨‍🔧 Timbre mixing
 
-### Stable Timbre mixing
+### Static Tone Mixing
 
 **Refer to `webui.py` file for stable Timbre mixing of the gadget/lab feature.**
 
 Introduction: This function can combine multiple models into one model (convex combination or linear combination of multiple model parameters) to create mixed voice that do not exist in reality
 
 **Note:**
-1. This function only supports single-speaker models
-2. If you intend to use a multi-speaker model regardless, it is crucial to ensure that the number of speakers in each model is the same. This ensures that voices with the same SpeakerID can be properly mixed.
+1. This feature is only supported for single-speaker models
+2. If you force a multi-speaker model, it is critical to make sure there are the same number of speakers in each model. This will ensure that sounds with the same SpeakerID can be mixed correctly.
 3. Ensure that the `model` fields in config.json of all models to be mixed are the same
 4. The mixed model can use any config.json file from the models being synthesized. However, the clustering model will not be functional after mixed.
 5. When batch uploading models, it is best to put the models into a folder and upload them together after selecting them
