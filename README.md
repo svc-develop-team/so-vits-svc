@@ -414,7 +414,7 @@ python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="
 
 ### Static Tone Mixing
 
-**Refer to `webui.py` file for stable Timbre mixing of the gadget/lab feature.**
+**Refer to `webUI.py` file for stable Timbre mixing of the gadget/lab feature.**
 
 Introduction: This function can combine multiple models into one model (convex combination or linear combination of multiple model parameters) to create mixed voice that do not exist in reality
 
