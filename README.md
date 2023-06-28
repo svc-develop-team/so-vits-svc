@@ -44,7 +44,7 @@ The singing voice conversion model uses SoftVC content encoder to extract speech
 - Added Whisper-PPG encoder support
 - Added static/dynamic sound fusion
 - Added loudness embedding
-- Added feature Retrieve from [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
+- Added Functionality of feature retrieval from [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
   
 ### 🆕 Questions about compatibility with the 4.0 model
 
