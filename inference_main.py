@@ -26,7 +26,7 @@ def main():
     
     # 可选项部分
     parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False, help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
-    parser.add_argument('-cm', '--cluster_model_path', type=str, default="logs/44k/kmeans_10000.pt", help='聚类模型或特征检索索引路径，如果没有训练聚类或特征检索则随便填')
+    parser.add_argument('-cm', '--cluster_model_path', type=str, default="", help='聚类模型或特征检索索引路径，留空则自动设为各方案模型的默认路径，如果没有训练聚类或特征检索则随便填')
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案或特征检索占比，范围0-1，若没有训练聚类模型或特征检索则默认0即可')
     parser.add_argument('-lg', '--linear_gradient', type=float, default=0, help='两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值0，单位为秒')
     parser.add_argument('-f0p', '--f0_predictor', type=str, default="pm", help='选择F0预测器,可选择crepe,pm,dio,harvest,默认为pm(注意：crepe为原F0使用均值滤波器)')
@@ -81,6 +81,15 @@ def main():
     use_spk_mix = args.use_spk_mix
     second_encoding = args.second_encoding
     loudness_envelope_adjustment = args.loudness_envelope_adjustment
+
+    if cluster_infer_ratio != 0:
+        if args.cluster_model_path == "":
+            if args.feature_retrieval:  # 若指定了占比但没有指定模型路径，则按是否使用特征检索分配默认的模型路径
+                args.cluster_model_path = "logs/44k/feature_and_index.pkl"
+            else:
+                args.cluster_model_path = "logs/44k/kmeans_10000.pt"
+    else:  # 若未指定占比，则无论是否指定模型路径，都将其置空以避免之后的模型加载
+        args.cluster_model_path = ""
 
     svc_model = Svc(args.model_path,
                     args.config_path,
