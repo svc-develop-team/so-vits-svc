@@ -35,7 +35,7 @@ This project serves as a framework only and does not possess speech synthesis fu
 
 ## 📝 Model Introduction
 
-The singing voice conversion model uses SoftVC content encoder to extract speech features from the source audio. These feature vectors are directly fed into VITS without the need for conversion to a text-based intermediate representation. As a result, the pitch and intonations of the original audio are preserved. Furthermore, the vocoder has been replaced with [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
+The singing voice conversion model uses SoftVC content encoder to extract speech features from the source audio. These feature vectors are directly fed into VITS without the need for conversion to a text-based intermediate representation. As a result, the pitch and intonations of the original audio are preserved. Meanwhile, the vocoder was replaced with [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
 ### 🆕 4.1-Stable Version Update Content
 
@@ -96,19 +96,19 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 ##### **3. If whisper-ppg as the encoder**
 - download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), the model fits `whisper-ppg`
 - or download model at [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), the model fits `whisper-ppg-large`
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
   
 ##### **4. If cnhubertlarge as the encoder**
 - download model at [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **5. If dphubert as the encoder**
 - download model at [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **6. If WavLM is used as the encoder**
 - download model at  [WavLM-Base+.pt](https://valle.blob.core.windows.net/share/wavlm/WavLM-Base+.pt?sv=2020-08-04&st=2023-03-01T07%3A51%3A05Z&se=2033-03-02T07%3A51%3A00Z&sr=c&sp=rl&sig=QJXmSJG9DbMKf48UDIU1MfzIro8HQOf3sqlNXiflY1I%3D), the model fits `wavlmbase+`
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **7. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
@@ -153,7 +153,7 @@ If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will nee
 ```shell
 # nsf_hifigan
 wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
-\unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
+unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
 # URL: https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
