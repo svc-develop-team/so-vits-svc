@@ -188,7 +188,7 @@ dataset_raw
 
 ### 0. Slice audio
 
-To avoid potential memory errors during training or preprocessing, it is recommended to limit the duration of the audio clips. Slicing the audio to a duration between `5s - 15s`, with a slightly longer duration being acceptable, is a good practice. However, excessively long clips may lead to issues such as `torch.cuda.OutOfMemoryError`.
+To avoid video memory overflow during training or pre-processing, it is recommended to limit the length of audio clips. Cutting the audio to a length of "5s - 15s" is more recommended. Slightly longer times are acceptable, however, excessively long clips may cause problems such as `torch.cuda.OutOfMemoryError`.
 
 To facilitate the slicing process, you can use [audio-slicer-GUI](https://github.com/flutydeer/audio-slicer) or [audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
 
