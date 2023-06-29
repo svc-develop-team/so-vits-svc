@@ -204,7 +204,7 @@ After slicing, it is recommended to remove any audio clips that are excessively 
 python resample.py
 ```
 
-#### Attention
+#### Cautions
 
 Although this project has the script resample.py for resampling, to mono and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for loudness matching processing. If you have already used other software for loudness matching, run the command with the argument `--skip_loudnorm`:
 
@@ -353,7 +353,7 @@ Shallow diffusion settings:
 - `-od` | `--only_diffusion`: Whether to use Only diffusion mode, which does not load the sovits model to only use diffusion model inference
 - `-se` | `--second_encoding`：which involves applying an additional encoding to the original audio before shallow diffusion. This option can yield varying results - sometimes positive and sometimes negative.
 
-### Attention
+### Cautions
 
 If inferencing using `whisper-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to infer properly.
 
