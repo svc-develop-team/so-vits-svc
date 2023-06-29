@@ -27,10 +27,10 @@ This project serves as a framework only and does not possess speech synthesis fu
 # Warning: Please ensure that you address any authorization issues related to the dataset on your own. You bear full responsibility for any problems arising from the usage of non-authorized datasets for training, as well as any resulting consequences. The repository and its maintainer, svc develop team, disclaim any association with or liability for the consequences. 
 
 1. This project is exclusively established for academic purposes, aiming to facilitate communication and learning. It is not intended for deployment in production environments.
-2. In case you publish videos based on So-VITS on video or audio platforms, it is mandatory to clearly state in the description that they are using voice conversion technologies. Additionally, you must specify the source of the input voice or audio, such as videos or audios from other creators, with a clear mention of the original video or music links. If you employ your own voice or voices synthesized from other commercial vocal synthesis software as the input source for conversion, it is crucial to provide an explanation in the description as well.
-3. You assume complete responsibility for any copyright or infringement issues that may arise from the input source. When utilizing other commercial vocal synthesis software as the input source, it is crucial to ensure compliance with the software's terms of use. Please note that many vocal synthesis engines explicitly state in their terms of use that they cannot be used for input source conversion.
+2. Any sovits-based video posted to a video platform must clearly specify in the introduction the input source vocals and audio used for the voice changer conversion, e.g., if you use someone else's video/audio and convert it by separating the vocals as the input source, you must give a clear link to the original video or music; if you use your own vocals or a voice synthesized by another voice synthesis engine as the input source, you must also specify this in the introduction.
+3. You are solely responsible for any infringement issues caused by the input source and all consequences. When using other commercial vocal synthesis software as an input source, please ensure that you comply with the regulations of that software, noting that the regulations of many vocal synthesis engines explicitly state that they cannot be used to convert input sources!
 4. Engaging in illegal activities, as well as religious and political activities, is strictly prohibited when using this project. The project developers vehemently oppose the aforementioned activities. If you disagree with this provision, the usage of the project is prohibited.
-5. Your continued use of this project signifies agreement with the relevant provisions outlined in the repository's README. The README serves as a persuasive document and is not accountable for any subsequent issues that may arise.
+5. If you continue to use the program, you will be deemed to have agreed to the terms and conditions set forth in README and README has discouraged you and is not responsible for any subsequent problems.
 6. If you intend to employ this project for any other purposes, kindly contact and inform the maintainers of this repository in advance.
 
 ## 📝 Model Introduction
@@ -188,7 +188,7 @@ dataset_raw
 
 ### 0. Slice audio
 
-To avoid potential memory errors during training or preprocessing, it is recommended to limit the duration of the audio clips. Slicing the audio to a duration between `5s - 15s`, with a slightly longer duration being acceptable, is a good practice. However, excessively long clips may lead to issues such as `torch.cuda.OutOfMemoryError`.
+To avoid video memory overflow during training or pre-processing, it is recommended to limit the length of audio clips. Cutting the audio to a length of "5s - 15s" is more recommended. Slightly longer times are acceptable, however, excessively long clips may cause problems such as `torch.cuda.OutOfMemoryError`.
 
 To facilitate the slicing process, you can use [audio-slicer-GUI](https://github.com/flutydeer/audio-slicer) or [audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
 
@@ -204,9 +204,9 @@ After slicing, it is recommended to remove any audio clips that are excessively 
 python resample.py
 ```
 
-#### Attention
+#### Cautions
 
-Although this project has the script resample.py for resampling, to mono and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for loudness matching processing. If you have already used other software for loudness matching, run the command with the argument `--skip_loudnorm`:
+Although this project has resample.py scripts for resampling, mono and loudness matching, the default loudness matching is to match to 0db. This can cause damage to the sound quality. While python's loudness matching package pyloudnorm does not limit the level, this can lead to popping. Therefore, it is recommended to consider using professional sound processing software, such as `adobe audition` for loudness matching. If you are already using other software for loudness matching, add the parameter `-skip_loudnorm` to the run command:
 
 ```shell
 python resample.py --skip_loudnorm
@@ -287,7 +287,7 @@ pm
 harvest
 ```
 
-If the training set is too noisy, use `crepe` to handle f0
+If the training set is too noisy,it is recommended to use `crepe` to handle f0
 
 If the f0_predictor parameter is omitted, the default value is `dio`
 
@@ -353,13 +353,13 @@ Shallow diffusion settings:
 - `-od` | `--only_diffusion`: Whether to use Only diffusion mode, which does not load the sovits model to only use diffusion model inference
 - `-se` | `--second_encoding`：which involves applying an additional encoding to the original audio before shallow diffusion. This option can yield varying results - sometimes positive and sometimes negative.
 
-### Attention
+### Cautions
 
 If inferencing using `whisper-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to infer properly.
 
 ## 🤔 Optional Settings
 
-If you are satisfied with the results of the previous section or if you find the following section unclear, you can skip it without any impact on the model's usage. These optional settings mentioned have a relatively minor effect, and while they might have some impact on specific dataset, in most cases, the difference may not be noticeable.
+If you are satisfied with the previous results, or if you do not feel you understand what follows, you can skip it and it will have no effect on the use of the model. The impact of these optional settings mentioned is relatively small, and while they may have some impact on specific datasets, in most cases the difference may not be significant.
 
 ### Automatic f0 prediction
 
