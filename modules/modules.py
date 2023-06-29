@@ -66,47 +66,6 @@ class ConvReluNorm(nn.Module):
     return x * x_mask
 
 
-class DDSConv(nn.Module):
-  """
-  Dialted and Depth-Separable Convolution
-  """
-  def __init__(self, channels, kernel_size, n_layers, p_dropout=0.):
-    super().__init__()
-    self.channels = channels
-    self.kernel_size = kernel_size
-    self.n_layers = n_layers
-    self.p_dropout = p_dropout
-
-    self.drop = nn.Dropout(p_dropout)
-    self.convs_sep = nn.ModuleList()
-    self.convs_1x1 = nn.ModuleList()
-    self.norms_1 = nn.ModuleList()
-    self.norms_2 = nn.ModuleList()
-    for i in range(n_layers):
-      dilation = kernel_size ** i
-      padding = (kernel_size * dilation - dilation) // 2
-      self.convs_sep.append(nn.Conv1d(channels, channels, kernel_size, 
-          groups=channels, dilation=dilation, padding=padding
-      ))
-      self.convs_1x1.append(nn.Conv1d(channels, channels, 1))
-      self.norms_1.append(LayerNorm(channels))
-      self.norms_2.append(LayerNorm(channels))
-
-  def forward(self, x, x_mask, g=None):
-    if g is not None:
-      x = x + g
-    for i in range(self.n_layers):
-      y = self.convs_sep[i](x * x_mask)
-      y = self.norms_1[i](y)
-      y = F.gelu(y)
-      y = self.convs_1x1[i](y)
-      y = self.norms_2[i](y)
-      y = F.gelu(y)
-      y = self.drop(y)
-      x = x + y
-    return x * x_mask
-
-
 class WN(torch.nn.Module):
   def __init__(self, hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=0, p_dropout=0):
     super(WN, self).__init__()

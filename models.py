@@ -322,8 +322,8 @@ class SynthesizerTrn(nn.Module):
                  vol_embedding=False,
                  vocoder_name = "nsf-hifigan",
                  use_depthwise_conv = False,
-                 use_depthwise_transposeconv = False,
                  use_automatic_f0_prediction = True,
+                 n_flow_layer = 4,
                  **kwargs):
 
         super().__init__()
@@ -372,8 +372,7 @@ class SynthesizerTrn(nn.Module):
             "upsample_initial_channel": upsample_initial_channel,
             "upsample_kernel_sizes": upsample_kernel_sizes,
             "gin_channels": gin_channels,
-            "use_depthwise_conv":use_depthwise_conv,
-            "use_depthwise_transposeconv":use_depthwise_transposeconv
+            "use_depthwise_conv":use_depthwise_conv
         }
         
         modules.set_Conv1dModel(self.use_depthwise_conv)
@@ -390,7 +389,7 @@ class SynthesizerTrn(nn.Module):
             self.dec = Generator(h=hps)
 
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
-        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
+        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, n_flow_layer, gin_channels=gin_channels)
         if self.use_automatic_f0_prediction:
             self.f0_decoder = F0Decoder(
                 1,

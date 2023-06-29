@@ -1,10 +1,10 @@
 import glob
 import os
-import matplotlib
-import torch
-from torch.nn.utils import weight_norm
+
 # matplotlib.use("Agg")
 import matplotlib.pylab as plt
+import torch
+from torch.nn.utils import weight_norm
 
 
 def plot_spectrogram(spectrogram):
@@ -21,10 +21,7 @@ def plot_spectrogram(spectrogram):
 
 def init_weights(m, mean=0.0, std=0.01):
     classname = m.__class__.__name__
-    if "Depthwise_Separable" in classname:
-      m.depth_conv.weight.data.normal_(mean, std)
-      m.point_conv.weight.data.normal_(mean, std)
-    elif classname.find("Conv") != -1:
+    if classname.find("Conv") != -1:
         m.weight.data.normal_(mean, std)
 
 

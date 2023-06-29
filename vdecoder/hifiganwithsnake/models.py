@@ -1,28 +1,20 @@
-import os
 import json
-from .env import AttrDict
+import os
+
 import numpy as np
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
-from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
-from torch.nn.utils import weight_norm, spectral_norm
-from .utils import init_weights, get_padding
+import torch.nn.functional as F
+from torch.nn import AvgPool1d, Conv1d, Conv2d, ConvTranspose1d
+from torch.nn.utils import remove_weight_norm, spectral_norm, weight_norm
+
 from vdecoder.hifiganwithsnake.alias.act import SnakeAlias
-from modules.DSConv import weight_norm_modules, remove_weight_norm_modules, Depthwise_Separable_Conv1D, Depthwise_Separable_TransposeConv1D
+
+from .env import AttrDict
+from .utils import get_padding, init_weights
 
 LRELU_SLOPE = 0.1
 
-Conv1dModel = nn.Conv1d
-ConvTranspose1dModel = nn.ConvTranspose1d
-
-def set_Conv1dModel(use_depthwise_conv):
-    global Conv1dModel
-    Conv1dModel = Depthwise_Separable_Conv1D if use_depthwise_conv else nn.Conv1d
-
-def set_ConvTranspose1dModel(use_depthwise_transposeconv):
-    global ConvTranspose1dModel
-    ConvTranspose1dModel = Depthwise_Separable_TransposeConv1D if use_depthwise_transposeconv else nn.ConvTranspose1d
 
 def load_model(model_path, device='cuda'):
     config_file = os.path.join(os.path.split(model_path)[0], 'config.json')
@@ -48,21 +40,21 @@ class ResBlock1(torch.nn.Module):
         super(ResBlock1, self).__init__()
         self.h = h
         self.convs1 = nn.ModuleList([
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=dilation[0],
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[0],
                                padding=get_padding(kernel_size, dilation[0]))),
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=dilation[1],
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[1],
                                padding=get_padding(kernel_size, dilation[1]))),
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=dilation[2],
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[2],
                                padding=get_padding(kernel_size, dilation[2])))
         ])
         self.convs1.apply(init_weights)
 
         self.convs2 = nn.ModuleList([
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=1,
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=1,
                                padding=get_padding(kernel_size, 1))),
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=1,
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=1,
                                padding=get_padding(kernel_size, 1))),
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=1,
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=1,
                                padding=get_padding(kernel_size, 1)))
         ])
         self.convs2.apply(init_weights)
@@ -84,18 +76,19 @@ class ResBlock1(torch.nn.Module):
 
     def remove_weight_norm(self):
         for l in self.convs1:
-            remove_weight_norm_modules(l)
+            remove_weight_norm(l)
         for l in self.convs2:
-            remove_weight_norm_modules(l)
+            remove_weight_norm(l)
+
 
 class ResBlock2(torch.nn.Module):
     def __init__(self, h, channels, kernel_size=3, dilation=(1, 3), C=None):
         super(ResBlock2, self).__init__()
         self.h = h
         self.convs = nn.ModuleList([
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=dilation[0],
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[0],
                                padding=get_padding(kernel_size, dilation[0]))),
-            weight_norm_modules(Conv1dModel(channels, channels, kernel_size, 1, dilation=dilation[1],
+            weight_norm(Conv1d(channels, channels, kernel_size, 1, dilation=dilation[1],
                                padding=get_padding(kernel_size, dilation[1])))
         ])
         self.convs.apply(init_weights)
@@ -114,7 +107,8 @@ class ResBlock2(torch.nn.Module):
 
     def remove_weight_norm(self):
         for l in self.convs:
-            remove_weight_norm_modules(l)
+            remove_weight_norm(l)
+
 
 def padDiff(x):
     return F.pad(F.pad(x, (0,0,-1,1), 'constant', 0) - x, (0,0,0,-1), 'constant', 0)
@@ -220,8 +214,6 @@ class SineGen(torch.nn.Module):
         output uv: tensor(batchsize=1, length, 1)
         """
         with torch.no_grad():
-            f0_buf = torch.zeros(f0.shape[0], f0.shape[1], self.dim,
-                                 device=f0.device)
             # fundamental component
             fn = torch.multiply(f0, torch.FloatTensor([[range(1, self.harmonic_num + 2)]]).to(f0.device))
 
@@ -298,10 +290,7 @@ class Generator(torch.nn.Module):
     def __init__(self, h):
         super(Generator, self).__init__()
         self.h = h
-        
-        set_Conv1dModel(h["use_depthwise_conv"])
-        set_ConvTranspose1dModel(h["use_depthwise_transposeconv"])
-        
+
         self.num_kernels = len(h["resblock_kernel_sizes"])
         self.num_upsamples = len(h["upsample_rates"])
         self.f0_upsamp = torch.nn.Upsample(scale_factor=np.prod(h["upsample_rates"]))
@@ -309,18 +298,18 @@ class Generator(torch.nn.Module):
             sampling_rate=h["sampling_rate"],
             harmonic_num=8)
         self.noise_convs = nn.ModuleList()
-        self.conv_pre = weight_norm_modules(Conv1dModel(h["inter_channels"], h["upsample_initial_channel"], 7, 1, padding=3))
+        self.conv_pre = weight_norm(Conv1d(h["inter_channels"], h["upsample_initial_channel"], 7, 1, padding=3))
         resblock = ResBlock1 if h["resblock"] == '1' else ResBlock2
         self.ups = nn.ModuleList()
         for i, (u, k) in enumerate(zip(h["upsample_rates"], h["upsample_kernel_sizes"])):
             c_cur = h["upsample_initial_channel"] // (2 ** (i + 1))
-            self.ups.append(weight_norm_modules(
-                ConvTranspose1dModel(h["upsample_initial_channel"] // (2 ** i), h["upsample_initial_channel"] // (2 ** (i + 1)),
-                                k, u, padding=(k - u + 1 ) // 2)))
+            self.ups.append(weight_norm(
+                ConvTranspose1d(h["upsample_initial_channel"] // (2 ** i), h["upsample_initial_channel"] // (2 ** (i + 1)),
+                                k, u, padding=(k - u + 1) // 2)))
             if i + 1 < len(h["upsample_rates"]):  #
                 stride_f0 = np.prod(h["upsample_rates"][i + 1:])
-                self.noise_convs.append(Conv1dModel(
-                    1, c_cur, kernel_size=stride_f0 * 2, stride=stride_f0, padding=(stride_f0+1) // 2))
+                self.noise_convs.append(Conv1d(
+                    1, c_cur, kernel_size=stride_f0 * 2, stride=stride_f0, padding=(stride_f0+ 1) // 2))
             else:
                 self.noise_convs.append(Conv1d(1, c_cur, kernel_size=1))
         self.resblocks = nn.ModuleList()
@@ -331,7 +320,7 @@ class Generator(torch.nn.Module):
             for j, (k, d) in enumerate(zip(h["resblock_kernel_sizes"], h["resblock_dilation_sizes"])):
                 self.resblocks.append(resblock(h, ch, k, d, C = h["upsample_initial_channel"] >> (i + 1)))
 
-        self.conv_post = weight_norm_modules(Conv1dModel(ch, 1, 7, 1, padding=3))
+        self.conv_post = weight_norm(Conv1d(ch, 1, 7, 1, padding=3))
         self.ups.apply(init_weights)
         self.conv_post.apply(init_weights)
         self.snake_post = SnakeAlias(ch, C = h["upsample_initial_channel"] >> len(self.ups))
@@ -371,18 +360,18 @@ class Generator(torch.nn.Module):
     def remove_weight_norm(self):
         print('Removing weight norm...')
         for l in self.ups:
-            remove_weight_norm_modules(l)
+            remove_weight_norm(l)
         for l in self.resblocks:
-            l.remove_weight_norm_modules()
-        remove_weight_norm_modules(self.conv_pre)
-        remove_weight_norm_modules(self.conv_post)
+            l.remove_weight_norm()
+        remove_weight_norm(self.conv_pre)
+        remove_weight_norm(self.conv_post)
 
 
 class DiscriminatorP(torch.nn.Module):
     def __init__(self, period, kernel_size=5, stride=3, use_spectral_norm=False):
         super(DiscriminatorP, self).__init__()
         self.period = period
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv2d(1, 32, (kernel_size, 1), (stride, 1), padding=(get_padding(5, 1), 0))),
             norm_f(Conv2d(32, 128, (kernel_size, 1), (stride, 1), padding=(get_padding(5, 1), 0))),
@@ -441,7 +430,7 @@ class MultiPeriodDiscriminator(torch.nn.Module):
 class DiscriminatorS(torch.nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(DiscriminatorS, self).__init__()
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList([
             norm_f(Conv1d(1, 128, 15, 1, padding=7)),
             norm_f(Conv1d(128, 128, 41, 2, groups=4, padding=20)),
