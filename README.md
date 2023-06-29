@@ -287,7 +287,7 @@ pm
 harvest
 ```
 
-If the training set is too noisy, use `crepe` to handle f0
+If the training set is too noisy,it is recommended to use `crepe` to handle f0
 
 If the f0_predictor parameter is omitted, the default value is `dio`
 
@@ -359,7 +359,7 @@ If inferencing using `whisper-ppg` speech encoder, you need to set `--clip` to 2
 
 ## 🤔 Optional Settings
 
-If you are satisfied with the results of the previous section or if you find the following section unclear, you can skip it without any impact on the model's usage. These optional settings mentioned have a relatively minor effect, and while they might have some impact on specific dataset, in most cases, the difference may not be noticeable.
+If you are satisfied with the previous results, or if you do not feel you understand what follows, you can skip it and it will have no effect on the use of the model. The impact of these optional settings mentioned is relatively small, and while they may have some impact on specific datasets, in most cases the difference may not be significant.
 
 ### Automatic f0 prediction
 
