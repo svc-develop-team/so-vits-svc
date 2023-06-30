@@ -1,7 +1,10 @@
-import torch
-from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
-import utils
 import json
+
+import torch
+
+import utils
+from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
+
 
 def main():
     path = "crs"
@@ -127,7 +130,6 @@ def main():
         "Characters": spklist
     }
 
-    MoeVSConfJson = json.dumps(MoeVSConf)
     with open(f"checkpoints/{path}.json", 'w') as MoeVsConfFile:
         json.dump(MoeVSConf, MoeVsConfFile, indent = 4)
 

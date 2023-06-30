@@ -1,38 +1,29 @@
 import logging
 import multiprocessing
+import os
 import time
 
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-logging.getLogger('numba').setLevel(logging.WARNING)
-
-import os
-import json
-import argparse
-import itertools
-import math
 import torch
-from torch import nn, optim
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.cuda.amp import GradScaler, autocast
 from torch.nn import functional as F
+from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-import torch.multiprocessing as mp
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.cuda.amp import autocast, GradScaler
 
 import modules.commons as commons
 import utils
-from data_utils import TextAudioSpeakerLoader, TextAudioCollate
+from data_utils import TextAudioCollate, TextAudioSpeakerLoader
 from models import (
-    SynthesizerTrn,
     MultiPeriodDiscriminator,
+    SynthesizerTrn,
 )
-from modules.losses import (
-    kl_loss,
-    generator_loss, discriminator_loss, feature_loss
-)
-
+from modules.losses import discriminator_loss, feature_loss, generator_loss, kl_loss
 from modules.mel_processing import mel_spectrogram_torch, spec_to_mel_torch
+
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('numba').setLevel(logging.WARNING)
 
 torch.backends.cudnn.benchmark = True
 global_step = 0
@@ -294,7 +285,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
             c = c[:1].cuda(0)
             f0 = f0[:1].cuda(0)
             uv= uv[:1].cuda(0)
-            if volume!=None:
+            if volume is not None:
                 volume = volume[:1].cuda(0)
             mel = spec_to_mel_torch(
                 spec,
@@ -321,7 +312,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
                 f"gt/audio_{batch_idx}": y[0]
             })
         image_dict.update({
-            f"gen/mel": utils.plot_spectrogram_to_numpy(y_hat_mel[0].cpu().numpy()),
+            "gen/mel": utils.plot_spectrogram_to_numpy(y_hat_mel[0].cpu().numpy()),
             "gt/mel": utils.plot_spectrogram_to_numpy(mel[0].cpu().numpy())
         })
     utils.summarize(

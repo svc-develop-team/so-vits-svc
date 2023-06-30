@@ -1,9 +1,11 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from vdecoder.nsf_hifigan.nvSTFT import STFT
-from vdecoder.nsf_hifigan.models import load_model
 from torchaudio.transforms import Resample
+
+from vdecoder.nsf_hifigan.models import load_model
+from vdecoder.nsf_hifigan.nvSTFT import STFT
+
 
 class Enhancer:
     def __init__(self, enhancer_type, enhancer_ckpt, device=None):

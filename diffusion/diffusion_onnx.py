@@ -1,15 +1,14 @@
+import math
 from collections import deque
 from functools import partial
 from inspect import isfunction
-import torch.nn.functional as F
-import librosa.sequence
+
 import numpy as np
-from torch.nn import Conv1d
-from torch.nn import Mish
 import torch
+import torch.nn.functional as F
 from torch import nn
+from torch.nn import Conv1d, Mish
 from tqdm import tqdm
-import math
 
 
 def exists(x):
@@ -27,8 +26,10 @@ def extract(a, t):
 
 
 def noise_like(shape, device, repeat=False):
-    repeat_noise = lambda: torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
-    noise = lambda: torch.randn(shape, device=device)
+    def repeat_noise():
+        return torch.randn((1, *shape[1:]), device=device).repeat(shape[0], *((1,) * (len(shape) - 1)))
+    def noise():
+        return torch.randn(shape, device=device)
     return repeat_noise() if repeat else noise()
 
 
@@ -389,7 +390,11 @@ class GaussianDiffusion(nn.Module):
                         
             if method is not None and infer_speedup > 1:
                 if method == 'dpm-solver':
-                    from .dpm_solver_pytorch import NoiseScheduleVP, model_wrapper, DPM_Solver
+                    from .dpm_solver_pytorch import (
+                        DPM_Solver,
+                        NoiseScheduleVP,
+                        model_wrapper,
+                    )
                     # 1. Define the noise schedule.
                     noise_schedule = NoiseScheduleVP(schedule='discrete', betas=self.betas[:t])
 
@@ -575,9 +580,6 @@ class GaussianDiffusion(nn.Module):
         step_range = torch.arange(0, k_step.item(), pndms.item(), dtype=torch.long, device=device).flip(0)
         plms_noise_stage = torch.tensor(0, dtype=torch.long, device=device)
         noise_list = torch.zeros((0, 1, 1, self.mel_bins, n_frames), device=device)
-
-        ot = step_range[0]
-        ot_1 = torch.full((1,), ot, device=device, dtype=torch.long)
 
         for t in step_range:
             t_1 = torch.full((1,), t, device=device, dtype=torch.long)

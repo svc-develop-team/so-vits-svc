@@ -3,8 +3,8 @@
 
 import torch.nn as nn
 from torch.nn import functional as F
-from .filter import LowPassFilter1d
-from .filter import kaiser_sinc_filter1d
+
+from .filter import LowPassFilter1d, kaiser_sinc_filter1d
 
 
 class UpSample1d(nn.Module):

@@ -1,6 +1,8 @@
-from modules.F0Predictor.F0Predictor import F0Predictor
-from modules.F0Predictor.crepe import CrepePitchExtractor
 import torch
+
+from modules.F0Predictor.crepe import CrepePitchExtractor
+from modules.F0Predictor.F0Predictor import F0Predictor
+
 
 class CrepeF0Predictor(F0Predictor):
     def __init__(self,hop_length=512,f0_min=50,f0_max=1100,device=None,sampling_rate=44100,threshold=0.05,model="full"):

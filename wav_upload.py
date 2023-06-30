@@ -1,7 +1,9 @@
-from google.colab import files
-import shutil
-import os
 import argparse
+import os
+import shutil
+
+from google.colab import files
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--type", type=str, required=True, help="type of file to upload")

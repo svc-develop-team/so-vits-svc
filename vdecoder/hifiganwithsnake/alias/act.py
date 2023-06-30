@@ -4,10 +4,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from torch import sin, pow
+from torch import pow, sin
 from torch.nn import Parameter
-from .resample import UpSample1d, DownSample1d
+
+from .resample import DownSample1d, UpSample1d
 
 
 class Activation1d(nn.Module):

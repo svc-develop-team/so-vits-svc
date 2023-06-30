@@ -1,8 +1,11 @@
-import math,pdb
-import torch,pynvml
-from torch.nn.functional import normalize
 from time import time
+
 import numpy as np
+import pynvml
+import torch
+from torch.nn.functional import normalize
+
+
 # device=torch.device("cuda:0")
 def _kpp(data: torch.Tensor, k: int, sample_size: int = -1):
     """ Picks k points in the data based on the kmeans++ method.

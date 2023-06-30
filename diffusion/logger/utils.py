@@ -1,8 +1,9 @@
-import os
-import yaml
 import json
-import pickle
+import os
+
 import torch
+import yaml
+
 
 def traverse_dir(
         root_dir,
@@ -121,6 +122,6 @@ def load_model(
         ckpt = torch.load(path_pt, map_location=torch.device(device))
         global_step = ckpt['global_step']
         model.load_state_dict(ckpt['model'], strict=False)
-        if ckpt.get('optimizer') != None:
+        if ckpt.get("optimizer") is not None:
             optimizer.load_state_dict(ckpt['optimizer'])
     return global_step, model, optimizer

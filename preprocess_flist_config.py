@@ -1,11 +1,11 @@
-import os
 import argparse
+import json
+import os
 import re
+import wave
+from random import shuffle
 
 from tqdm import tqdm
-from random import shuffle
-import json
-import wave
 
 import diffusion.logger.utils as du
 

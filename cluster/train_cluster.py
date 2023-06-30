@@ -1,19 +1,17 @@
-import time,pdb
-import tqdm
-from time import time as ttime
-import os
-from pathlib import Path
-import logging
 import argparse
-from kmeans import KMeansGPU
-import torch
+import logging
+import os
+import time
+from pathlib import Path
+
 import numpy as np
-from sklearn.cluster import KMeans,MiniBatchKMeans
+import torch
+import tqdm
+from kmeans import KMeansGPU
+from sklearn.cluster import KMeans, MiniBatchKMeans
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-from time import time as ttime
-import pynvml,torch
 
 def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=False):#gpu_minibatch真拉，虽然库支持但是也不考虑
     logger.info(f"Loading features from {in_dir}")
@@ -29,7 +27,7 @@ def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=
     features = features.astype(np.float32)
     logger.info(f"Clustering features of shape: {features.shape}")
     t = time.time()
-    if(use_gpu==False):
+    if(use_gpu is False):
         if use_minibatch:
             kmeans = MiniBatchKMeans(n_clusters=n_clusters,verbose=verbose, batch_size=4096, max_iter=80).fit(features)
         else:
@@ -37,14 +35,14 @@ def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=
     else:
             kmeans = KMeansGPU(n_clusters=n_clusters, mode='euclidean', verbose=2 if verbose else 0,max_iter=500,tol=1e-2)#
             features=torch.from_numpy(features)#.to(device)
-            labels = kmeans.fit_predict(features)#
+            kmeans.fit_predict(features)#
 
     print(time.time()-t, "s")
 
     x = {
-            "n_features_in_": kmeans.n_features_in_ if use_gpu==False else features.shape[1],
-            "_n_threads": kmeans._n_threads if use_gpu==False else 4,
-            "cluster_centers_": kmeans.cluster_centers_ if use_gpu==False else kmeans.centroids.cpu().numpy(),
+            "n_features_in_": kmeans.n_features_in_ if use_gpu is False else features.shape[1],
+            "_n_threads": kmeans._n_threads if use_gpu is False else 4,
+            "cluster_centers_": kmeans.cluster_centers_ if use_gpu is False else kmeans.centroids.cpu().numpy(),
     }
     print("end")
 

@@ -1,11 +1,14 @@
 import os
-import yaml
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
+import yaml
+
 from .diffusion import GaussianDiffusion
-from .wavenet import WaveNet
 from .vocoder import Vocoder
+from .wavenet import WaveNet
+
 
 class DotDict(dict):
     def __getattr__(*args):         
@@ -21,9 +24,11 @@ def load_model_vocoder(
         device='cpu',
         config_path = None
         ):
-    if config_path is None: config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
-    else: config_file = config_path
-    
+    if config_path is None:
+        config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
+    else:
+        config_file = config_path
+
     with open(config_file, "r") as config:
         args = yaml.safe_load(config)
     args = DotDict(args)
@@ -116,13 +121,12 @@ class Unit2Mel(nn.Module):
         hubert_hidden_size = self.input_channel
         n_frames = 10
         hubert = torch.randn((1, n_frames, hubert_hidden_size))
-        mel2ph = torch.arange(end=n_frames).unsqueeze(0).long()
         f0 = torch.randn((1, n_frames))
         volume = torch.randn((1, n_frames))
         spks = {}
         for i in range(n_spk):
             spks.update({i:1.0/float(self.n_spk)})
-        orgouttt = self.init_spkembed(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
+        self.init_spkembed(hubert, f0.unsqueeze(-1), volume.unsqueeze(-1), spk_mix_dict=spks)
 
     def forward(self, units, f0, volume, spk_id = None, spk_mix_dict = None, aug_shift = None,
                 gt_spec=None, infer=True, infer_speedup=10, method='dpm-solver', k_step=300, use_tqdm=True):

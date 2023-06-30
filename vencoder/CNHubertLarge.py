@@ -1,6 +1,7 @@
-from vencoder.encoder import SpeechEncoder
 import torch
 from fairseq import checkpoint_utils
+
+from vencoder.encoder import SpeechEncoder
 
 
 class CNHubertLarge(SpeechEncoder):

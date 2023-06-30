@@ -27,15 +27,15 @@ This project serves as a framework only and does not possess speech synthesis fu
 # Warning: Please ensure that you address any authorization issues related to the dataset on your own. You bear full responsibility for any problems arising from the usage of non-authorized datasets for training, as well as any resulting consequences. The repository and its maintainer, svc develop team, disclaim any association with or liability for the consequences. 
 
 1. This project is exclusively established for academic purposes, aiming to facilitate communication and learning. It is not intended for deployment in production environments.
-2. In case you publish videos based on So-VITS on video or audio platforms, it is mandatory to clearly state in the description that they are using voice conversion technologies. Additionally, you must specify the source of the input voice or audio, such as videos or audios from other creators, with a clear mention of the original video or music links. If you employ your own voice or voices synthesized from other commercial vocal synthesis software as the input source for conversion, it is crucial to provide an explanation in the description as well.
-3. You assume complete responsibility for any copyright or infringement issues that may arise from the input source. When utilizing other commercial vocal synthesis software as the input source, it is crucial to ensure compliance with the software's terms of use. Please note that many vocal synthesis engines explicitly state in their terms of use that they cannot be used for input source conversion.
+2. Any sovits-based video posted to a video platform must clearly specify in the introduction the input source vocals and audio used for the voice changer conversion, e.g., if you use someone else's video/audio and convert it by separating the vocals as the input source, you must give a clear link to the original video or music; if you use your own vocals or a voice synthesized by another voice synthesis engine as the input source, you must also specify this in the introduction.
+3. You are solely responsible for any infringement issues caused by the input source and all consequences. When using other commercial vocal synthesis software as an input source, please ensure that you comply with the regulations of that software, noting that the regulations of many vocal synthesis engines explicitly state that they cannot be used to convert input sources!
 4. Engaging in illegal activities, as well as religious and political activities, is strictly prohibited when using this project. The project developers vehemently oppose the aforementioned activities. If you disagree with this provision, the usage of the project is prohibited.
-5. Your continued use of this project signifies agreement with the relevant provisions outlined in the repository's README. The README serves as a persuasive document and is not accountable for any subsequent issues that may arise.
+5. If you continue to use the program, you will be deemed to have agreed to the terms and conditions set forth in README and README has discouraged you and is not responsible for any subsequent problems.
 6. If you intend to employ this project for any other purposes, kindly contact and inform the maintainers of this repository in advance.
 
 ## 📝 Model Introduction
 
-The singing voice conversion model uses SoftVC content encoder to extract speech features from the source audio. These feature vectors are directly fed into VITS without the need for conversion to a text-based intermediate representation. As a result, the pitch and intonations of the original audio are preserved. Furthermore, the vocoder has been replaced with [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
+The singing voice conversion model uses SoftVC content encoder to extract speech features from the source audio. These feature vectors are directly fed into VITS without the need for conversion to a text-based intermediate representation. As a result, the pitch and intonations of the original audio are preserved. Meanwhile, the vocoder was replaced with [NSF HiFiGAN](https://github.com/openvpi/DiffSinger/tree/refactor/modules/nsf_hifigan) to solve the problem of sound interruption.
 
 ### 🆕 4.1-Stable Version Update Content
 
@@ -44,7 +44,7 @@ The singing voice conversion model uses SoftVC content encoder to extract speech
 - Added Whisper-PPG encoder support
 - Added static/dynamic sound fusion
 - Added loudness embedding
-- Added feature Retrieve from [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
+- Added Functionality of feature retrieval from [RVC](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
   
 ### 🆕 Questions about compatibility with the 4.0 model
 
@@ -96,19 +96,19 @@ wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best
 ##### **3. If whisper-ppg as the encoder**
 - download model at [medium.pt](https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt), the model fits `whisper-ppg`
 - or download model at [large-v2.pt](https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt), the model fits `whisper-ppg-large`
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
   
 ##### **4. If cnhubertlarge as the encoder**
 - download model at [chinese-hubert-large-fairseq-ckpt.pt](https://huggingface.co/TencentGameMate/chinese-hubert-large/resolve/main/chinese-hubert-large-fairseq-ckpt.pt)
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **5. If dphubert as the encoder**
 - download model at [DPHuBERT-sp0.75.pth](https://huggingface.co/pyf98/DPHuBERT/resolve/main/DPHuBERT-sp0.75.pth)
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **6. If WavLM is used as the encoder**
 - download model at  [WavLM-Base+.pt](https://valle.blob.core.windows.net/share/wavlm/WavLM-Base+.pt?sv=2020-08-04&st=2023-03-01T07%3A51%3A05Z&se=2033-03-02T07%3A51%3A00Z&sr=c&sp=rl&sig=QJXmSJG9DbMKf48UDIU1MfzIro8HQOf3sqlNXiflY1I%3D), the model fits `wavlmbase+`
-  - Place it under the `pretrain` director
+  - Place it under the `pretrain` directory
 
 ##### **7. If OnnxHubert/ContentVec as the encoder**
 - download model at [MoeSS-SUBModel](https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/tree/main)
@@ -153,7 +153,7 @@ If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will nee
 ```shell
 # nsf_hifigan
 wget -P pretrain/ https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip
-\unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
+unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
 # URL: https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
@@ -188,7 +188,7 @@ dataset_raw
 
 ### 0. Slice audio
 
-To avoid potential memory errors during training or preprocessing, it is recommended to limit the duration of the audio clips. Slicing the audio to a duration between `5s - 15s`, with a slightly longer duration being acceptable, is a good practice. However, excessively long clips may lead to issues such as `torch.cuda.OutOfMemoryError`.
+To avoid video memory overflow during training or pre-processing, it is recommended to limit the length of audio clips. Cutting the audio to a length of "5s - 15s" is more recommended. Slightly longer times are acceptable, however, excessively long clips may cause problems such as `torch.cuda.OutOfMemoryError`.
 
 To facilitate the slicing process, you can use [audio-slicer-GUI](https://github.com/flutydeer/audio-slicer) or [audio-slicer-CLI](https://github.com/openvpi/audio-slicer)
 
@@ -204,9 +204,9 @@ After slicing, it is recommended to remove any audio clips that are excessively 
 python resample.py
 ```
 
-#### Attention
+#### Cautions
 
-Although this project has the script resample.py for resampling, to mono and loudness matching, the default loudness matching is to match to 0db. This may cause damage to the sound quality. While python's loudness matching package pyloudnorm is unable to limit the level, this results in a burst. Therefore, it is suggested to consider using professional sound processing software such as `adobe audition` for loudness matching processing. If you have already used other software for loudness matching, run the command with the argument `--skip_loudnorm`:
+Although this project has resample.py scripts for resampling, mono and loudness matching, the default loudness matching is to match to 0db. This can cause damage to the sound quality. While python's loudness matching package pyloudnorm does not limit the level, this can lead to popping. Therefore, it is recommended to consider using professional sound processing software, such as `adobe audition` for loudness matching. If you are already using other software for loudness matching, add the parameter `-skip_loudnorm` to the run command:
 
 ```shell
 python resample.py --skip_loudnorm
@@ -287,7 +287,7 @@ pm
 harvest
 ```
 
-If the training set is too noisy, use `crepe` to handle f0
+If the training set is too noisy,it is recommended to use `crepe` to handle f0
 
 If the f0_predictor parameter is omitted, the default value is `dio`
 
@@ -331,14 +331,14 @@ Required parameters:
 - `-c` | `--config_path`: path to the configuration file.
 - `-n` | `--clean_names`: a list of wav file names located in the `raw` folder.
 - `-t` | `--trans`: pitch shift, supports positive and negative (semitone) values.
-- `-s` | `--spk_list`: Selected speaker ID for conversion.
+- `-s` | `--spk_list`: Select the speaker ID to use for conversion.
 - `-cl` | `--clip`: Forced audio clipping, set to 0 to disable(default), setting it to a non-zero value (duration in seconds) to enable.
 
 Optional parameters: see the next section
 - `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
 - `-f0p` | `--f0_predictor`: Select a F0 predictor, options are `crepe`, `pm`, `dio`, `harvest`, default value is `pm`(note: f0 mean pooling will be enable when using `crepe`)
 - `-a` | `--auto_predict_f0`: automatic pitch prediction, do not enable this when converting singing voices as it can cause serious pitch issues.
-- `-cm` | `--cluster_model_path`: Cluster model or feature retrieval index path, if there is no training cluster or feature retrieval, fill in at will.
+- `-cm` | `--cluster_model_path`: Cluster model or feature retrieval index path, if left blank, it will be automatically set as the default path of these models. If there is no training cluster or feature retrieval, fill in at will.
 - `-cr` | `--cluster_infer_ratio`: The proportion of clustering scheme or feature retrieval ranges from 0 to 1. If there is no training clustering model or feature retrieval, the default is 0.
 - `-eh` | `--enhance`: Whether to use NSF_HIFIGAN enhancer, this option has certain effect on sound quality enhancement for some models with few training sets, but has negative effect on well-trained models, so it is disabled by default.
 - `-shd` | `--shallow_diffusion`: Whether to use shallow diffusion, which can solve some electrical sound problems after use. This option is disabled by default. When this option is enabled, NSF_HIFIGAN enhancer will be disabled
@@ -353,13 +353,13 @@ Shallow diffusion settings:
 - `-od` | `--only_diffusion`: Whether to use Only diffusion mode, which does not load the sovits model to only use diffusion model inference
 - `-se` | `--second_encoding`：which involves applying an additional encoding to the original audio before shallow diffusion. This option can yield varying results - sometimes positive and sometimes negative.
 
-### Attention
+### Cautions
 
 If inferencing using `whisper-ppg` speech encoder, you need to set `--clip` to 25 and `-lg` to 1. Otherwise it will fail to infer properly.
 
 ## 🤔 Optional Settings
 
-If you are satisfied with the results of the previous section or if you find the following section unclear, you can skip it without any impact on the model's usage. These optional settings mentioned have a relatively minor effect, and while they might have some impact on specific dataset, in most cases, the difference may not be noticeable.
+If you are satisfied with the previous results, or if you do not feel you understand what follows, you can skip it and it will have no effect on the use of the model. The impact of these optional settings mentioned is relatively small, and while they may have some impact on specific datasets, in most cases the difference may not be significant.
 
 ### Automatic f0 prediction
 
@@ -378,7 +378,7 @@ No changes are required in the existing steps. Simply train an additional cluste
   - Execute `python cluster/train_cluster.py`. The output model will be saved in `logs/44k/kmeans_10000.pt`.
   - The clustering model can currently be trained using the gpu by executing `python cluster/train_cluster.py --gpu`
 - Inference process:
-  - Specify `cluster_model_path` in `inference_main.py`.
+  - Specify `cluster_model_path` in `inference_main.py`. If not specified, the default is `logs/44k/kmeans_10000.pt`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using clustering at all, `1` means only using clustering, and usually `0.5` is sufficient.
 
 ### Feature retrieval
@@ -396,7 +396,7 @@ The output of the model will be in `logs/44k/feature_and_index.pkl`
 
 - Inference process: 
   - The `--feature_retrieval` needs to be formulated first, and the clustering mode automatically switches to the feature retrieval mode.
-  - Specify `cluster_model_path` in `inference_main.py`.
+  - Specify `cluster_model_path` in `inference_main.py`. If not specified, the default is `logs/44k/feature_and_index.pkl`.
   - Specify `cluster_infer_ratio` in `inference_main.py`, where `0` means not using feature retrieval at all, `1` means only using feature retrieval, and usually `0.5` is sufficient.
 
 ### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
@@ -412,15 +412,15 @@ python compress_model.py -c="configs/config.json" -i="logs/44k/G_30400.pth" -o="
 
 ## 👨‍🔧 Timbre mixing
 
-### Stable Timbre mixing
+### Static Tone Mixing
 
-**Refer to `webui.py` file for stable Timbre mixing of the gadget/lab feature.**
+**Refer to `webUI.py` file for stable Timbre mixing of the gadget/lab feature.**
 
 Introduction: This function can combine multiple models into one model (convex combination or linear combination of multiple model parameters) to create mixed voice that do not exist in reality
 
 **Note:**
-1. This function only supports single-speaker models
-2. If you intend to use a multi-speaker model regardless, it is crucial to ensure that the number of speakers in each model is the same. This ensures that voices with the same SpeakerID can be properly mixed.
+1. This feature is only supported for single-speaker models
+2. If you force a multi-speaker model, it is critical to make sure there are the same number of speakers in each model. This will ensure that sounds with the same SpeakerID can be mixed correctly.
 3. Ensure that the `model` fields in config.json of all models to be mixed are the same
 4. The mixed model can use any config.json file from the models being synthesized. However, the clustering model will not be functional after mixed.
 5. When batch uploading models, it is best to put the models into a folder and upload them together after selecting them

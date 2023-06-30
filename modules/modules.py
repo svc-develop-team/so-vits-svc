@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import Conv1d
 from torch.nn import functional as F
 
 from modules.DSConv import weight_norm_modules, remove_weight_norm_modules, Depthwise_Separable_Conv1D
