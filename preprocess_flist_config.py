@@ -85,7 +85,7 @@ if __name__ == "__main__":
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 768
         d_config_template["data"]["encoder_out_channels"] = 768
     elif args.speech_encoder == "vec256l9" or args.speech_encoder == 'hubertsoft':
-        config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 256
+        config_template["model"]["ssl_dim"] = config_template["model"]["gin_channels"] = 256
         d_config_template["data"]["encoder_out_channels"] = 256
     elif args.speech_encoder == "whisper-ppg" or args.speech_encoder == 'cnhubertlarge':
         config_template["model"]["ssl_dim"] = config_template["model"]["filter_channels"] = config_template["model"]["gin_channels"] = 1024
