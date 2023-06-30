@@ -24,9 +24,11 @@ def rand_slice_segments_with_pitch(x, pitch, x_lengths=None, segment_size=4):
 
 def init_weights(m, mean=0.0, std=0.01):
   classname = m.__class__.__name__
-  if classname.find("Conv") != -1:
+  if "Depthwise_Separable" in classname:
+    m.depth_conv.weight.data.normal_(mean, std)
+    m.point_conv.weight.data.normal_(mean, std) 
+  elif classname.find("Conv") != -1:
     m.weight.data.normal_(mean, std)
-
 
 def get_padding(kernel_size, dilation=1):
   return int((kernel_size*dilation - dilation)/2)
