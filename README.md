@@ -299,7 +299,7 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
-## 🏋️‍♀️ Training
+## 🏋️‍ Training
 
 ### Sovits Model
 
