@@ -15,6 +15,7 @@ import numpy as np
 import soundfile
 import torch
 from scipy.io import wavfile
+from pathlib import Path
 
 from compress_model import removeOptimizer
 from inference.infer_tool import Svc
@@ -81,7 +82,6 @@ def modelAnalysis(model_path,config_path,cluster_model_path,device,enhance,diff_
         device = cuda[device] if "CUDA" in device else device
         cluster_filepath = os.path.split(cluster_model_path.name) if cluster_model_path is not None else "no_cluster"
         fr = ".pkl" in cluster_filepath[1]
-        #model = Svc(model_path.name, config_path.name, device=device if device!="Auto" else None, cluster_model_path = cluster_model_path.name if cluster_model_path != None else "",nsf_hifigan_enhance=enhance)
         model = Svc(model_path.name,
                 config_path.name,
                 device=device if device != "Auto" else None,
@@ -127,24 +127,30 @@ def modelUnload():
         torch.cuda.empty_cache()
         return sid.update(choices = [],value=""),"模型卸载完毕!"
 
-def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment):
+def vc_fn(sid, input_audio, output_format, vc_transform, auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment):
     global model
     try:
         if input_audio is None:
             return "You need to upload an audio", None
         if model is None:
             return "You need to upload an model", None
-        print(input_audio)    
-        sampling_rate, audio = input_audio
-        print(audio.shape,sampling_rate)
-        audio = (audio / np.iinfo(audio.dtype).max).astype(np.float32)
-        print(audio.dtype)
+        if getattr(model, 'cluster_model', None) is None and model.feature_retrieval is False:
+            if cluster_ratio != 0:
+                return "You need to upload an cluster model or feature retrieval model before assigning cluster ratio!", None
+        #print(input_audio)    
+        audio, sampling_rate = soundfile.read(input_audio)
+        #print(audio.shape,sampling_rate)
+        if np.issubdtype(audio.dtype, np.integer):
+            audio = (audio / np.iinfo(audio.dtype).max).astype(np.float32)
+        #print(audio.dtype)
         if len(audio.shape) > 1:
             audio = librosa.to_mono(audio.transpose(1, 0))
-        temp_path = "temp.wav"
-        soundfile.write(temp_path, audio, sampling_rate, format="wav")
+        # 未知原因Gradio上传的filepath会有一个奇怪的固定后缀，这里去掉
+        truncated_basename = Path(input_audio).stem[:-6]
+        processed_audio = os.path.join("raw", f"{truncated_basename}.wav")
+        soundfile.write(processed_audio, audio, sampling_rate, format="wav")
         _audio = model.slice_inference(
-            temp_path,
+            processed_audio,
             sid,
             vc_transform,
             slice_db,
@@ -164,13 +170,19 @@ def vc_fn(sid, input_audio, vc_transform, auto_f0,cluster_ratio, slice_db, noise
             loudness_envelope_adjustment
         )
         model.clear_empty()
-        os.remove(temp_path)
+        #os.remove(temp_path)
         #构建保存文件的路径，并保存到results文件夹内
         timestamp = str(int(time.time()))
         if not os.path.exists("results"):
             os.makedirs("results")
-        output_file = os.path.join("results", sid + "_" + timestamp + ".wav")
-        soundfile.write(output_file, _audio, model.target_sample, format="wav")
+        key = "auto" if auto_f0 else f"{int(vc_transform)}key"
+        cluster = "_" if cluster_ratio == 0 else f"_{cluster_ratio}_"
+        isdiffusion = "sovits"
+        if model.shallow_diffusion : isdiffusion = "sovdiff"
+        if model.only_diffusion : isdiffusion = "diff"
+        output_file_name = 'result_'+truncated_basename+f'_{sid}_{key}{cluster}{isdiffusion}.{output_format}'
+        output_file = os.path.join("results", output_file_name)
+        soundfile.write(output_file, _audio, model.target_sample, format=output_format)
         return "Success", output_file
     except Exception as e:
         if debug:
@@ -291,6 +303,7 @@ with gr.Blocks(
                     vc_transform = gr.Number(label="变调（整数，可以正负，半音数量，升高八度就是12）", value=0)
                     cluster_ratio = gr.Number(label="聚类模型/特征检索混合比例，0-1之间，0即不启用聚类/特征检索。使用聚类/特征检索能提升音色相似度，但会导致咬字下降（如果使用建议0.5左右）", value=0)
                     slice_db = gr.Number(label="切片阈值", value=-40)
+                    output_format = gr.Radio(label="音频输出格式", choices=["wav", "flac", "mp3"], value = "wav")
                     noise_scale = gr.Number(label="noise_scale 建议不要动，会影响音质，玄学参数", value=0.4)
                     k_step = gr.Slider(label="浅扩散步数，只有使用了扩散模型才有效，步数越大越接近扩散模型的结果", value=100, minimum = 1, maximum = 1000)
                 with gr.Column():
@@ -305,7 +318,7 @@ with gr.Blocks(
                     use_spk_mix = gr.Checkbox(label = "动态声线融合", value = False, interactive = False)
             with gr.Tabs():
                 with gr.TabItem("音频转音频"):
-                    vc_input3 = gr.Audio(label="选择音频")
+                    vc_input3 = gr.Audio(label="选择音频", type="filepath")
                     vc_submit = gr.Button("音频转换", variant="primary")
                 with gr.TabItem("文字转音频"):
                     text2tts=gr.Textbox(label="在此输入要转译的文字。注意，使用该功能建议打开F0预测，不然会很怪")
@@ -371,7 +384,7 @@ with gr.Blocks(
                     <font size=2> WebUI设置</font>
                     """)
                 debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
-        vc_submit.click(vc_fn, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
+        vc_submit.click(vc_fn, [sid, vc_input3, output_format, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
         vc_submit2.click(vc_fn2, [sid, vc_input3, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,text2tts,tts_rate,tts_voice,f0_predictor,enhancer_adaptive_key,cr_threshold], [vc_output1, vc_output2])
         debug_button.change(debug_change,[],[])
         model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix],[sid,sid_output])
