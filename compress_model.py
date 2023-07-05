@@ -18,7 +18,7 @@ def copyStateDict(state_dict):
     return new_state_dict
 
 
-def removeOptimizer(config: str, input_model: str, output_model: str):
+def removeOptimizer(config: str, input_model: str, ishalf: bool, output_model: str):
     hps = utils.get_hparams_from_file(config)
 
     net_g = SynthesizerTrn(hps.data.filter_length // 2 + 1,
@@ -35,8 +35,8 @@ def removeOptimizer(config: str, input_model: str, output_model: str):
     keys = []
     for k, v in new_dict_g['model'].items():
         keys.append(k)
-
-    new_dict_g = {k: new_dict_g['model'][k] for k in keys}
+    
+    new_dict_g = {k: new_dict_g['model'][k].half() for k in keys} if ishalf else {k: new_dict_g['model'][k] for k in keys}
 
     torch.save(
         {
@@ -56,7 +56,8 @@ if __name__ == "__main__":
                         default='configs/config.json')
     parser.add_argument("-i", "--input", type=str)
     parser.add_argument("-o", "--output", type=str, default=None)
-
+    parser.add_argument('-hf', '--half', action='store_true', default=False, help='Save as FP16')
+    
     args = parser.parse_args()
 
     output = args.output
@@ -64,6 +65,7 @@ if __name__ == "__main__":
     if output is None:
         import os.path
         filename, ext = os.path.splitext(args.input)
-        output = filename + "_release" + ext
+        half = "_half" if args.half else ""
+        output = filename + "_release" + half + ext
 
-    removeOptimizer(args.config, args.input, output)
+    removeOptimizer(args.config, args.input, args.half, output)

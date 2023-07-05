@@ -20,7 +20,9 @@ class ResidualCouplingBlock(nn.Module):
                  dilation_rate,
                  n_layers,
                  n_flows=4,
-                 gin_channels=0):
+                 gin_channels=0,
+                 share_parameter=False
+                 ):
         super().__init__()
         self.channels = channels
         self.hidden_channels = hidden_channels
@@ -31,10 +33,13 @@ class ResidualCouplingBlock(nn.Module):
         self.gin_channels = gin_channels
 
         self.flows = nn.ModuleList()
+
+        self.wn = modules.WN(hidden_channels, kernel_size, dilation_rate, n_layers, p_dropout=0, gin_channels=gin_channels) if share_parameter else None
+
         for i in range(n_flows):
             self.flows.append(
                 modules.ResidualCouplingLayer(channels, hidden_channels, kernel_size, dilation_rate, n_layers,
-                                              gin_channels=gin_channels, mean_only=True))
+                                              gin_channels=gin_channels, mean_only=True, wn_sharing_parameter=self.wn))
             self.flows.append(modules.Flip())
 
     def forward(self, x, x_mask, g=None, reverse=False):
@@ -320,6 +325,7 @@ class SynthesizerTrn(nn.Module):
                  vocoder_name = "nsf-hifigan",
                  use_depthwise_conv = False,
                  use_automatic_f0_prediction = True,
+                 flow_share_parameter = False,
                  n_flow_layer = 4,
                  **kwargs):
 
@@ -386,7 +392,7 @@ class SynthesizerTrn(nn.Module):
             self.dec = Generator(h=hps)
 
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
-        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, n_flow_layer, gin_channels=gin_channels)
+        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, n_flow_layer, gin_channels=gin_channels, share_parameter= flow_share_parameter)
         if self.use_automatic_f0_prediction:
             self.f0_decoder = F0Decoder(
                 1,

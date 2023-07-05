@@ -64,6 +64,7 @@
     "speaker_embedding":false,
     "vol_embedding":false,
     "use_depthwise_conv":false,
+    "flow_share_parameter": false,
     "use_automatic_f0_prediction": true
   },
   "spk": {

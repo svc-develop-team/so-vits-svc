@@ -85,12 +85,14 @@ class LowPassFilter1d(nn.Module):
         self.register_buffer("filter", filter)
         self.conv1d_block = None
         if C is not None:
-            self.conv1d_block = (nn.Conv1d(C,C,kernel_size,stride=self.stride, groups=C, bias=False), 1)
+            self.conv1d_block = [nn.Conv1d(C,C,kernel_size,stride=self.stride, groups=C, bias=False),]
             self.conv1d_block[0].weight = nn.Parameter(self.filter.expand(C, -1, -1))
             self.conv1d_block[0].requires_grad_(False)
 
     #input [B, C, T]
     def forward(self, x):
+        if self.conv1d_block[0].weight.device != x.device:
+            self.conv1d_block[0] = self.conv1d_block[0].to(x.device)
         if self.conv1d_block is None:
             _, C, _ = x.shape
 
