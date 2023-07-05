@@ -53,7 +53,9 @@ def spectrogram_torch(y, n_fft, sampling_rate, hop_size, win_size, center=False)
     y = y.squeeze(1)
     
     y_dtype = y.dtype
-    if y.dtype == torch.bfloat16: y = y.to(torch.float32)
+    if y.dtype == torch.bfloat16:
+        y = y.to(torch.float32)
+
     spec = torch.stft(y, n_fft, hop_length=hop_size, win_length=win_size, window=hann_window[wnsize_dtype_device],
                       center=center, pad_mode='reflect', normalized=False, onesided=True, return_complex=True)
     spec = torch.view_as_real(spec).to(y_dtype)

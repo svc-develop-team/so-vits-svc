@@ -6,6 +6,7 @@ import subprocess
 import time
 import traceback
 from itertools import chain
+from pathlib import Path
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
 import gradio as gr
@@ -15,7 +16,6 @@ import numpy as np
 import soundfile
 import torch
 from scipy.io import wavfile
-from pathlib import Path
 
 from compress_model import removeOptimizer
 from inference.infer_tool import Svc
@@ -172,14 +172,18 @@ def vc_fn(sid, input_audio, output_format, vc_transform, auto_f0,cluster_ratio, 
         model.clear_empty()
         #os.remove(temp_path)
         #构建保存文件的路径，并保存到results文件夹内
-        timestamp = str(int(time.time()))
+        str(int(time.time()))
         if not os.path.exists("results"):
             os.makedirs("results")
         key = "auto" if auto_f0 else f"{int(vc_transform)}key"
         cluster = "_" if cluster_ratio == 0 else f"_{cluster_ratio}_"
         isdiffusion = "sovits"
-        if model.shallow_diffusion : isdiffusion = "sovdiff"
-        if model.only_diffusion : isdiffusion = "diff"
+        if model.shallow_diffusion:
+            isdiffusion = "sovdiff"
+
+        if model.only_diffusion:
+            isdiffusion = "diff"
+
         output_file_name = 'result_'+truncated_basename+f'_{sid}_{key}{cluster}{isdiffusion}.{output_format}'
         output_file = os.path.join("results", output_file_name)
         soundfile.write(output_file, _audio, model.target_sample, format=output_format)

@@ -1,12 +1,14 @@
 import torch
 from torch import nn
-from torch.nn import Conv1d
 from torch.nn import functional as F
 
-from modules.DSConv import weight_norm_modules, remove_weight_norm_modules, Depthwise_Separable_Conv1D
-
 import modules.commons as commons
-from modules.commons import init_weights, get_padding
+from modules.commons import get_padding, init_weights
+from modules.DSConv import (
+    Depthwise_Separable_Conv1D,
+    remove_weight_norm_modules,
+    weight_norm_modules,
+)
 
 LRELU_SLOPE = 0.1
 

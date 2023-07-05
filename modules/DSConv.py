@@ -1,6 +1,6 @@
-import torch
 import torch.nn as nn
-from torch.nn.utils import weight_norm, remove_weight_norm
+from torch.nn.utils import remove_weight_norm, weight_norm
+
 
 class Depthwise_Separable_Conv1D(nn.Module):
     def __init__(
