@@ -21,6 +21,7 @@ tensorboard
 tensorboardX
 transformers
 edge_tts
+langdetect
 pyyaml
 pynvml
 faiss-cpu
