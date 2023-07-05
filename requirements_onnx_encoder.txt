@@ -19,9 +19,9 @@ librosa==0.9.1
 tensorboard
 tensorboardX
 edge_tts
+langdetect
 pyyaml
 pynvml
 transformers
 ffmpeg-python
-ffmpeg
-faiss
+faiss-cpu
