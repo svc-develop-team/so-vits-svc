@@ -1,10 +1,10 @@
 import asyncio
 import random
+import sys
+
 import edge_tts
 from edge_tts import VoicesManager
-import sys
-from langdetect import detect
-from langdetect import DetectorFactory
+from langdetect import DetectorFactory, detect
 
 DetectorFactory.seed = 0
 
@@ -20,7 +20,7 @@ print(f"Text: {TEXT}, Language: {LANG}, Gender: {GENDER}, Rate: {RATE}, Volume: 
 
 async def _main() -> None:
     voices = await VoicesManager.create()
-    if not GENDER is None:
+    if GENDER is not None:
         # From "zh-cn" to "zh-CN" etc.
         if LANG == "zh-cn" or LANG == "zh-tw":
             LOCALE = LANG[:-2] + LANG[-2:].upper()

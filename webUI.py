@@ -5,23 +5,20 @@ import re
 import subprocess
 import time
 import traceback
-
 from itertools import chain
 from pathlib import Path
 
 # os.system("wget -P cvec/ https://huggingface.co/spaces/innnky/nanami/resolve/main/checkpoint_best_legacy_500.pt")
 import gradio as gr
-import gradio.processing_utils as gr_pu
 import librosa
 import numpy as np
 import soundfile
 import torch
-from scipy.io import wavfile
 
 from compress_model import removeOptimizer
+from edgetts.tts_voices import SUPPORTED_LANGUAGES
 from inference.infer_tool import Svc
 from utils import mix_model
-from edgetts.tts_voices import SUPPORTED_LANGUAGES
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -228,7 +225,7 @@ def vc_fn2(_text, _lang, _gender, _rate, _volume, sid, output_format, vc_transfo
         os.remove("tts.wav")
         return "Success", output_file_path
     except Exception as e:
-        if debug: traceback.print_exc()
+        if debug: traceback.print_exc()  # noqa: E701
         raise gr.Error(e)
 
 def model_compression(_model):
