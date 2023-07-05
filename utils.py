@@ -161,7 +161,7 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
             # print("load", k)
             new_state_dict[k] = saved_state_dict[k]
             assert saved_state_dict[k].shape == v.shape, (saved_state_dict[k].shape, v.shape)
-        except:
+        except: # noqa: E722 I have no idea about this CC: @ylzz1997
             print("error, %s is not in the checkpoint" % k)
             logger.info("%s is not in the checkpoint" % k)
             new_state_dict[k] = v
