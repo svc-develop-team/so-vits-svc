@@ -6,16 +6,16 @@ import os
 import re
 import subprocess
 import sys
-
 import traceback
+from multiprocessing import cpu_count
+
 import faiss
-from sklearn.cluster import MiniBatchKMeans
 import librosa
 import numpy as np
 import torch
 from scipy.io.wavfile import read
+from sklearn.cluster import MiniBatchKMeans
 from torch.nn import functional as F
-from multiprocessing import cpu_count
 
 MATPLOTLIB_FLAG = False
 
@@ -483,7 +483,7 @@ def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.
                 .fit(big_npy)
                 .cluster_centers_
             )
-        except:
+        except:  # noqa: E722
             info = traceback.format_exc()
             print(info)
     n_ivf = min(int(16 * np.sqrt(big_npy.shape[0])), big_npy.shape[0] // 39)
