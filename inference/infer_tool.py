@@ -192,6 +192,7 @@ class Svc(object):
             self.hps_ms.train.segment_size // self.hps_ms.data.hop_length,
             **self.hps_ms.model)
         _ = utils.load_checkpoint(self.net_g_path, self.net_g_ms, None)
+        self.dtype = list(self.net_g_ms.parameters())[0].dtype
         if "half" in self.net_g_path and torch.cuda.is_available():
             _ = self.net_g_ms.half().eval().to(self.dev)
         else:
@@ -276,8 +277,9 @@ class Svc(object):
             sid = torch.LongTensor([int(speaker_id)]).to(self.dev).unsqueeze(0)
             c, f0, uv = self.get_unit_f0(wav, tran, cluster_infer_ratio, speaker, f0_filter,f0_predictor,cr_threshold=cr_threshold)
             n_frames = f0.size(1)
-        if "half" in self.net_g_path and torch.cuda.is_available():
-            c = c.half()
+        c = c.to(self.dtype)
+        f0 = f0.to(self.dtype)
+        uv = uv.to(self.dtype)
         with torch.no_grad():
             start = time.time()
             vol = None
@@ -289,6 +291,10 @@ class Svc(object):
             else:
                 audio = torch.FloatTensor(wav).to(self.dev)
                 audio_mel = None
+            if self.dtype != torch.float32:
+                c = c.to(torch.float32)
+                f0 = f0.to(torch.float32)
+                uv = uv.to(torch.float32)
             if self.only_diffusion or self.shallow_diffusion:
                 vol = self.volume_extractor.extract(audio[None,:])[None,:,None].to(self.dev) if vol is None else vol[:,:,None]
                 if self.shallow_diffusion and second_encoding:
