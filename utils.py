@@ -150,6 +150,7 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
     if optimizer is not None and not skip_optimizer and checkpoint_dict['optimizer'] is not None:
         optimizer.load_state_dict(checkpoint_dict['optimizer'])
     saved_state_dict = checkpoint_dict['model']
+    model = model.to(list(saved_state_dict.values())[0].dtype)
     if hasattr(model, 'module'):
         state_dict = model.module.state_dict()
     else:
@@ -162,9 +163,10 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
             new_state_dict[k] = saved_state_dict[k]
             assert saved_state_dict[k].shape == v.shape, (saved_state_dict[k].shape, v.shape)
         except: # noqa: E722 I have no idea about this CC: @ylzz1997
-            print("error, %s is not in the checkpoint" % k)
-            logger.info("%s is not in the checkpoint" % k)
-            new_state_dict[k] = v
+            if "enc_q" not in k or "emb_g" not in k:
+              print("error, %s is not in the checkpoint" % k)
+              logger.info("%s is not in the checkpoint" % k)
+              new_state_dict[k] = v
     if hasattr(model, 'module'):
         model.module.load_state_dict(new_state_dict)
     else:
