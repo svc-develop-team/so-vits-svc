@@ -85,7 +85,7 @@
 
 ```shell
 # contentvec
-wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+wget -P pretrain/checkpoint_best_legacy_500.pt https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt 
 # 也可手动下载放在pretrain目录
 ```
 
