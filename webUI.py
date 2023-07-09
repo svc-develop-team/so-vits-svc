@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 import re
 import subprocess
 import time
@@ -212,9 +213,9 @@ def vc_fn2(_text, _lang, _gender, _rate, _volume, sid, output_format, vc_transfo
         _volume = f"+{int(_volume*100)}%" if _volume >= 0 else f"{int(_volume*100)}%"
         if _lang == "Auto":
             _gender = "Male" if _gender == "男" else "Female"
-            subprocess.run([r"python", "edgetts/tts.py", _text, _lang, _rate, _volume, _gender])
+            subprocess.run([sys.executable, "edgetts/tts.py", _text, _lang, _rate, _volume, _gender])
         else:
-            subprocess.run([r"python", "edgetts/tts.py", _text, _lang, _rate, _volume])
+            subprocess.run([sys.executable, "edgetts/tts.py", _text, _lang, _rate, _volume])
         target_sr = 44100
         y, sr = librosa.load("tts.wav")
         resampled_y = librosa.resample(y, orig_sr=sr, target_sr=target_sr)
