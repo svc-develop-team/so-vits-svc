@@ -290,7 +290,7 @@ nsf-snake-hifigan
 python preprocess_hubert_f0.py --f0_predictor dio
 ```
 
-f0_predictor 拥有四个选择
+f0_predictor 拥有以下选择
 
 ```
 crepe
