@@ -1,9 +1,9 @@
 import json
 import logging
 import os
-import sys
 import re
 import subprocess
+import sys
 import time
 import traceback
 from itertools import chain
