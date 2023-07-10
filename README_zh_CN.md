@@ -145,6 +145,8 @@ wget -P pretrain/ https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/mai
 
 #### **可选项（根据情况选择）**
 
+##### NSF-HIFIGAN
+
 如果使用`NSF-HIFIGAN 增强器`或`浅层扩散`的话，需要下载预训练的 NSF-HIFIGAN 模型，如果不需要可以不下载
 
 + 预训练的 NSF-HIFIGAN 声码器 ：[nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
@@ -157,6 +159,14 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # 也可手动下载放在 pretrain/nsf_hifigan 目录
 # 地址：https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
+
+##### RMVPE
+
+如果使用`rmvpe`F0预测器的话，需要下载预训练的 RMVPE 模型
+
++ 下载模型 [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
+  + 放在`pretrain`目录下
+
 
 ## 📊 数据集准备
 
@@ -287,6 +297,7 @@ crepe
 dio
 pm
 harvest
+rmvpe
 ```
 
 如果训练集过于嘈杂，请使用 crepe 处理 f0

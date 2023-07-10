@@ -145,6 +145,8 @@ While the pretrained model typically does not pose copyright concerns, it is ess
 
 #### **Optional(Select as Required)**
 
+##### NSF-HIFIGAN
+
 If you are using the `NSF-HIFIGAN enhancer` or `shallow diffusion`, you will need to download the pre-trained NSF-HIFIGAN model.
 
 - Pre-trained NSF-HIFIGAN Vocoder: [nsf_hifigan_20221211.zip](https://github.com/openvpi/vocoders/releases/download/nsf-hifigan-v1/nsf_hifigan_20221211.zip)
@@ -157,6 +159,13 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 # Alternatively, you can manually download and place it in the pretrain/nsf_hifigan directory
 # URL: https://github.com/openvpi/vocoders/releases/tag/nsf-hifigan-v1
 ```
+
+##### RMVPE
+
+If you are using the `rmvpe` F0 Predictor, you will need to download the pre-trained RMVPE model.
+
+- download model at [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
+  - Place it under the `pretrain` directory
 
 ## 📊 Dataset Preparation
 
@@ -285,6 +294,7 @@ crepe
 dio
 pm
 harvest
+rmvpe
 ```
 
 If the training set is too noisy,it is recommended to use `crepe` to handle f0
