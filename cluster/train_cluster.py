@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=False):#gpu_minibatch真拉，虽然库支持但是也不考虑
-    if in_dir.endswith(".ipynb_checkpoints"):
+    if str(in_dir).endswith(".ipynb_checkpoints"):
         logger.info(f"Ignore {in_dir}")
 
     logger.info(f"Loading features from {in_dir}")
