@@ -296,7 +296,7 @@ with gr.Blocks(
                                 model_path = gr.File(label="选择模型文件")
                                 config_path = gr.File(label="选择配置文件")
                         with gr.TabItem('本地') as local_model_tab_local:
-                            gr.Text(f'模型应当放置于f{local_model_root}文件夹下')
+                            gr.Markdown(f'模型应当放置于f{local_model_root}文件夹下')
                             local_model_refresh_btn = gr.Button('刷新本地模型列表')
                             local_model_selection = gr.Dropdown(label='选择模型文件夹', choices=[], interactive=True)
                     with gr.Row():
