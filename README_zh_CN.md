@@ -164,7 +164,7 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 
 如果使用`rmvpe`F0预测器的话，需要下载预训练的 RMVPE 模型
 
-+ 下载模型 [rmvpe.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt)
++ 下载模型 [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
   + 放在`pretrain`目录下
 
 
