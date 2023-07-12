@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import subprocess
+import sys
 import time
 import traceback
 from itertools import chain
@@ -224,9 +225,9 @@ def vc_fn2(_text, _lang, _gender, _rate, _volume, sid, output_format, vc_transfo
         _volume = f"+{int(_volume*100)}%" if _volume >= 0 else f"{int(_volume*100)}%"
         if _lang == "Auto":
             _gender = "Male" if _gender == "男" else "Female"
-            subprocess.run([r"python", "edgetts/tts.py", _text, _lang, _rate, _volume, _gender])
+            subprocess.run([sys.executable, "edgetts/tts.py", _text, _lang, _rate, _volume, _gender])
         else:
-            subprocess.run([r"python", "edgetts/tts.py", _text, _lang, _rate, _volume])
+            subprocess.run([sys.executable, "edgetts/tts.py", _text, _lang, _rate, _volume])
         target_sr = 44100
         y, sr = librosa.load("tts.wav")
         resampled_y = librosa.resample(y, orig_sr=sr, target_sr=target_sr)
@@ -322,7 +323,7 @@ with gr.Blocks(
                         <font size=2> 推理设置</font>
                         """)
                     auto_f0 = gr.Checkbox(label="自动f0预测，配合聚类模型f0预测效果更好,会导致变调功能失效（仅限转换语音，歌声勾选此项会究极跑调）", value=False)
-                    f0_predictor = gr.Dropdown(label="选择F0预测器,可选择crepe,pm,dio,harvest,默认为pm(注意：crepe为原F0使用均值滤波器)", choices=["pm","dio","harvest","crepe"], value="pm")
+                    f0_predictor = gr.Dropdown(label="选择F0预测器,可选择crepe,pm,dio,harvest,rmvpe,默认为pm(注意：crepe为原F0使用均值滤波器)", choices=["pm","dio","harvest","crepe","rmvpe"], value="pm")
                     vc_transform = gr.Number(label="变调（整数，可以正负，半音数量，升高八度就是12）", value=0)
                     cluster_ratio = gr.Number(label="聚类模型/特征检索混合比例，0-1之间，0即不启用聚类/特征检索。使用聚类/特征检索能提升音色相似度，但会导致咬字下降（如果使用建议0.5左右）", value=0)
                     slice_db = gr.Number(label="切片阈值", value=-40)

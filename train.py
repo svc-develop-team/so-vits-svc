@@ -140,7 +140,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
     if writers is not None:
         writer, writer_eval = writers
     
-    half_type = torch.float16 if hps.train.half_type=="fp16" else torch.bfloat16
+    half_type = torch.bfloat16 if hps.train.half_type=="bf16" else torch.float16
 
     # train_loader.batch_sampler.set_epoch(epoch)
     global global_step

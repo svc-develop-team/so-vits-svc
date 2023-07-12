@@ -134,7 +134,7 @@ if __name__ == "__main__":
         '--use_diff',action='store_true', help='Whether to use the diffusion model'
     )
     parser.add_argument(
-        '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest, default pm(note: crepe is original F0 using mean filter)'
+        '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest,rmvpe, default pm(note: crepe is original F0 using mean filter)'
     )
     parser.add_argument(
         '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'

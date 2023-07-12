@@ -34,6 +34,7 @@ def removeOptimizer(config: str, input_model: str, ishalf: bool, output_model: s
     new_dict_g = copyStateDict(state_dict_g)
     keys = []
     for k, v in new_dict_g['model'].items():
+        if "enc_q" in k: continue  # noqa: E701
         keys.append(k)
     
     new_dict_g = {k: new_dict_g['model'][k].half() for k in keys} if ishalf else {k: new_dict_g['model'][k] for k in keys}
