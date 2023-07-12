@@ -71,9 +71,9 @@ class RMVPEF0Predictor(F0Predictor):
         vuv_vector = F.interpolate(vuv_vector[None,None,:],size=pad_to)[0][0]
 
         if f0.shape[0] <= 0:
-            return torch.zeros(pad_to, dtype=torch.float, device=x.device),vuv_vector.cpu().numpy()
+            return torch.zeros(pad_to, dtype=torch.float, device=x.device).cpu().numpy(),vuv_vector.cpu().numpy()
         if f0.shape[0] == 1:
-            return torch.ones(pad_to, dtype=torch.float, device=x.device) * f0[0],vuv_vector.cpu().numpy()
+            return (torch.ones(pad_to, dtype=torch.float, device=x.device) * f0[0]).cpu().numpy() ,vuv_vector.cpu().numpy()
     
         # 大概可以用 torch 重写?
         f0 = np.interp(time_frame, time_org, f0, left=f0[0], right=f0[-1])
