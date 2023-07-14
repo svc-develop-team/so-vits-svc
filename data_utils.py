@@ -48,8 +48,8 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         filename = filename.replace("\\", "/")
         audio, sampling_rate = load_wav_to_torch(filename)
         if sampling_rate != self.sampling_rate:
-            raise ValueError("{} SR doesn't match target {} SR".format(
-                sampling_rate, self.sampling_rate))
+            raise ValueError("{}: {} SR doesn't match target {} SR".format(
+                filename, sampling_rate, self.sampling_rate))
         audio_norm = audio / self.max_wav_value
         audio_norm = audio_norm.unsqueeze(0)
         spec_filename = filename.replace(".wav", ".spec.pt")
