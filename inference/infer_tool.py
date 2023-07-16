@@ -151,6 +151,7 @@ class Svc(object):
                     self.target_sample = self.diffusion_args.data.sampling_rate
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
+                    self.dtype = torch.float32
                     self.speech_encoder = self.diffusion_args.data.encoder
                     self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode is not None else 'left'
                 if spk_mix_enable:

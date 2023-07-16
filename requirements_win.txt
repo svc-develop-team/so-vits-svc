@@ -21,6 +21,7 @@ praat-parselmouth
 onnx
 onnxsim
 onnxoptimizer
+tensorboard
 tensorboardX
 transformers
 edge_tts
