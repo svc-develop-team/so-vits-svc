@@ -85,7 +85,7 @@ Or download the following ContentVec, which is only 199MB in size but has the sa
 
 ```shell
 # contentvec
-wget -P pretrain/ http://obs.cstcloud.cn/share/obs/sankagenkeshi/checkpoint_best_legacy_500.pt
+wget -P pretrain/ https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt -O checkpoint_best_legacy_500.pt
 # Alternatively, you can manually download and place it in the hubert directory
 ```
 
