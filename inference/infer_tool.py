@@ -151,15 +151,7 @@ class Svc(object):
                     self.target_sample = self.diffusion_args.data.sampling_rate
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
-                    if self.diffusion_args.train.amp_dtype == 'fp32':
-                        self.dtype = torch.float32
-                    elif self.diffusion_args.train.amp_dtype == 'fp16':
-                        self.dtype = torch.float16
-                    elif self.diffusion_args.train.amp_dtype == 'bf16':
-                        self.dtype = torch.bfloat16
-                    else:
-                        raise ValueError(' [x] Unknown amp_dtype: ' + self.diffusion_args.train.amp_dtype)
-                    self.hps_ms = utils.get_hparams_from_file(config_path, True)
+                    self.dtype = torch.float32
                     self.speech_encoder = self.diffusion_args.data.encoder
                     self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode is not None else 'left'
                 if spk_mix_enable:
