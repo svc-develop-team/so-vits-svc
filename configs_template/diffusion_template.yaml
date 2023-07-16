@@ -32,7 +32,7 @@ env:
   expdir: logs/44k/diffusion
   gpu_id: 0
 train:
-  num_workers: 2 # If your cpu and gpu are both very strong, set to 0 may be faster!
+  num_workers: 4 # If your cpu and gpu are both very strong, set to 0 may be faster!
   amp_dtype: fp32 # fp32, fp16 or bf16 (fp16 or bf16 may be faster if it is supported by your gpu)
   batch_size: 48
   cache_all_data: true # Save Internal-Memory or Graphics-Memory if it is false, but may be slow
@@ -41,8 +41,8 @@ train:
   epochs: 100000
   interval_log: 10
   interval_val: 2000
-  interval_force_save: 10000
-  lr: 0.0002
+  interval_force_save: 5000
+  lr: 0.0001
   decay_step: 100000
   gamma: 0.5
   weight_decay: 0
