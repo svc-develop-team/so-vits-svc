@@ -182,6 +182,7 @@ dataset_raw
     ├───...
     └───xxx7-xxx007.wav
 ```
+There are no specific restrictions on the format of the name for each audio file (naming conventions such as `000001.wav` to `999999.wav` are also valid), but the file type must be `WAV``.
 
 You can customize the speaker's name as showed below:
 
