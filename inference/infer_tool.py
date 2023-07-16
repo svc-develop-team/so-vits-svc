@@ -223,11 +223,11 @@ class Svc(object):
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
                 speaker_id = self.spk2id.get(speaker)
-                if speaker_id is None:
-                    raise RuntimeError("The name you entered is not in the speaker list!")
                 if not speaker_id and type(speaker) is int:
                     if len(self.spk2id.__dict__) >= speaker:
                         speaker_id = speaker
+                if speaker_id is None:
+                    raise RuntimeError("The name you entered is not in the speaker list!")
                 feature_index = self.cluster_model[speaker_id]
                 feat_np = c.transpose(0,1).cpu().numpy()
                 if self.big_npy is None or self.now_spk_id != speaker_id:
