@@ -11,7 +11,7 @@ import modules
 from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
 from commons import init_weights, get_padding
-from vdecoder.hifigan.models import Generator
+from vdecoder.hifigan.models_onnx import Generator
 from utils import f0_to_coarse
 
 class ResidualCouplingBlock(nn.Module):
