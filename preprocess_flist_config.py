@@ -30,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg','cnhubertlarge','dphubert','whisper-ppg-large','wavlmbase+'")
     parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
+    parser.add_argument("--tiny", action="store_true", help="Whether to train sovits tiny")
     args = parser.parse_args()
     
     train = []
@@ -72,7 +73,7 @@ if __name__ == "__main__":
             f.write(wavpath + "\n")
 
 
-    d_config_template = du.load_config("configs_template/diffusion_template.yaml")
+    d_config_template = du.load_config("configs_template/diffusion_tiny_template.yaml") if args.tiny else du.load_config("configs_template/diffusion_template.yaml")
     d_config_template["model"]["n_spk"] = spk_id
     d_config_template["data"]["encoder"] = args.speech_encoder
     d_config_template["spk"] = spk_dict
@@ -96,6 +97,9 @@ if __name__ == "__main__":
         
     if args.vol_aug:
         config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
+
+    if args.tiny:
+        config_template["model"]["filter_channels"] = 512
 
     print("Writing configs/config.json")
     with open("configs/config.json", "w") as f:
