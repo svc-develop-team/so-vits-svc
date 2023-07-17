@@ -1,5 +1,7 @@
 import json
+
 import torch
+
 import utils
 from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
 
