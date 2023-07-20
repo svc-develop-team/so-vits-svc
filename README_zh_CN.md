@@ -10,11 +10,11 @@
 </div>
 
 
-> ✨ 带有 F0 曲线编辑器，角色混合时间轴编辑器的推理端 (Onnx 模型的用途）: [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
+#### ✨ 带有 F0 曲线编辑器，角色混合时间轴编辑器的推理端 (Onnx 模型的用途）: [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
 
-> ✨ 改善了交互的一个分支推荐: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
+#### ✨ 改善了交互的一个分支推荐: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
 
-> ✨ 支持实时转换的一个客户端: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
+#### ✨ 支持实时转换的一个客户端: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
 
 **本项目与 Vits 有着根本上的不同。Vits 是 TTS，本项目是 SVC。本项目无法实现 TTS，Vits 也无法实现 SVC，这两个项目的模型是完全不通用的。**
 
