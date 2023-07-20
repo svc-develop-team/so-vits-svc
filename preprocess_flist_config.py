@@ -9,8 +9,6 @@ from tqdm import tqdm
 
 import diffusion.logger.utils as du
 
-config_template = json.load(open("configs_template/config_template.json"))
-
 pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
 
 def get_wav_duration(file_path):
@@ -33,11 +31,13 @@ if __name__ == "__main__":
     parser.add_argument("--tiny", action="store_true", help="Whether to train sovits tiny")
     args = parser.parse_args()
     
+    config_template =  json.load(open("configs_template/config_tiny_template.json")) if args.tiny else json.load(open("configs_template/config_template.json"))
     train = []
     val = []
     idx = 0
     spk_dict = {}
     spk_id = 0
+
     for speaker in tqdm(os.listdir(args.source_dir)):
         spk_dict[speaker] = spk_id
         spk_id += 1
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             f.write(wavpath + "\n")
 
 
-    d_config_template = du.load_config("configs_template/diffusion_tiny_template.yaml") if args.tiny else du.load_config("configs_template/diffusion_template.yaml")
+    d_config_template = du.load_config("configs_template/diffusion_template.yaml")
     d_config_template["model"]["n_spk"] = spk_id
     d_config_template["data"]["encoder"] = args.speech_encoder
     d_config_template["spk"] = spk_dict
