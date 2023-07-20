@@ -1,12 +1,20 @@
+<div align="center">
+  
 # SoftVC VITS Singing Voice Conversion
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
-#### ✨ 带有 F0 曲线编辑器，角色混合时间轴编辑器的推理端 (Onnx 模型的用途） : [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
+[![在Google Cloab中打开](https://img.shields.io/badge/Colab-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
+[![LICENSE](https://img.shields.io/badge/LICENSE-AGPL3.0-green.svg?style=for-the-badge)](https://github.com/svc-develop-team/so-vits-svc/blob/4.1-Stable/LICENSE)
 
-#### ✨ 改善了交互的一个分支推荐：[34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
+</div>
 
-#### ✨ 支持实时转换的一个客户端：[w-okada/voice-changer](https://github.com/w-okada/voice-changer)
+
+#### ✨ 带有 F0 曲线编辑器，角色混合时间轴编辑器的推理端 (Onnx 模型的用途）: [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
+
+#### ✨ 改善了交互的一个分支推荐: [34j/so-vits-svc-fork](https://github.com/34j/so-vits-svc-fork)
+
+#### ✨ 支持实时转换的一个客户端: [w-okada/voice-changer](https://github.com/w-okada/voice-changer)
 
 **本项目与 Vits 有着根本上的不同。Vits 是 TTS，本项目是 SVC。本项目无法实现 TTS，Vits 也无法实现 SVC，这两个项目的模型是完全不通用的。**
 
@@ -412,7 +420,6 @@ python train_index.py -c configs/config.json
   + `inference_main.py`中指定`cluster_model_path` 为模型输出文件，留空则默认为`logs/44k/feature_and_index.pkl`
   + `inference_main.py`中指定`cluster_infer_ratio`，`0`为完全不使用特征检索，`1`为只使用特征检索，通常设置`0.5`即可
 
-### [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb) [sovits4_for_colab.ipynb](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 
 ## 🗜️ 模型压缩
 
