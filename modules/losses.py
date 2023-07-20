@@ -50,12 +50,9 @@ def kl_loss(z_p, logs_q, m_p, logs_p, z_mask):
   m_p = m_p.float()
   logs_p = logs_p.float()
   z_mask = z_mask.float()
-  sigma = torch.exp(logs_p)
-  sigma = sigma * z_mask
   #print(logs_p)
   kl = logs_p - logs_q - 0.5
   kl += 0.5 * ((z_p - m_p)**2) * torch.exp(-2. * logs_p)
-  kl += 0.5 * torch.log(2 * torch.pi * sigma**2)
   kl = torch.sum(kl * z_mask)
   l = kl / torch.sum(z_mask)
   return l
