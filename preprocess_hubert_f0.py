@@ -124,7 +124,7 @@ def parallel_process(filenames, num_processes, f0p, diff, mel_extractor):
             start = int(i * len(filenames) / num_processes)
             end = int((i + 1) * len(filenames) / num_processes)
             file_chunk = filenames[start:end]
-            tasks.append(executor.map(process_batch, file_chunk, f0p, diff, mel_extractor))
+            tasks.append(executor.submit(process_batch, file_chunk, f0p, diff, mel_extractor))
         for task in tqdm(tasks):
             task.result()
 
