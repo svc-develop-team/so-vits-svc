@@ -345,6 +345,8 @@ python train_diff.py -c configs/diffusion.yaml
 
 During training, the model files will be saved to `logs/44k`, and the diffusion model will be saved to `logs/44k/diffusion`
 
+When using `whisper-ppg-large` as the speech_encoder, it's not possible to use the pre-trained models from [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC). You need to delete all the files in the `logs/44k/diffusion` directory before starting the training. This change makes the training mode start from scratch, rather than starting from the pre-trained model.
+
 ## 🤖 Inference
 
 Use [inference_main.py](https://github.com/svc-develop-team/so-vits-svc/blob/4.0/inference_main.py)
