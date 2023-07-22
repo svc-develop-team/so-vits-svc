@@ -23,6 +23,7 @@ class FCPEF0Predictor(F0Predictor):
         self.threshold = threshold
         self.sampling_rate = sampling_rate
         self.dtype = dtype
+        self.name = "fcpe"
 
     def repeat_expand(
             self, content: Union[torch.Tensor, np.ndarray], target_len: int, mode: str = "nearest"
@@ -89,7 +90,7 @@ class FCPEF0Predictor(F0Predictor):
             p_len = x.shape[0] // self.hop_length
         else:
             assert abs(p_len - x.shape[0] // self.hop_length) < 4, "pad length error"
-        f0 = self.fcpe(x, sr=self.sampling_rate, threshold=self.threshold)
+        f0 = self.fcpe(x, sr=self.sampling_rate, threshold=self.threshold)[0,:,0]
         if torch.all(f0 == 0):
             rtn = f0.cpu().numpy() if p_len is None else np.zeros(p_len)
             return rtn, rtn
@@ -101,7 +102,7 @@ class FCPEF0Predictor(F0Predictor):
             p_len = x.shape[0] // self.hop_length
         else:
             assert abs(p_len - x.shape[0] // self.hop_length) < 4, "pad length error"
-        f0 = self.fcpe(x, sr=self.sampling_rate, threshold=self.threshold)
+        f0 = self.fcpe(x, sr=self.sampling_rate, threshold=self.threshold)[0,:,0]
         if torch.all(f0 == 0):
             rtn = f0.cpu().numpy() if p_len is None else np.zeros(p_len)
             return rtn, rtn

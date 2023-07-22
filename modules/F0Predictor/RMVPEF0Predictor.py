@@ -22,6 +22,7 @@ class RMVPEF0Predictor(F0Predictor):
         self.threshold = threshold
         self.sampling_rate = sampling_rate
         self.dtype = dtype
+        self.name = "rmvpe"
 
     def repeat_expand(
         self, content: Union[torch.Tensor, np.ndarray], target_len: int, mode: str = "nearest"

@@ -10,7 +10,7 @@ class PMF0Predictor(F0Predictor):
         self.f0_min = f0_min
         self.f0_max = f0_max
         self.sampling_rate = sampling_rate
-
+        self.name = "pm"
     
     def interpolate_f0(self,f0):
         '''

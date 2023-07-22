@@ -203,9 +203,10 @@ class Svc(object):
 
     def get_unit_f0(self, wav, tran, cluster_infer_ratio, speaker, f0_filter ,f0_predictor,cr_threshold=0.05):
 
-        f0_predictor_object = utils.get_f0_predictor(f0_predictor,hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
-        
-        f0, uv = f0_predictor_object.compute_f0_uv(wav)
+        if not hasattr(self,"f0_predictor_object") or self.f0_predictor_object is None or f0_predictor != self.f0_predictor_object.name:
+            self.f0_predictor_object = utils.get_f0_predictor(f0_predictor,hop_length=self.hop_size,sampling_rate=self.target_sample,device=self.dev,threshold=cr_threshold)
+        f0, uv = self.f0_predictor_object.compute_f0_uv(wav)
+
         if f0_filter and sum(f0) == 0:
             raise F0FilterException("No voice detected")
         f0 = torch.FloatTensor(f0).to(self.dev)

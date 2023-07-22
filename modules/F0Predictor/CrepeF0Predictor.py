@@ -13,6 +13,7 @@ class CrepeF0Predictor(F0Predictor):
         self.device = device
         self.threshold = threshold
         self.sampling_rate = sampling_rate
+        self.name = "crepe"
 
     def compute_f0(self,wav,p_len=None):
         x = torch.FloatTensor(wav).to(self.device)

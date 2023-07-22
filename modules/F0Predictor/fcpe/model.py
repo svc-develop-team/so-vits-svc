@@ -1,10 +1,7 @@
-import os
-
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import yaml
 from torch.nn.utils import weight_norm
 from torchaudio.transforms import Resample
 
@@ -146,10 +143,11 @@ class FCPE(nn.Module):
 
 class FCPEInfer:
     def __init__(self, model_path, device=None, dtype=torch.float32):
-        config_file = os.path.join(os.path.split(model_path)[0], 'config.yaml')
-        with open(config_file, "r") as config:
-            args = yaml.safe_load(config)
-        self.args = DotDict(args)
+        if device is None:
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = device
+        ckpt = torch.load(model_path, map_location=torch.device(self.device))
+        self.args = DotDict(ckpt["config"])
         self.dtype = dtype
         model = FCPE(
             input_channel=self.args.model.input_channel,
@@ -167,25 +165,19 @@ class FCPEInfer:
             f0_min=self.args.model.f0_min,
             confidence=self.args.model.confidence,
         )
-        if device is None:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = device
         ckpt = torch.load(model_path, map_location=torch.device(self.device))
         model.to(self.device).to(self.dtype)
         model.load_state_dict(ckpt['model'])
         model.eval()
         self.model = model
         self.wav2mel = Wav2Mel(self.args)
-        self.args = args
 
     @torch.no_grad()
     def __call__(self, audio, sr, threshold=0.05):
         self.model.threshold = threshold
-        audio = torch.from_numpy(audio).float().unsqueeze(0).to(self.device)
+        audio = audio[None,:]
         mel = self.wav2mel(audio=audio, sample_rate=sr).to(self.dtype)
-        mel_f0 = self.model(mel=mel, infer=True, return_hz_f0=True)
-        # f0 = (mel_f0.exp() - 1) * 700
-        f0 = mel_f0
+        f0 = self.model(mel=mel, infer=True, return_hz_f0=True)
         return f0
 
 
