@@ -43,7 +43,6 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
     if torch.isnan(f0_norm).any():
         exit(0)
     return f0_norm * x_mask
-
 def plot_data_to_numpy(x, y):
     global MATPLOTLIB_FLAG
     if not MATPLOTLIB_FLAG:
