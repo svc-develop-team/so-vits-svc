@@ -5,12 +5,12 @@ import random
 from concurrent.futures import ProcessPoolExecutor
 from glob import glob
 from random import shuffle
-from loguru import logger
 
 import librosa
 import numpy as np
 import torch
 import torch.multiprocessing as mp
+from loguru import logger
 from tqdm import tqdm
 
 import diffusion.logger.utils as du
