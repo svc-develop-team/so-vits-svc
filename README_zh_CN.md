@@ -346,6 +346,8 @@ python train_diff.py -c configs/diffusion.yaml
 
 模型训练结束后，模型文件保存在`logs/44k`目录下，扩散模型在`logs/44k/diffusion`下
 
+在使用 `whisper-ppg-large` 作为 speech_encoder 的场合，无法使用 [Diffusion-SVC](https://github.com/CNChTu/Diffusion-SVC) 中的预训练模型，需要将 `logs/44k/diffusion` 目录清空再进行训练，使得训练的模式变为从头开始训练，而不是从预训练模型开始。 
+
 ## 🤖 推理
 
 使用 [inference_main.py](inference_main.py)
