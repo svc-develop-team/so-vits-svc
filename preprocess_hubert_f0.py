@@ -6,7 +6,6 @@ import random
 from concurrent.futures import ProcessPoolExecutor
 from glob import glob
 from random import shuffle
-from utils import list_file
 import librosa
 import numpy as np
 import torch
