@@ -1,12 +1,12 @@
-import torch
-
-from torch import nn
 import math
 from functools import partial
-from einops import rearrange, repeat
 
-from local_attention import LocalAttention
+import torch
 import torch.nn.functional as F
+from einops import rearrange, repeat
+from local_attention import LocalAttention
+from torch import nn
+
 #import fast_transformers.causal_product.causal_product_cuda
 
 def softmax_kernel(data, *, projection_matrix, is_query, normalize_data=True, eps=1e-4, device = None):

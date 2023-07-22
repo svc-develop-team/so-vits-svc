@@ -41,9 +41,9 @@ class FCPE(nn.Module):
             use_input_conv=True
     ):
         super().__init__()
-        if use_siren == True:
+        if use_siren is True:
             raise ValueError("Siren is not supported yet.")
-        if use_full == True:
+        if use_full is True:
             raise ValueError("Full model is not supported yet.")
 
         self.loss_mse_scale = loss_mse_scale if (loss_mse_scale is not None) else 10
