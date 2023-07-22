@@ -142,7 +142,7 @@ wget -P pretrain/ https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/mai
 + 预训练底模文件： `G_0.pth` `D_0.pth`
   + 放在`logs/44k`目录下
 
-+ 扩散模型预训练底模文件： `model_0.pt `
++ 扩散模型预训练底模文件： `model_0.pt`
   + 放在`logs/44k/diffusion`目录下
 
 从 svc-develop-team（待定）或任何其他地方获取 Sovits 底模
@@ -173,6 +173,15 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 如果使用`rmvpe`F0预测器的话，需要下载预训练的 RMVPE 模型
 
 + 下载模型 [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
+  + 放在`pretrain`目录下
+
+##### FCPE
+
+> 你说的对,但是[FCPE](https://github.com/CNChTu/MelPE)是由svc-develop-team自主研发的一款全新的F0预测器，后面忘了
+
+如果使用 `fcpe` F0预测器的话，需要下载预训练的 FCPE 模型
+
++ 下载模型 [fcpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/fcpe.pt)
   + 放在`pretrain`目录下
 
 
@@ -313,6 +322,7 @@ dio
 pm
 harvest
 rmvpe
+fcpe
 ```
 
 如果训练集过于嘈杂，请使用 crepe 处理 f0
@@ -364,7 +374,7 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 
 可选项部分：部分具体见下一节
 + `-lg` | `--linear_gradient`：两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值 0，单位为秒
-+ `-f0p` | `--f0_predictor`：选择 F0 预测器，可选择 crepe,pm,dio,harvest,rmvpe, 默认为 pm（注意：crepe 为原 F0 使用均值滤波器）
++ `-f0p` | `--f0_predictor`：选择 F0 预测器，可选择 crepe,pm,dio,harvest,rmvpe,fcpe, 默认为 pm（注意：crepe 为原 F0 使用均值滤波器）
 + `-a` | `--auto_predict_f0`：语音转换自动预测音高，转换歌声时不要打开这个会严重跑调
 + `-cm` | `--cluster_model_path`：聚类模型或特征检索索引路径，留空则自动设为各方案模型的默认路径，如果没有训练聚类或特征检索则随便填
 + `-cr` | `--cluster_infer_ratio`：聚类方案或特征检索占比，范围 0-1，若没有训练聚类模型或特征检索则默认 0 即可

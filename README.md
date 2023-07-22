@@ -174,6 +174,13 @@ If you are using the `rmvpe` F0 Predictor, you will need to download the pre-tra
 - download model at [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
   - Place it under the `pretrain` directory
 
+##### FCPE
+
+If you are using the `fcpe` F0 Predictor, you will need to download the pre-trained RMVPE model.
+
+- download model at [fcpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/fcpe.pt)
+  - Place it under the `pretrain` directory
+
 ## 📊 Dataset Preparation
 
 Simply place the dataset in the `dataset_raw` directory with the following file structure:
@@ -312,6 +319,7 @@ dio
 pm
 harvest
 rmvpe
+fcpe
 ```
 
 If the training set is too noisy,it is recommended to use `crepe` to handle f0
@@ -363,7 +371,7 @@ Required parameters:
 
 Optional parameters: see the next section
 - `-lg` | `--linear_gradient`: The cross fade length of two audio slices in seconds. If there is a discontinuous voice after forced slicing, you can adjust this value. Otherwise, it is recommended to use the default value of 0.
-- `-f0p` | `--f0_predictor`: Select a F0 predictor, options are `crepe`, `pm`, `dio`, `harvest`, `rmvpe`, default value is `pm`(note: f0 mean pooling will be enable when using `crepe`)
+- `-f0p` | `--f0_predictor`: Select a F0 predictor, options are `crepe`, `pm`, `dio`, `harvest`, `rmvpe`,`fcpe`, default value is `pm`(note: f0 mean pooling will be enable when using `crepe`)
 - `-a` | `--auto_predict_f0`: automatic pitch prediction, do not enable this when converting singing voices as it can cause serious pitch issues.
 - `-cm` | `--cluster_model_path`: Cluster model or feature retrieval index path, if left blank, it will be automatically set as the default path of these models. If there is no training cluster or feature retrieval, fill in at will.
 - `-cr` | `--cluster_infer_ratio`: The proportion of clustering scheme or feature retrieval ranges from 0 to 1. If there is no training clustering model or feature retrieval, the default is 0.
