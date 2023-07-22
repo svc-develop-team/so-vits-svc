@@ -111,7 +111,7 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None):
     if torch.cuda.is_available():
         gpu_id = rank % torch.cuda.device_count()
         device = torch.device(f"cuda:{gpu_id}")
-    print("Rank {rank} uses device {device}")
+    print(f"Rank {rank} uses device {device}")
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     print("Loaded speech encoder.")
     for filename in tqdm(file_chunk):
