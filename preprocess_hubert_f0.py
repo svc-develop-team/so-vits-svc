@@ -27,7 +27,7 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel,f0p,diff=False,rank,mel_extractor=None):
+def process_one(filename, hmodel,f0p,rank,diff=False,mel_extractor=None):
     # print(filename)
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
@@ -114,7 +114,7 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None):
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     print("Loaded speech encoder.")
     for filename in tqdm(file_chunk):
-        process_one(filename, hmodel, f0p, diff, rank, mel_extractor)
+        process_one(filename, hmodel, f0p, rank, diff, mel_extractor)
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor):
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
