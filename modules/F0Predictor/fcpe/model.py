@@ -1,14 +1,15 @@
+import os
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.utils import weight_norm
-import os
 import yaml
+from torch.nn.utils import weight_norm
 from torchaudio.transforms import Resample
-import numpy as np
 
-from .pcmer import PCmer
 from .nvSTFT import STFT
+from .pcmer import PCmer
 
 
 def l2_regularization(model, l2_alpha):

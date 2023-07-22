@@ -1,3 +1,3 @@
-from .pcmer import PCmer
-from .nvSTFT import STFT
-from .model import FCPEInfer
+from .model import FCPEInfer  # noqa: F401
+from .nvSTFT import STFT  # noqa: F401
+from .pcmer import PCmer  # noqa: F401

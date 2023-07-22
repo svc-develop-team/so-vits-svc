@@ -1,16 +1,14 @@
-import math
 import os
-os.environ["LRU_CACHE_CAPACITY"] = "3"
-import random
-import torch
-import torch.utils.data
-import numpy as np
+
 import librosa
-from librosa.util import normalize
-from librosa.filters import mel as librosa_mel_fn
-from scipy.io.wavfile import read
+import numpy as np
 import soundfile as sf
+import torch
 import torch.nn.functional as F
+import torch.utils.data
+from librosa.filters import mel as librosa_mel_fn
+
+os.environ["LRU_CACHE_CAPACITY"] = "3"
 
 def load_wav_to_torch(full_path, target_sr=None, return_empty_on_exception=False):
     sampling_rate = None
