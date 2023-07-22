@@ -102,6 +102,9 @@ def get_f0_predictor(f0_predictor,hop_length,sampling_rate,**kargs):
     elif f0_predictor == "rmvpe":
         from modules.F0Predictor.RMVPEF0Predictor import RMVPEF0Predictor
         f0_predictor_object = RMVPEF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate,dtype=torch.float32 ,device=kargs["device"],threshold=kargs["threshold"])
+    elif f0_predictor == "fcpe":
+        from modules.F0Predictor.FCPEF0Predictor import FCEF0Predictor
+        f0_predictor_object = FCEF0Predictor(hop_length=hop_length,sampling_rate=sampling_rate,dtype=torch.float32 ,device=kargs["device"],threshold=kargs["threshold"])
     else:
         raise Exception("Unknown f0 predictor")
     return f0_predictor_object
