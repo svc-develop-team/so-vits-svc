@@ -229,7 +229,7 @@ class Svc(object):
                 if speaker_id is None:
                     raise RuntimeError("The name you entered is not in the speaker list!")
                 feature_index = self.cluster_model[speaker_id]
-                feat_np = c.transpose(0,1).cpu().numpy()
+                feat_np = np.ascontiguousarray(c.transpose(0,1).cpu().numpy())
                 if self.big_npy is None or self.now_spk_id != speaker_id:
                    self.big_npy = feature_index.reconstruct_n(0, feature_index.ntotal)
                    self.now_spk_id = speaker_id
