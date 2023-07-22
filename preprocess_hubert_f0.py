@@ -37,7 +37,6 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
     if torch.cuda.is_available():
         gpu_id = rank % torch.cuda.device_count()
         device = torch.device(f"cuda:{gpu_id}")
-    print(f"Rank {rank} uses device {device}")
     soft_path = filename + ".soft.pt"
     if not os.path.exists(soft_path):
         wav16k = librosa.resample(wav, orig_sr=sampling_rate, target_sr=16000)
