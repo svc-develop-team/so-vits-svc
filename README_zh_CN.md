@@ -259,13 +259,6 @@ wavlmbase+
 ```shell
 python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 ```
-
-**加速预处理**
-如若您的数据集比较大，可以尝试添加`--num_processes`参数：
-```shell
-python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug --num_processes 8
-```
-所有的Workers会被自动分配到多个GPU上（如果您有多个GPU的话）
 使用后训练出的模型将匹配到输入源响度，否则为训练集响度。
 
 #### 此时可以在生成的 config.json 与 diffusion.yaml 修改部分参数
@@ -324,6 +317,13 @@ rmvpe
 ```shell
 python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 ```
+
+**加速预处理**
+如若您的数据集比较大，可以尝试添加`--num_processes`参数：
+```shell
+python preprocess_hubert_f0.py --f0_predictor dio --use_diff --num_processes 8
+```
+所有的Workers会被自动分配到多个线程上
 
 执行完以上步骤后 dataset 目录便是预处理完成的数据，可以删除 dataset_raw 文件夹了
 
