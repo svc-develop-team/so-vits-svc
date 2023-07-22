@@ -43,7 +43,38 @@ def normalize_f0(f0, x_mask, uv, random_scale=True):
     if torch.isnan(f0_norm).any():
         exit(0)
     return f0_norm * x_mask
+def list_files(
+    path: Union[Path, str],
+    extensions: set[str] = None,
+    recursive: bool = False,
+    sort: bool = True,
+) -> list[Path]:
+    """List files in a directory.
 
+    Args:
+        path (Path): Path to the directory.
+        extensions (set, optional): Extensions to filter. Defaults to None.
+        recursive (bool, optional): Whether to search recursively. Defaults to False.
+        sort (bool, optional): Whether to sort the files. Defaults to True.
+
+    Returns:
+        list: List of files.
+    """
+
+    if isinstance(path, str):
+        path = Path(path)
+
+    files = path.glob("**/*") if recursive else path.glob("*")
+    files = [f for f in files if f.is_file()]
+
+    if extensions is not None:
+        files = [f for f in files if f.suffix in extensions]
+
+    if sort:
+        files = sorted(files)
+
+    return files
+    
 def plot_data_to_numpy(x, y):
     global MATPLOTLIB_FLAG
     if not MATPLOTLIB_FLAG:
