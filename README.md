@@ -258,15 +258,6 @@ Add `--vol_aug` if you want to enable loudness embedding:
 python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug
 ```
 
-**Speed Up preprocess**
-
-If your dataset is pretty large,you can increase the param `--num_processes` like that:
-
-```shell
-python preprocess_flist_config.py --speech_encoder vec768l12 --vol_aug --num_processes 8
-```
-All the worker will be assigned to different GPU if you have more than one GPUs.
-
 After enabling loudness embedding, the trained model will match the loudness of the input source; otherwise, it will match the loudness of the training set.
 
 #### You can modify some parameters in the generated config.json and diffusion.yaml
@@ -323,6 +314,15 @@ If you want shallow diffusion (optional), you need to add the `--use_diff` param
 ```shell
 python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 ```
+
+**Speed Up preprocess**
+
+If your dataset is pretty large,you can increase the param `--num_processes` like that:
+
+```shell
+python preprocess_hubert_f0.py --speech_encoder vec768l12 --vol_aug --num_processes 8
+```
+All the worker will be assigned to different GPU if you have more than one GPUs.
 
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
