@@ -25,3 +25,4 @@ langdetect
 pyyaml
 pynvml
 faiss-cpu
+loguru
