@@ -1,6 +1,5 @@
 import argparse
 import logging
-import torch.multiprocessing as mp
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
@@ -10,6 +9,7 @@ from random import shuffle
 import librosa
 import numpy as np
 import torch
+import torch.multiprocessing as mp
 from tqdm import tqdm
 
 import diffusion.logger.utils as du
