@@ -6,7 +6,7 @@ import random
 from concurrent.futures import ProcessPoolExecutor
 from glob import glob
 from random import shuffle
-
+from utils import list_file
 import librosa
 import numpy as np
 import torch
@@ -142,11 +142,22 @@ if __name__ == "__main__":
     parser.add_argument(
         '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
     )
+    parser.add_argument(
+        '--clean',action='store_true', help='Clean previous preprocessed files.'
+    )
     args = parser.parse_args()
     f0p = args.f0_predictor
     print(speech_encoder)
     print(f0p)
     print(args.use_diff)
+    if args.clean:
+        print("Cleaning previous preprocessed files....")
+
+        files = list_files(path, {".npy"}, recursive=True, sort=True)
+        for f in files:
+            f.unlink()
+
+        print("Done!")
     if args.use_diff:
         print("use_diff")
         print("Loading Mel Extractor...")
