@@ -177,7 +177,7 @@ If you are using the `rmvpe` F0 Predictor, you will need to download the pre-tra
 
 ##### FCPE(Preview version)
 
-[FCPE(Fast Context-base Pitch Estimator)](https://github.com/CNChTu/MelPE) is a dedicated F0 predictor designed for real-time voice conversion and will become the preferred F0 predictor for sovits real-time voice conversion in the future.
+[FCPE(Fast Context-base Pitch Estimator)](https://github.com/CNChTu/MelPE) is a dedicated F0 predictor designed for real-time voice conversion and will become the preferred F0 predictor for sovits real-time voice conversion in the future.(The paper is being written)
 
 If you are using the `fcpe` F0 Predictor, you will need to download the pre-trained FCPE model.
 
