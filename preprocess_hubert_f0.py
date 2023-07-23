@@ -28,11 +28,10 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel,f0p,rank,diff=False,mel_extractor=None):
+def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
     audio_norm = audio_norm.unsqueeze(0)
-    device = torch.device(f"cuda:{rank}")
     soft_path = filename + ".soft.pt"
     if not os.path.exists(soft_path):
         wav16k = librosa.resample(wav, orig_sr=sampling_rate, target_sr=16000)
@@ -115,7 +114,7 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu")
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     logger.info(f"Loaded speech encoder for rank {rank}")
     for filename in tqdm(file_chunk):
-        process_one(filename, hmodel, f0p, gpu_id, diff, mel_extractor)
+        process_one(filename, hmodel, f0p, device, diff, mel_extractor)
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device):
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
