@@ -175,7 +175,7 @@ If you are using the `rmvpe` F0 Predictor, you will need to download the pre-tra
 - download model at [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
   - Place it under the `pretrain` directory
 
-##### FCPE
+##### FCPE(Preview version)
 
 [FCPE(Fast Context-base Pitch Estimator)](https://github.com/CNChTu/MelPE) is a dedicated F0 predictor designed for real-time voice conversion and will become the preferred F0 predictor for sovits real-time voice conversion in the future.
 
