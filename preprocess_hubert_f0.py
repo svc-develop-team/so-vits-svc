@@ -10,6 +10,7 @@ import librosa
 import numpy as np
 import torch
 import torch.multiprocessing as mp
+from loguru import logger
 from tqdm import tqdm
 
 import diffusion.logger.utils as du
@@ -27,13 +28,11 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
-    # print(filename)
+def process_one(filename, hmodel,f0p,rank,diff=False,mel_extractor=None):
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
     audio_norm = audio_norm.unsqueeze(0)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    device = torch.device(f"cuda:{rank}")
     soft_path = filename + ".soft.pt"
     if not os.path.exists(soft_path):
         wav16k = librosa.resample(wav, orig_sr=sampling_rate, target_sr=16000)
@@ -106,17 +105,17 @@ def process_one(filename, hmodel,f0p,diff=False,mel_extractor=None):
 
 
 def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu"):
-    print("Loading speech encoder for content...")
+    logger.info("Loading speech encoder for content...")
     rank = mp.current_process()._identity
     rank = rank[0] if len(rank) > 0 else 0
     if torch.cuda.is_available():
         gpu_id = rank % torch.cuda.device_count()
         device = torch.device(f"cuda:{gpu_id}")
-    print("Rank {rank} uses device {device}")
+    logger.info(f"Rank {rank} uses device {device}")
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
-    print("Loaded speech encoder.")
+    logger.info(f"Loaded speech encoder for rank {rank}")
     for filename in tqdm(file_chunk):
-        process_one(filename, hmodel, f0p, diff, mel_extractor)
+        process_one(filename, hmodel, f0p, gpu_id, diff, mel_extractor)
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device):
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
@@ -151,9 +150,11 @@ if __name__ == "__main__":
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print(speech_encoder)
-    print(f0p)
-    print("use_diff: ", args.use_diff)
-    print("device: ", device)
+    logger.info("Using device: ", device)
+    logger.info("Using SpeechEncoder: " + speech_encoder)
+    logger.info("Using extractor: " + f0p)
+    logger.info("Using diff Mode: " + str( args.use_diff))
+
     if args.use_diff:
         print("use_diff")
         print("Loading Mel Extractor...")

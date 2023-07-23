@@ -9,6 +9,8 @@ torch==1.13.1
 torchaudio==0.13.1
 torchcrepe
 tqdm
+rich.progress
+loguru
 scikit-maad
 praat-parselmouth
 onnx

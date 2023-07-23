@@ -10,6 +10,8 @@ torch
 torchaudio
 torchcrepe
 tqdm
+rich
+loguru
 scikit-maad
 praat-parselmouth
 onnx
