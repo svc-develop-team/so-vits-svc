@@ -114,7 +114,7 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None):
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     logger.info(f"Loaded speech encoder for rank {rank}")
     for filename in tqdm(file_chunk):
-        process_one(filename, hmodel, f0p, rank, diff, mel_extractor)
+        process_one(filename, hmodel, f0p, gpu_id, diff, mel_extractor)
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor):
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
