@@ -6,8 +6,8 @@ from multiprocessing import cpu_count
 
 import librosa
 import numpy as np
-from scipy.io import wavfile
 from rich.progress import track
+from scipy.io import wavfile
 
 
 def load_wav(wav_path):

@@ -10,7 +10,7 @@ torch
 torchaudio
 torchcrepe
 tqdm
-rich.progress
+rich
 loguru
 scikit-maad
 praat-parselmouth
@@ -27,4 +27,3 @@ langdetect
 pyyaml
 pynvml
 faiss-cpu
-loguru
