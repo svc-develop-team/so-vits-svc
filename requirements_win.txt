@@ -29,3 +29,5 @@ langdetect
 pyyaml
 pynvml
 faiss-cpu
+local-attention
+einops
