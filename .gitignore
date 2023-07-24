@@ -165,3 +165,8 @@ pretrain/
 .vscode/launch.json
 
 trained/**/
+
+example.py
+configs/config.json
+configs/diffusion.yaml
+configs/diffusion.yaml

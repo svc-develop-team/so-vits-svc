@@ -1,0 +1,51 @@
+data:
+  sampling_rate: 44100
+  block_size: 512 # Equal to hop_length
+  duration: 2 # Audio duration during training, must be less than the duration of the shortest audio clip
+  encoder: 'vec768l12' # 'hubertsoft', 'vec256l9', 'vec768l12'
+  cnhubertsoft_gate: 10
+  encoder_sample_rate: 16000
+  encoder_hop_size: 320
+  encoder_out_channels: 768 # 256 if using 'hubertsoft'
+  training_files: "filelists/train.txt"
+  validation_files: "filelists/val.txt"
+  extensions: # List of extension included in the data collection
+    - wav
+  unit_interpolate_mode: "nearest"
+model:
+  type: 'Diffusion'
+  n_layers: 20
+  n_chans: 512
+  n_hidden: 256
+  use_pitch_aug: true
+  timesteps : 1000
+  k_step_max: 0 # must <= timesteps, If it is 0, train all
+  n_spk: 1 # max number of different speakers
+device: cuda
+vocoder:
+  type: 'nsf-hifigan'
+  ckpt: 'pretrain/nsf_hifigan/model'
+infer:
+  speedup: 10
+  method: 'dpm-solver++' # 'pndm' or 'dpm-solver' or 'ddim' or 'unipc' or 'dpm-solver++'
+env:
+  expdir: logs/44k/diffusion
+  gpu_id: 0
+train:
+  num_workers: 4 # If your cpu and gpu are both very strong, set to 0 may be faster!
+  amp_dtype: fp32 # fp32, fp16 or bf16 (fp16 or bf16 may be faster if it is supported by your gpu)
+  batch_size: 48
+  cache_all_data: true # Save Internal-Memory or Graphics-Memory if it is false, but may be slow
+  cache_device: 'cpu' # Set to 'cuda' to cache the data into the Graphics-Memory, fastest speed for strong gpu
+  cache_fp16: true
+  epochs: 100000
+  interval_log: 10
+  interval_val: 2000
+  interval_force_save: 5000
+  lr: 0.0001
+  decay_step: 100000
+  gamma: 0.5
+  weight_decay: 0
+  save_opt: false
+spk:
+  'nyaru': 0
