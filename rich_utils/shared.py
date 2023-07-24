@@ -1,5 +1,6 @@
-from rich.live import Live
 import atexit
+
+from rich.live import Live
 
 import rich_utils
 

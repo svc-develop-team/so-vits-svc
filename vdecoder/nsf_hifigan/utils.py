@@ -6,9 +6,11 @@ import matplotlib.pylab as plt
 import torch
 from torch.nn.utils import weight_norm
 
+from log import logger
+
 matplotlib.use("Agg")
 
-from log import logger
+
 
 def plot_spectrogram(spectrogram):
     fig, ax = plt.subplots(figsize=(10, 2))

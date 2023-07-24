@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from log import logger
 
+
 def load_wav(wav_path):
     return librosa.load(wav_path, sr=None)
 

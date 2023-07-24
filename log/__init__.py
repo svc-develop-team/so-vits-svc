@@ -1,9 +1,7 @@
-import sys
 import time
+
 from loguru import logger
-from rich.logging import RichHandler
 from rich.console import Console
-from rich.highlighter import Highlighter
 
 last_called = None
 

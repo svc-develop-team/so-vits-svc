@@ -5,11 +5,12 @@ import torch
 import torch.nn as nn
 import yaml
 
+from log import logger
+
 from .diffusion import GaussianDiffusion
 from .vocoder import Vocoder
 from .wavenet import WaveNet
 
-from log import logger
 
 class DotDict(dict):
     def __getattr__(*args):         

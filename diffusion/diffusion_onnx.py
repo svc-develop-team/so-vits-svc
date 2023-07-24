@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from log import logger
 
+
 def exists(x):
     return x is not None
 

@@ -6,10 +6,9 @@ import torch
 from torch import autocast
 from torch.cuda.amp import GradScaler
 
-from log import logger
-
 from diffusion.logger import utils
 from diffusion.logger.saver import Saver
+from log import logger
 
 
 def test(args, model, vocoder, loader_test, saver):

@@ -2,9 +2,8 @@ import argparse
 import os
 import pickle
 
-from log import logger
-
 import utils
+from log import logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

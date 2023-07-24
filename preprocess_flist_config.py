@@ -3,12 +3,12 @@ import json
 import os
 import re
 import wave
-from log import logger
 from random import shuffle
 
 from tqdm import tqdm
 
 import diffusion.logger.utils as du
+from log import logger
 
 config_template = json.load(open("configs_template/config_template.json"))
 

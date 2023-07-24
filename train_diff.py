@@ -8,7 +8,6 @@ from diffusion.logger import utils
 from diffusion.solver import train
 from diffusion.unit2mel import Unit2Mel
 from diffusion.vocoder import Vocoder
-
 from log import logger
 
 

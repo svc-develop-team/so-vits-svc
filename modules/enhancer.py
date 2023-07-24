@@ -3,10 +3,9 @@ import torch
 import torch.nn.functional as F
 from torchaudio.transforms import Resample
 
+from log import logger
 from vdecoder.nsf_hifigan.models import load_model
 from vdecoder.nsf_hifigan.nvSTFT import STFT
-
-from log import logger
 
 
 class Enhancer:

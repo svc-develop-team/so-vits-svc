@@ -20,10 +20,8 @@ import cluster
 import utils
 from diffusion.unit2mel import load_model_vocoder
 from inference import slicer
-from models import SynthesizerTrn
-
 from log import logger
-
+from models import SynthesizerTrn
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 

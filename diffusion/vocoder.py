@@ -1,10 +1,10 @@
 import torch
 from torchaudio.transforms import Resample
 
+from log import logger
 from vdecoder.nsf_hifigan.models import load_config, load_model
 from vdecoder.nsf_hifigan.nvSTFT import STFT
 
-from log import logger
 
 class Vocoder:
     def __init__(self, vocoder_type, vocoder_ckpt, device = None):

@@ -9,6 +9,7 @@ from diffusion_onnx import GaussianDiffusion
 
 from log import logger
 
+
 class DotDict(dict):
     def __getattr__(*args):         
         val = dict.get(*args)         

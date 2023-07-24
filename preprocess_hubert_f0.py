@@ -1,33 +1,36 @@
 import argparse
 import logging
-from multiprocessing import Manager
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
 from glob import glob
+from multiprocessing import Manager
 from random import shuffle
 from time import sleep
-from log import logger
+
 import librosa
 import numpy as np
+
+from log import logger
+
 if __name__ == "__main__":
     logger.info("Loading torch, it may take a while...")
 import torch
 import torch.multiprocessing as mp
+
 if __name__ == "__main__":
     logger.success("Loaded torch")
 
-from tqdm import tqdm
 
 # from log import logger
 
+from rich.live import Live
+
 import diffusion.logger.utils as du
+import rich_utils
 import utils
 from diffusion.vocoder import Vocoder
 from modules.mel_processing import spectrogram_torch
-
-import rich_utils
-from rich.live import Live
 
 # from rich_utils.shared import live, progress
 
@@ -165,11 +168,11 @@ def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, fake_pr
                 file_chunk = filenames[start:end]
                 progress.add_task(len(file_chunk), f"Worker {i+1}")
                 tasks.append(executor.submit(process_batch, queues[i], file_chunk, f0p, diff, mel_extractor, fake_processing))
-            with Live(progress, refresh_per_second=10, transient=True) as live:
+            with Live(progress, refresh_per_second=10, transient=True):
                 while not progress.overall_progress.finished:
                     for i in range(num_processes):
                         # logger.info(f"{i}, {queues[i].qsize()}")
-                        qsize = queues[i].qsize()
+                        queues[i].qsize()
                         progress.update(i,value=queues[i].qsize())
                     sleep(0.5)
 if __name__ == "__main__":

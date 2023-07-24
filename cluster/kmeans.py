@@ -7,6 +7,7 @@ from torch.nn.functional import normalize
 
 from log import logger
 
+
 # device=torch.device("cuda:0")
 def _kpp(data: torch.Tensor, k: int, sample_size: int = -1):
     """ Picks k points in the data based on the kmeans++ method.

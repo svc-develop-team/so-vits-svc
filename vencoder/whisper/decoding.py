@@ -7,11 +7,11 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch.distributions import Categorical
 
+from log import logger
+
 from .audio import CHUNK_LENGTH
 from .tokenizer import Tokenizer, get_tokenizer
 from .utils import compression_ratio
-
-from log import logger
 
 if TYPE_CHECKING:
     from .model import Whisper

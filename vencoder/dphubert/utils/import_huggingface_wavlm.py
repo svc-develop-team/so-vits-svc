@@ -10,10 +10,11 @@ from typing import Any, Dict
 
 from torch.nn import Module
 
+from log import logger
+
 from ..model import Wav2Vec2Model, wav2vec2_model, wavlm_model
 
 _LG = logging.getLogger(__name__)
-from log import logger
 
 
 def _get_config(cfg):

@@ -5,7 +5,6 @@ import soundfile
 from flask import Flask, request, send_file
 
 from inference import infer_tool, slicer
-
 from log import logger
 
 app = Flask(__name__)

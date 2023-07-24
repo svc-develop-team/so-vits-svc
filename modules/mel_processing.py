@@ -4,7 +4,6 @@ from librosa.filters import mel as librosa_mel_fn
 
 from log import logger
 
-
 MAX_WAV_VALUE = 32768.0
 
 

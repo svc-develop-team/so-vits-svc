@@ -8,9 +8,10 @@ import time
 
 import matplotlib.pyplot as plt
 import torch
-from log import logger
 import yaml
 from torch.utils.tensorboard import SummaryWriter
+
+from log import logger
 
 
 class Saver(object):

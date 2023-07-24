@@ -12,7 +12,6 @@ from sklearn.cluster import KMeans, MiniBatchKMeans
 
 from log import logger
 
-
 logging.basicConfig(level=logging.INFO)
 # logger = logging.getLogger(__name__)
 

@@ -1,23 +1,18 @@
 import random
 import sys
-from rich import color
-
-import random
-from time import sleep
-
-from rich.panel import Panel
-from rich.live import Live
-from rich.text import Text
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TaskID, TaskProgressColumn, TimeRemainingColumn
-from rich.console import Console, ConsoleOptions, ConsoleRenderable, RenderResult, Group
-from rich.table import Table
 from typing import Iterable
 
-import log
+from rich import color
+from rich.console import Console, ConsoleOptions, ConsoleRenderable, Group, RenderResult
+from rich.panel import Panel
+from rich.progress import BarColumn, Progress, TaskID, TextColumn
+from rich.table import Table
+from rich.text import Text
+
 if sys.version_info >= (3, 11):
-    from typing import Self, Protocol
+    from typing import Protocol
 else:
-    from typing_extensions import Self, Protocol
+    from typing_extensions import Protocol
 
 class CanGetKeys(Protocol):
     def keys(self) -> Iterable:
