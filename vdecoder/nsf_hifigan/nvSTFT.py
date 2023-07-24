@@ -4,9 +4,10 @@ import librosa
 import numpy as np
 import soundfile as sf
 import torch
-import torch.nn.functional as F
 import torch.utils.data
 from librosa.filters import mel as librosa_mel_fn
+
+from log import logger
 
 os.environ["LRU_CACHE_CAPACITY"] = "3"
 
@@ -15,10 +16,10 @@ def load_wav_to_torch(full_path, target_sr=None, return_empty_on_exception=False
     try:
         data, sampling_rate = sf.read(full_path, always_2d=True)# than soundfile.
     except Exception as ex:
-        print(f"'{full_path}' failed to load.\nException:")
-        print(ex)
+        logger.error(f"'{full_path}' failed to load.\nException:")
+        logger.error(ex)
         if return_empty_on_exception:
-            return [], sampling_rate or target_sr or 48000
+            return [], sampling_rate or target_sr or 32000
         else:
             raise Exception(ex)
     
@@ -35,7 +36,7 @@ def load_wav_to_torch(full_path, target_sr=None, return_empty_on_exception=False
     data = torch.FloatTensor(data.astype(np.float32))/max_mag
     
     if (torch.isinf(data) | torch.isnan(data)).any() and return_empty_on_exception:# resample will crash with inf/NaN inputs. return_empty_on_exception will return empty arr instead of except
-        return [], sampling_rate or target_sr or 48000
+        return [], sampling_rate or target_sr or 32000
     if target_sr is not None and sampling_rate != target_sr:
         data = torch.from_numpy(librosa.core.resample(data.numpy(), orig_sr=sampling_rate, target_sr=target_sr))
         sampling_rate = target_sr
@@ -68,7 +69,7 @@ class STFT():
         self.mel_basis = {}
         self.hann_window = {}
     
-    def get_mel(self, y, keyshift=0, speed=1, center=False):
+    def get_mel(self, y, center=False):
         sampling_rate = self.target_sr
         n_mels     = self.n_mels
         n_fft      = self.n_fft
@@ -78,47 +79,25 @@ class STFT():
         fmax       = self.fmax
         clip_val   = self.clip_val
         
-        factor = 2 ** (keyshift / 12)       
-        n_fft_new = int(np.round(n_fft * factor))
-        win_size_new = int(np.round(win_size * factor))
-        hop_length_new = int(np.round(hop_length * speed))
-        
         if torch.min(y) < -1.:
-            print('min value is ', torch.min(y))
+            logger.info('min value is ', torch.min(y))
         if torch.max(y) > 1.:
-            print('max value is ', torch.max(y))
+            logger.info('max value is ', torch.max(y))
         
-        mel_basis_key = str(fmax)+'_'+str(y.device)
-        if mel_basis_key not in self.mel_basis:
+        if fmax not in self.mel_basis:
             mel = librosa_mel_fn(sr=sampling_rate, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax)
-            self.mel_basis[mel_basis_key] = torch.from_numpy(mel).float().to(y.device)
+            self.mel_basis[str(fmax)+'_'+str(y.device)] = torch.from_numpy(mel).float().to(y.device)
+            self.hann_window[str(y.device)] = torch.hann_window(self.win_size).to(y.device)
         
-        keyshift_key = str(keyshift)+'_'+str(y.device)
-        if keyshift_key not in self.hann_window:
-            self.hann_window[keyshift_key] = torch.hann_window(win_size_new).to(y.device)
-        
-        pad_left = (win_size_new - hop_length_new) //2
-        pad_right = max((win_size_new- hop_length_new + 1) //2, win_size_new - y.size(-1) - pad_left)
-        if pad_right < y.size(-1):
-            mode = 'reflect'
-        else:
-            mode = 'constant'
-        y = torch.nn.functional.pad(y.unsqueeze(1), (pad_left, pad_right), mode = mode)
+        y = torch.nn.functional.pad(y.unsqueeze(1), (int((n_fft-hop_length)/2), int((n_fft-hop_length)/2)), mode='reflect')
         y = y.squeeze(1)
         
-        spec = torch.stft(y, n_fft_new, hop_length=hop_length_new, win_length=win_size_new, window=self.hann_window[keyshift_key],
-                          center=center, pad_mode='reflect', normalized=False, onesided=True, return_complex=False)
+        spec = torch.stft(y, n_fft, hop_length=hop_length, win_length=win_size, window=self.hann_window[str(y.device)],
+                          center=center, pad_mode='reflect', normalized=False, onesided=True)
         # print(111,spec)
         spec = torch.sqrt(spec.pow(2).sum(-1)+(1e-9))
-        if keyshift != 0:
-            size = n_fft // 2 + 1
-            resize = spec.size(1)
-            if resize < size:
-                spec = F.pad(spec, (0, 0, 0, size-resize))
-            spec = spec[:, :size, :] * win_size / win_size_new
-            
         # print(222,spec)
-        spec = torch.matmul(self.mel_basis[mel_basis_key], spec)
+        spec = torch.matmul(self.mel_basis[str(fmax)+'_'+str(y.device)], spec)
         # print(333,spec)
         spec = dynamic_range_compression_torch(spec, clip_val=clip_val)
         # print(444,spec)

@@ -13,6 +13,7 @@ from torch.nn import Module
 from ..model import Wav2Vec2Model, wav2vec2_model, wavlm_model
 
 _LG = logging.getLogger(__name__)
+from log import logger
 
 
 def _get_config(cfg):
@@ -79,12 +80,12 @@ def _build(config, original):
         imported = wavlm_model(**config, aux_num_out=aux_num_out)
     else:
         imported = wav2vec2_model(**config, aux_num_out=aux_num_out)
-    print(imported.feature_extractor.load_state_dict(wav2vec2.feature_extractor.state_dict(), strict=False))
-    print(imported.encoder.feature_projection.load_state_dict(wav2vec2.feature_projection.state_dict(), strict=False))
+    logger.info(imported.feature_extractor.load_state_dict(wav2vec2.feature_extractor.state_dict(), strict=False))
+    logger.info(imported.encoder.feature_projection.load_state_dict(wav2vec2.feature_projection.state_dict(), strict=False))
     encoder_state_dict = wav2vec2.encoder.state_dict()
     if is_wavlm:  # Rename paramaters of linear transformations for compatibility with the HF model
         transform_wavlm_encoder_state(encoder_state_dict, config["encoder_num_layers"])
-    print(imported.encoder.transformer.load_state_dict(encoder_state_dict, strict=False))
+    logger.info(imported.encoder.transformer.load_state_dict(encoder_state_dict, strict=False))
     if is_for_ctc:
         imported.aux.load_state_dict(original.lm_head.state_dict())
     return imported

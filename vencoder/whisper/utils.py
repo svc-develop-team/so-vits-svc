@@ -3,6 +3,7 @@ import os
 import sys
 import zlib
 from typing import Callable, TextIO
+from log import logger
 
 system_encoding = sys.getdefaultencoding()
 

@@ -6,6 +6,8 @@ from flask import Flask, request, send_file
 
 from inference import infer_tool, slicer
 
+from log import logger
+
 app = Flask(__name__)
 
 
@@ -22,11 +24,11 @@ def wav2wav():
 
     audio = []
     for (slice_tag, data) in audio_data:
-        print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
+        logger.info(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
 
         length = int(np.ceil(len(data) / audio_sr * svc_model.target_sample))
         if slice_tag:
-            print('jump empty segment')
+            logger.info('jump empty segment')
             _audio = np.zeros(length)
         else:
             # padd

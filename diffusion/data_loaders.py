@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from utils import repeat_expand_2d
 
+from log import logger
 
 def traverse_dir(
         root_dir,
@@ -125,9 +126,11 @@ class AudioDataset(Dataset):
         self.unit_interpolate_mode = unit_interpolate_mode
         # np.load(os.path.join(self.path_root, 'pitch_aug_dict.npy'), allow_pickle=True).item()
         if load_all_data:
-            print('Load all the data filelists:', filelists)
+            logger.info('Load all data filelists: {}', filelists)
         else:
-            print('Load the f0, volume data filelists:', filelists)
+            # print('Load the f0, volume data filelists:', filelists)
+            logger.info('Load f0, volume data filelists: {}', filelists)
+
         with open(filelists,"r") as f:
             self.paths = f.read().splitlines()
         for name_ext in tqdm(self.paths, total=len(self.paths)):

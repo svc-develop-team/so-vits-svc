@@ -2,6 +2,8 @@ import argparse
 import os
 import pickle
 
+from log import logger
+
 import utils
 
 if __name__ == "__main__":
@@ -22,7 +24,9 @@ if __name__ == "__main__":
     result = {}
     
     for k,v in spk_dic.items():
-        print(f"now, index {k} feature...")
+        # Q: 解释一下这个 logger 到底输出了个啥
+        # A: 我不知道
+        logger.info("index {} feature...",k)
         index = utils.train_index(k,args.root_dir)
         result[v] = index
 

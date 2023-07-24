@@ -9,6 +9,7 @@ import numpy as np
 from scipy.io import wavfile
 from tqdm import tqdm
 
+from log import logger
 
 def load_wav(wav_path):
     return librosa.load(wav_path, sr=None)
@@ -79,7 +80,8 @@ def process_all_speakers():
         for speaker in speakers:
             spk_dir = os.path.join(args.in_dir, speaker)
             if os.path.isdir(spk_dir):
-                print(spk_dir)
+                logger.info("Found {} speakers",len(spk_dir))
+                logger.info(spk_dir)
                 futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
                 for _ in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
                     pass
@@ -93,6 +95,6 @@ if __name__ == "__main__":
     parser.add_argument("--skip_loudnorm", action="store_true", help="Skip loudness matching if you have done it")
     args = parser.parse_args()
 
-    print(f"CPU count: {cpu_count()}")
+    logger.info(f"CPU count: {cpu_count()}")
     speakers = os.listdir(args.in_dir)
     process_all_speakers()

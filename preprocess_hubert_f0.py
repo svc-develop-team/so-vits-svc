@@ -10,10 +10,12 @@ from time import sleep
 from log import logger
 import librosa
 import numpy as np
-# print("Loading torch")
+if __name__ == "__main__":
+    logger.info("Loading torch, it may take a while...")
 import torch
 import torch.multiprocessing as mp
-# print("Loaded torch")
+if __name__ == "__main__":
+    logger.success("Loaded torch")
 
 from tqdm import tqdm
 
@@ -167,6 +169,7 @@ def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, fake_pr
                 while not progress.overall_progress.finished:
                     for i in range(num_processes):
                         # logger.info(f"{i}, {queues[i].qsize()}")
+                        qsize = queues[i].qsize()
                         progress.update(i,value=queues[i].qsize())
                     sleep(0.5)
 if __name__ == "__main__":

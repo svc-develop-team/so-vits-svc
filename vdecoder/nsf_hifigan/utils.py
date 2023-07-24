@@ -8,6 +8,7 @@ from torch.nn.utils import weight_norm
 
 matplotlib.use("Agg")
 
+from log import logger
 
 def plot_spectrogram(spectrogram):
     fig, ax = plt.subplots(figsize=(10, 2))
@@ -39,16 +40,16 @@ def get_padding(kernel_size, dilation=1):
 
 def load_checkpoint(filepath, device):
     assert os.path.isfile(filepath)
-    print("Loading '{}'".format(filepath))
+    logger.info("Loading '{}'".format(filepath))
     checkpoint_dict = torch.load(filepath, map_location=device)
-    print("Complete.")
+    logger.success("Complete.")
     return checkpoint_dict
 
 
 def save_checkpoint(filepath, obj):
-    print("Saving checkpoint to {}".format(filepath))
+    logger.info("Saving checkpoint to {}".format(filepath))
     torch.save(obj, filepath)
-    print("Complete.")
+    logger.success("Complete.")
 
 
 def del_old_checkpoints(cp_dir, prefix, n_models=2):

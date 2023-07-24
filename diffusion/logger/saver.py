@@ -8,6 +8,7 @@ import time
 
 import matplotlib.pyplot as plt
 import torch
+from log import logger
 import yaml
 from torch.utils.tensorboard import SummaryWriter
 
@@ -61,7 +62,7 @@ class Saver(object):
             msg_str = msg
         
         # dsplay
-        print(msg_str)
+        logger.info(msg_str)
 
         # save
         with open(self.path_log_info, 'a') as fp:
@@ -113,7 +114,7 @@ class Saver(object):
             self.expdir , name+postfix+'.pt')
        
         # check
-        print(' [*] model checkpoint saved: {}'.format(path_pt))
+        logger.success('[green][*][/green] model checkpoint saved: [cyan]{}[/cyan]',path_pt)
 
         # save
         if optimizer is not None:
@@ -137,7 +138,9 @@ class Saver(object):
         # delete
         if os.path.exists(path_pt):
             os.remove(path_pt)
-            print(' [*] model checkpoint deleted: {}'.format(path_pt))
+            # print(' [*] model checkpoint deleted: {}'.format(path_pt))
+            logger.info('[green][*][/green] model checkpoint deleted: [cyan]{}[/cyan]',path_pt)
+
         
     def global_step_increment(self):
         self.global_step += 1

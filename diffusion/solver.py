@@ -6,12 +6,14 @@ import torch
 from torch import autocast
 from torch.cuda.amp import GradScaler
 
+from log import logger
+
 from diffusion.logger import utils
 from diffusion.logger.saver import Saver
 
 
 def test(args, model, vocoder, loader_test, saver):
-    print(' [*] testing...')
+    logger.info('[*] testing...')
     model.eval()
 
     # losses
@@ -26,14 +28,13 @@ def test(args, model, vocoder, loader_test, saver):
         for bidx, data in enumerate(loader_test):
             fn = data['name'][0].split("/")[-1]
             speaker = data['name'][0].split("/")[-2]
-            print('--------')
-            print('{}/{} - {}'.format(bidx, num_batches, fn))
+            logger.info('{}/{} - {}',bidx, num_batches, fn)
 
             # unpack data
             for k in data.keys():
                 if not k.startswith('name'):
                     data[k] = data[k].to(args.device)
-            print('>>', data['name'][0])
+            logger.info('>> {}', data['name'][0])
 
             # forward
             st_time = time.time()
@@ -55,7 +56,7 @@ def test(args, model, vocoder, loader_test, saver):
             run_time = ed_time - st_time
             song_time = signal.shape[-1] / args.data.sampling_rate
             rtf = run_time / song_time
-            print('RTF: {}  | {} / {}'.format(rtf, run_time, song_time))
+            logger.info('RTF: {}  | {} / {}', rtf, run_time, song_time)
             rtf_all.append(rtf)
            
             # loss
@@ -85,8 +86,8 @@ def test(args, model, vocoder, loader_test, saver):
     test_loss /= num_batches 
     
     # check
-    print(' [test_loss] test_loss:', test_loss)
-    print(' Real Time Factor', np.mean(rtf_all))
+    logger.info('[test_loss] test_loss: {}', test_loss)
+    logger.info('Real Time Factor {}', np.mean(rtf_all))
     return test_loss
 
 

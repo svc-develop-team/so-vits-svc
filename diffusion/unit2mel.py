@@ -9,6 +9,7 @@ from .diffusion import GaussianDiffusion
 from .vocoder import Vocoder
 from .wavenet import WaveNet
 
+from log import logger
 
 class DotDict(dict):
     def __getattr__(*args):         
@@ -49,12 +50,12 @@ def load_model_vocoder(
                 args.model.k_step_max
                 )
     
-    print(' [Loading] ' + model_path)
+    logger.info('[Loading] {}', model_path)
     ckpt = torch.load(model_path, map_location=torch.device(device))
     model.to(device)
     model.load_state_dict(ckpt['model'])
     model.eval()
-    print(f'Loaded diffusion model, sampler is {args.infer.method}, speedup: {args.infer.speedup} ')
+    logger.info('Loaded diffusion model, sampler is {}, speedup: {}', args.infer.method, args.infer.speedup)
     return model, vocoder, args
 
 

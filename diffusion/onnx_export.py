@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import yaml
 from diffusion_onnx import GaussianDiffusion
 
+from log import logger
 
 class DotDict(dict):
     def __getattr__(*args):         
@@ -37,7 +38,7 @@ def load_model_vocoder(
                 args.model.timesteps,
                 args.model.k_step_max)
     
-    print(' [Loading] ' + model_path)
+    logger.info(' [Loading] ' + model_path)
     ckpt = torch.load(model_path, map_location=torch.device(device))
     model.to(device)
     model.load_state_dict(ckpt['model'])

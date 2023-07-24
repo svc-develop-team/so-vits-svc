@@ -10,6 +10,7 @@ from torch import nn
 from torch.nn import Conv1d, Mish
 from tqdm import tqdm
 
+from log import logger
 
 def exists(x):
     return x is not None
@@ -568,7 +569,7 @@ class GaussianDiffusion(nn.Module):
             )
         x = self.ad(x)
 
-        print((x == org_y_x).all())
+        logger.info((x == org_y_x).all())
         return x
 
     def forward(self, condition=None, init_noise=None, pndms=None, k_step=None):

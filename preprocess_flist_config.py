@@ -3,6 +3,7 @@ import json
 import os
 import re
 import wave
+from log import logger
 from random import shuffle
 
 from tqdm import tqdm
@@ -46,9 +47,9 @@ if __name__ == "__main__":
             if not file.endswith("wav"):
                 continue
             if not pattern.match(file):
-                print(f"warning：文件名{file}中包含非字母数字下划线，可能会导致错误。（也可能不会）")
+                logger.warning("File {} containing non-alphanumeric characters may cause errors.", file)
             if get_wav_duration(file) < 0.3:
-                print("skip too short audio:", file)
+                logger.info("Skip short audio [u]{}[/u]", file)
                 continue
             new_wavs.append(file)
         wavs = new_wavs
@@ -59,13 +60,15 @@ if __name__ == "__main__":
     shuffle(train)
     shuffle(val)
             
-    print("Writing", args.train_list)
+    logger.info("Writing train audio {}", args.train_list)
     with open(args.train_list, "w") as f:
         for fname in tqdm(train):
             wavpath = fname
             f.write(wavpath + "\n")
         
-    print("Writing", args.val_list)
+    # print("Writing", args.val_list)
+    logger.info("Writing val audio {}", args.val_list)
+
     with open(args.val_list, "w") as f:
         for fname in tqdm(val):
             wavpath = fname
@@ -97,8 +100,8 @@ if __name__ == "__main__":
     if args.vol_aug:
         config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
 
-    print("Writing configs/config.json")
+    logger.info("Init configs/config.json")
     with open("configs/config.json", "w") as f:
         json.dump(config_template, f, indent=2)
-    print("Writing configs/diffusion.yaml")
+    logger.info("Init configs/diffusion.yaml")
     du.save_config("configs/diffusion.yaml",d_config_template)

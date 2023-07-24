@@ -5,6 +5,7 @@ import pynvml
 import torch
 from torch.nn.functional import normalize
 
+from log import logger
 
 # device=torch.device("cuda:0")
 def _kpp(data: torch.Tensor, k: int, sample_size: int = -1):
@@ -90,7 +91,7 @@ class KMeansGPU:
     gpu_handle = pynvml.nvmlDeviceGetHandleByIndex(device.index)
     info = pynvml.nvmlDeviceGetMemoryInfo(gpu_handle)
     self.minibatch=int(33e6/self.n_clusters*info.free/ 1024 / 1024 / 1024)
-    print("free_mem/GB:",info.free/ 1024 / 1024 / 1024,"minibatch:",self.minibatch)
+    logger.info("free_mem/GB:",info.free/ 1024 / 1024 / 1024,"minibatch:",self.minibatch)
     
   @staticmethod
   def cos_sim(a, b):
@@ -195,10 +196,10 @@ class KMeansGPU:
         num_points_in_clusters[matched_clusters] += counts#IndexError: tensors used as indices must be long, byte or bool tensors
         self.centroids = self.centroids * (1-lr) + c_grad * lr
         if self.verbose >= 2:
-          print('iter:', i, 'error:', error.item(), 'time spent:', round(time()-iter_time, 4))
+          logger.info('iter:', i, 'error:', error.item(), 'time spent:', round(time()-iter_time, 4))
         if error <= self.tol:
           break
 
       if self.verbose >= 1:
-        print(f'used {i+1} iterations ({round(time()-start_time, 4)}s) to cluster {batch_size} items into {self.n_clusters} clusters')
+        logger.info(f'used {i+1} iterations ({round(time()-start_time, 4)}s) to cluster {batch_size} items into {self.n_clusters} clusters')
     return closest

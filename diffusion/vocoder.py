@@ -4,6 +4,7 @@ from torchaudio.transforms import Resample
 from vdecoder.nsf_hifigan.models import load_config, load_model
 from vdecoder.nsf_hifigan.nvSTFT import STFT
 
+from log import logger
 
 class Vocoder:
     def __init__(self, vocoder_type, vocoder_ckpt, device = None):
@@ -77,7 +78,7 @@ class NsfHifiGAN(torch.nn.Module):
     
     def forward(self, mel, f0):
         if self.model is None:
-            print('| Load HifiGAN: ', self.model_path)
+            logger.info('Load HifiGAN: {}', self.model_path)
             self.model, self.h = load_model(self.model_path, device=self.device)
         with torch.no_grad():
             c = mel.transpose(1, 2)
@@ -87,7 +88,7 @@ class NsfHifiGAN(torch.nn.Module):
 class NsfHifiGANLog10(NsfHifiGAN):    
     def forward(self, mel, f0):
         if self.model is None:
-            print('| Load HifiGAN: ', self.model_path)
+            logger.info('| Load HifiGAN: {}', self.model_path)
             self.model, self.h = load_model(self.model_path, device=self.device)
         with torch.no_grad():
             c = 0.434294 * mel.transpose(1, 2)

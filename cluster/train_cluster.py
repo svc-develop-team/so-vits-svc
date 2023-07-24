@@ -10,8 +10,11 @@ import tqdm
 from kmeans import KMeansGPU
 from sklearn.cluster import KMeans, MiniBatchKMeans
 
+from log import logger
+
+
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=False):#gpu_minibatch真拉，虽然库支持但是也不考虑
     if str(in_dir).endswith(".ipynb_checkpoints"):
@@ -26,7 +29,7 @@ def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=
         features.append(torch.load(path,map_location="cpu").squeeze(0).numpy().T)
         # print(features[-1].shape)
     features = np.concatenate(features, axis=0)
-    print(nums, features.nbytes/ 1024**2, "MB , shape:",features.shape, features.dtype)
+    logger.info("{} {} MB , shape: {} {}",nums, features.nbytes/ 1024**2,features.shape, features.dtype)
     features = features.astype(np.float32)
     logger.info(f"Clustering features of shape: {features.shape}")
     t = time.time()
@@ -40,14 +43,14 @@ def train_cluster(in_dir, n_clusters, use_minibatch=True, verbose=False,use_gpu=
             features=torch.from_numpy(features)#.to(device)
             kmeans.fit_predict(features)#
 
-    print(time.time()-t, "s")
+    logger.info("{} s",time.time()-t)
 
     x = {
             "n_features_in_": kmeans.n_features_in_ if use_gpu is False else features.shape[1],
             "_n_threads": kmeans._n_threads if use_gpu is False else 4,
             "cluster_centers_": kmeans.cluster_centers_ if use_gpu is False else kmeans.centroids.cpu().numpy(),
     }
-    print("end")
+    logger.info("end")
 
     return x
 
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     ckpt = {}
     for spk in os.listdir(dataset):
         if os.path.isdir(dataset/spk):
-            print(f"train kmeans for {spk}...")
+            logger.info(f"train kmeans for {spk}...")
             in_dir = dataset/spk
             x = train_cluster(in_dir, n_clusters,use_minibatch=False,verbose=False,use_gpu=use_gpu)
             ckpt[spk] = x

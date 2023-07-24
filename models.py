@@ -8,6 +8,7 @@ import modules.attentions as attentions
 import modules.commons as commons
 import modules.modules as modules
 import utils
+from log import logger
 from modules.commons import get_padding
 from utils import f0_to_coarse
 
@@ -387,7 +388,9 @@ class SynthesizerTrn(nn.Module):
             from vdecoder.hifiganwithsnake.models import Generator
             self.dec = Generator(h=hps)
         else:
-            print("[?] Unkown vocoder: use default(nsf-hifigan)")
+            # use nsf-hifigan as default 翻译成中文是什么意思
+
+            logger.warning("[red][?][/red] Unkown vocoder: use [green]nsf-hifigan[/green] as default")
             from vdecoder.hifigan.models import Generator
             self.dec = Generator(h=hps)
 

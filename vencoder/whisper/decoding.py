@@ -11,6 +11,8 @@ from .audio import CHUNK_LENGTH
 from .tokenizer import Tokenizer, get_tokenizer
 from .utils import compression_ratio
 
+from log import logger
+
 if TYPE_CHECKING:
     from .model import Whisper
 
@@ -560,11 +562,11 @@ class DecodingTask:
 
         if mel.shape[-2:] == (self.model.dims.n_audio_ctx, self.model.dims.n_audio_state):
             # encoded audio features are given; skip audio encoding
-            print("encoded audio features are given; skip audio encoding")
+            logger.info("encoded audio features are given; skip audio encoding")
             audio_features = mel
         else:
-            print(mel.shape)
-            print("===============================")
+            logger.info(mel.shape)
+            logger.info("===============================")
             audio_features = self.model.encoder(mel)
 
         if audio_features.dtype != (torch.float16 if self.options.fp16 else torch.float32):

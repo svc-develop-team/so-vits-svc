@@ -22,6 +22,9 @@ from diffusion.unit2mel import load_model_vocoder
 from inference import slicer
 from models import SynthesizerTrn
 
+from log import logger
+
+
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 
@@ -37,13 +40,13 @@ def read_temp(file_name):
             data_dict = json.loads(data)
             if os.path.getsize(file_name) > 50 * 1024 * 1024:
                 f_name = file_name.replace("\\", "/").split("/")[-1]
-                print(f"clean {f_name}")
+                logger.info(f"clean {f_name}")
                 for wav_hash in list(data_dict.keys()):
                     if int(time.time()) - int(data_dict[wav_hash]["time"]) > 14 * 24 * 3600:
                         del data_dict[wav_hash]
         except Exception as e:
-            print(e)
-            print(f"{file_name} error,auto rebuild file")
+            logger.error(e)
+            logger.error("{} error, auto rebuild file",file_name)
             data_dict = {"info": "temp_dict"}
         return data_dict
 
@@ -57,7 +60,7 @@ def timeit(func):
     def run(*args, **kwargs):
         t = time.time()
         res = func(*args, **kwargs)
-        print('executing \'%s\' costed %.3fs' % (func.__name__, time.time() - t))
+        logger.info("executing '{}' costed {}s", func.__name__, time.time() - t)
         return res
 
     return run
@@ -157,7 +160,7 @@ class Svc(object):
                 if spk_mix_enable:
                     self.diffusion_model.init_spkmix(len(self.spk2id))
             else:
-                print("No diffusion model or config found. Shallow diffusion mode will False")
+                logger.info("No diffusion model or config found. Shallow diffusion mode will False")
                 self.shallow_diffusion = self.only_diffusion = False
                 
         # load hubert and model
@@ -233,14 +236,14 @@ class Svc(object):
                 if self.big_npy is None or self.now_spk_id != speaker_id:
                    self.big_npy = feature_index.reconstruct_n(0, feature_index.ntotal)
                    self.now_spk_id = speaker_id
-                print("starting feature retrieval...")
+                logger.info("starting feature retrieval...")
                 score, ix = feature_index.search(feat_np, k=8)
                 weight = np.square(1 / score)
                 weight /= weight.sum(axis=1, keepdims=True)
                 npy = np.sum(self.big_npy[ix] * np.expand_dims(weight, axis=2), axis=1)
                 c = cluster_infer_ratio * npy + (1 - cluster_infer_ratio) * feat_np
                 c = torch.FloatTensor(c).to(self.dev).transpose(0,1)
-                print("end feature retrieval...")
+                logger.info("end feature retrieval...")
             else:
                 cluster_c = cluster.get_cluster_center_result(self.cluster_model, c.cpu().numpy().T, speaker).T
                 cluster_c = torch.FloatTensor(cluster_c).to(self.dev)
@@ -327,7 +330,7 @@ class Svc(object):
             if loudness_envelope_adjustment != 1:
                 audio = utils.change_rms(wav,self.target_sample,audio,self.target_sample,loudness_envelope_adjustment)
             use_time = time.time() - start
-            print("vits use time:{}".format(use_time))
+            logger.info("vits use time:{}".format(use_time))
         return audio, audio.shape[-1], n_frames
 
     def clear_empty(self):
@@ -435,11 +438,11 @@ class Svc(object):
         global_frame = 0
         audio = []
         for (slice_tag, data) in audio_data:
-            print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
+            logger.info('#=====segment start, {}s======',round(len(data) / audio_sr, 3))
             # padd
             length = int(np.ceil(len(data) / audio_sr * self.target_sample))
             if slice_tag:
-                print('jump empty segment')
+                logger.info('jump empty segment')
                 _audio = np.zeros(length)
                 audio.extend(list(pad_array(_audio, length)))
                 global_frame += length // self.hop_size
@@ -451,7 +454,7 @@ class Svc(object):
             for k,dat in enumerate(datas):
                 per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
                 if clip_seconds!=0: 
-                    print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
+                    logger.info('###=====segment clip start, {}s======', round(len(dat) / audio_sr, 3))
                 # padd
                 pad_len = int(audio_sr * pad_seconds)
                 dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])

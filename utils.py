@@ -17,10 +17,12 @@ from scipy.io.wavfile import read
 from sklearn.cluster import MiniBatchKMeans
 from torch.nn import functional as F
 
+from log import logger
+
 MATPLOTLIB_FLAG = False
 
 logging.basicConfig(stream=sys.stdout, level=logging.WARN)
-logger = logging
+# logger = logging
 
 f0_bin = 256
 f0_max = 1100.0
@@ -171,22 +173,19 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
             assert saved_state_dict[k].shape == v.shape, (saved_state_dict[k].shape, v.shape)
         except Exception:
             if "enc_q" not in k or "emb_g" not in k:
-              print("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
-              logger.info("%s is not in the checkpoint" % k)
+              # print("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
+              logger.info("{} is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning.", k)
               new_state_dict[k] = v
     if hasattr(model, 'module'):
         model.module.load_state_dict(new_state_dict)
     else:
         model.load_state_dict(new_state_dict)
-    print("load ")
-    logger.info("Loaded checkpoint '{}' (iteration {})".format(
-        checkpoint_path, iteration))
+    logger.info("Loaded checkpoint '{}' (iteration {})",checkpoint_path, iteration)
     return model, optimizer, learning_rate, iteration
 
 
 def save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path):
-  logger.info("Saving model and optimizer state at iteration {} to {}".format(
-    iteration, checkpoint_path))
+  logger.info("Saving model and optimizer state at iteration {} to {}",iteration, checkpoint_path)
   if hasattr(model, 'module'):
     state_dict = model.module.state_dict()
   else:
@@ -216,7 +215,7 @@ def clean_checkpoints(path_to_models='logs/44k/', n_ckpts_to_keep=2, sort_by_tim
   to_del = [os.path.join(path_to_models, fn) for fn in
             (x_sorted('G')[:-n_ckpts_to_keep] + x_sorted('D')[:-n_ckpts_to_keep])]
   def del_info(fn):
-      return logger.info(f".. Free up space by deleting ckpt {fn}")
+      return logger.info("Free up space by deleting ckpt {}", fn)
   def del_routine(x):
       return [os.remove(x), del_info(x)]
   [del_routine(fn) for fn in to_del]
@@ -236,7 +235,7 @@ def latest_checkpoint_path(dir_path, regex="G_*.pth"):
   f_list = glob.glob(os.path.join(dir_path, regex))
   f_list.sort(key=lambda f: int("".join(filter(str.isdigit, f))))
   x = f_list[-1]
-  print(x)
+  logger.info("Found latest checkpoint G_{}.pth",x)
   return x
 
 
@@ -358,9 +357,7 @@ def get_hparams_from_file(config_path, infer_mode = False):
 def check_git_hash(model_dir):
   source_dir = os.path.dirname(os.path.realpath(__file__))
   if not os.path.exists(os.path.join(source_dir, ".git")):
-    logger.warn("{} is not a git repository, therefore hash value comparison will be ignored.".format(
-      source_dir
-    ))
+    logger.warn("{} is not a git repository, therefore hash value comparison will be ignored.",source_dir)
     return
 
   cur_hash = subprocess.getoutput("git rev-parse HEAD")
@@ -369,24 +366,23 @@ def check_git_hash(model_dir):
   if os.path.exists(path):
     saved_hash = open(path).read()
     if saved_hash != cur_hash:
-      logger.warn("git hash values are different. {}(saved) != {}(current)".format(
-        saved_hash[:8], cur_hash[:8]))
+      logger.warn("git hash values are different. {}(saved) != {}(current)",saved_hash[:8], cur_hash[:8])
   else:
     open(path, "w").write(cur_hash)
 
 
 def get_logger(model_dir, filename="train.log"):
-  global logger
-  logger = logging.getLogger(os.path.basename(model_dir))
-  logger.setLevel(logging.DEBUG)
+  # global logger
+  # logger = logging.getLogger(os.path.basename(model_dir))
+  # logger.setLevel(logging.DEBUG)
 
-  formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
-  if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
-  h = logging.FileHandler(os.path.join(model_dir, filename))
-  h.setLevel(logging.DEBUG)
-  h.setFormatter(formatter)
-  logger.addHandler(h)
+  # formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
+  # if not os.path.exists(model_dir):
+  #   os.makedirs(model_dir)
+  # h = logging.FileHandler(os.path.join(model_dir, filename))
+  # h.setLevel(logging.DEBUG)
+  # h.setFormatter(formatter)
+  # logger.addHandler(h)
   return logger
 
 
@@ -457,7 +453,7 @@ def change_rms(data1, sr1, data2, sr2, rate):  # 1是输入音频，2是输出�
 
 def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI
     n_cpu = cpu_count()
-    print("The feature index is constructing.")
+    logger.info("The feature index is constructing.")
     exp_dir = os.path.join(root_dir,spk_name)
     listdir_res = []
     for file in os.listdir(exp_dir):
@@ -475,8 +471,8 @@ def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.
     big_npy = big_npy[big_npy_idx]
     if big_npy.shape[0] > 2e5:
         # if(1):
-        info = "Trying doing kmeans %s shape to 10k centers." % big_npy.shape[0]
-        print(info)
+        # info = "Trying doing kmeans %s shape to 10k centers." % big_npy.shape[0]
+        logger.info("Trying doing kmeans {} shape to 10k centers.",big_npy.shape[0])
         try:
             big_npy = (
                 MiniBatchKMeans(
@@ -491,7 +487,7 @@ def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.
             )
         except Exception:
             info = traceback.format_exc()
-            print(info)
+            logger.error(info)
     n_ivf = min(int(16 * np.sqrt(big_npy.shape[0])), big_npy.shape[0] // 39)
     index = faiss.index_factory(big_npy.shape[1] , "IVF%s,Flat" % n_ivf)
     index_ivf = faiss.extract_index_ivf(index)  #
@@ -504,7 +500,7 @@ def train_index(spk_name,root_dir = "dataset/44k/"):  #from: RVC https://github.
     #     index,
     #     f"added_{spk_name}.index"
     # )
-    print("Successfully build index")
+    logger.success("builded index")
     return index
 
 

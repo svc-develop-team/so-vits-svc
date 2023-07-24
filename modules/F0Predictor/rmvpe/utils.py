@@ -55,6 +55,10 @@ def summary(model, file=sys.stdout):
     if file is not None:
         if isinstance(file, str):
             file = open(file, 'w')
+        # 写给后面改这个代码的人
+        # 这里是写入文件 喵
+        # 不要试图改成 logger
+        #   -- HuanLinOTO 2023/7/24
         print(string, file=file)
         file.flush()
 

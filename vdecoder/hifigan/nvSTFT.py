@@ -7,6 +7,8 @@ import torch
 import torch.utils.data
 from librosa.filters import mel as librosa_mel_fn
 
+from log import logger
+
 os.environ["LRU_CACHE_CAPACITY"] = "3"
 
 def load_wav_to_torch(full_path, target_sr=None, return_empty_on_exception=False):
@@ -14,8 +16,8 @@ def load_wav_to_torch(full_path, target_sr=None, return_empty_on_exception=False
     try:
         data, sampling_rate = sf.read(full_path, always_2d=True)# than soundfile.
     except Exception as ex:
-        print(f"'{full_path}' failed to load.\nException:")
-        print(ex)
+        logger.error(f"'{full_path}' failed to load.\nException:")
+        logger.error(ex)
         if return_empty_on_exception:
             return [], sampling_rate or target_sr or 32000
         else:
@@ -78,9 +80,9 @@ class STFT():
         clip_val   = self.clip_val
         
         if torch.min(y) < -1.:
-            print('min value is ', torch.min(y))
+            logger.info('min value is ', torch.min(y))
         if torch.max(y) > 1.:
-            print('max value is ', torch.max(y))
+            logger.info('max value is ', torch.max(y))
         
         if fmax not in self.mel_basis:
             mel = librosa_mel_fn(sr=sampling_rate, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax)

@@ -60,9 +60,9 @@ class MProgress(ConsoleRenderable):
                 Group(
                     self.overall_progress,
                     self.progress_text
-                ), title=self.MainTitle, border_style="green", padding=(2, 2), height=13
+                ), title=self.MainTitle, border_style="green", padding=(5, 5), height=14
             ),
-            Panel(self.job_progress, title=f"[b]{self.SubTitle}", border_style="red", padding=(2, 2), height=13)
+            Panel(self.job_progress, title=f"[b]{self.SubTitle}", border_style="red", padding=(2, 2), height=14)
         )
 
     def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult: # 刷新的时候计算 overall
@@ -102,4 +102,7 @@ class MProgress(ConsoleRenderable):
             self.job_progress.update(TaskID, completed=value)
         if self.job_progress.tasks[TaskID].finished:
             self.job_progress.update(TaskID, visible=False)
-    
+            # self.job_progress.remove_task(TaskID)
+            # 如果所有任务都完成了，就把 progress_table 隐藏掉
+            # if all([task.finished for task in self.job_progress.tasks]):
+            #     self.progress_table.rows = []
