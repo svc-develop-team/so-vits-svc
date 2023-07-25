@@ -10,6 +10,7 @@ class DioF0Predictor(F0Predictor):
         self.f0_min = f0_min
         self.f0_max = f0_max
         self.sampling_rate = sampling_rate
+        self.name = "dio"
 
     def interpolate_f0(self,f0):
         '''

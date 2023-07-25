@@ -10,8 +10,6 @@ from tqdm import tqdm
 
 import diffusion.logger.utils as du
 
-config_template = json.load(open("configs_template/config_template.json"))
-
 pattern = re.compile(r'^[\.a-zA-Z0-9_\/]+$')
 
 def get_wav_duration(file_path):
@@ -31,13 +29,16 @@ if __name__ == "__main__":
     parser.add_argument("--source_dir", type=str, default="./dataset/44k", help="path to source dir")
     parser.add_argument("--speech_encoder", type=str, default="vec768l12", help="choice a speech encoder|'vec768l12','vec256l9','hubertsoft','whisper-ppg','cnhubertlarge','dphubert','whisper-ppg-large','wavlmbase+'")
     parser.add_argument("--vol_aug", action="store_true", help="Whether to use volume embedding and volume augmentation")
+    parser.add_argument("--tiny", action="store_true", help="Whether to train sovits tiny")
     args = parser.parse_args()
     
+    config_template =  json.load(open("configs_template/config_tiny_template.json")) if args.tiny else json.load(open("configs_template/config_template.json"))
     train = []
     val = []
     idx = 0
     spk_dict = {}
     spk_id = 0
+
     for speaker in tqdm(os.listdir(args.source_dir)):
         spk_dict[speaker] = spk_id
         spk_id += 1
@@ -97,6 +98,9 @@ if __name__ == "__main__":
         
     if args.vol_aug:
         config_template["train"]["vol_aug"] = config_template["model"]["vol_embedding"] = True
+
+    if args.tiny:
+        config_template["model"]["filter_channels"] = 512
 
     logger.info("Writing to configs/config.json")
     with open("configs/config.json", "w") as f:
