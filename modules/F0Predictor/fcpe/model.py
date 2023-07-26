@@ -136,7 +136,7 @@ class FCPE(nn.Module):
         B, N, _ = y.size()
         ci = self.cent_table[None, None, :].expand(B, N, -1)
         confident, max_index = torch.max(y, dim=-1, keepdim=True)
-        local_argmax_index = torch.arange(0,8).to(max_index.device) + (max_index - 4)
+        local_argmax_index = torch.arange(0,9).to(max_index.device) + (max_index - 4)
         local_argmax_index[local_argmax_index<0] = 0
         local_argmax_index[local_argmax_index>=self.n_out] = self.n_out - 1
         ci_l = torch.gather(ci,-1,local_argmax_index)
