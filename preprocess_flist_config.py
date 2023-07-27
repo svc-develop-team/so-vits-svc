@@ -45,32 +45,39 @@ if __name__ == "__main__":
     for speaker in tqdm(os.listdir(args.source_dir)):
         spk_dict[speaker] = spk_id
         spk_id += 1
-        wavs = ["/".join([args.source_dir, speaker, i]) for i in os.listdir(os.path.join(args.source_dir, speaker))]
-        new_wavs = []
-        for file in wavs:
-            if not file.endswith("wav"):
+        wavs = []
+
+        for file_name in os.listdir(os.path.join(args.source_dir, speaker)):
+            if not file_name.endswith("wav"):
                 continue
-            if not pattern.match(file):
-                logger.warning(f"文件名{file}中包含非字母数字下划线，可能会导致错误。（也可能不会）")
-            if get_wav_duration(file) < 0.3:
-                logger.info("Skip too short audio:" + file)
+            if file_name.startswith("."):
                 continue
-            new_wavs.append(file)
-        wavs = new_wavs
+
+            file_path = "/".join([args.source_dir, speaker, file_name])
+
+            if not pattern.match(file_name):
+                logger.warning("Detected non-ASCII file name: " + file_path)
+
+            if get_wav_duration(file_path) < 0.3:
+                logger.info("Skip too short audio: " + file_path)
+                continue
+
+            wavs.append(file_path)
+
         shuffle(wavs)
         train += wavs[2:]
         val += wavs[:2]
 
     shuffle(train)
     shuffle(val)
-            
-    logger.info("Writing" + args.train_list)
+
+    logger.info("Writing " + args.train_list)
     with open(args.train_list, "w") as f:
         for fname in tqdm(train):
             wavpath = fname
             f.write(wavpath + "\n")
-        
-    logger.info("Writing" + args.val_list)
+
+    logger.info("Writing " + args.val_list)
     with open(args.val_list, "w") as f:
         for fname in tqdm(val):
             wavpath = fname
