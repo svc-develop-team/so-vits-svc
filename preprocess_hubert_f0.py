@@ -76,7 +76,6 @@ def process_one(filename, hmodel, f0p, device, autocc, diff=False, mel_extractor
 
         if autocc:
             # Automatic cache clearing
-            del audio_norm, spec
             torch.cuda.empty_cache()
 
     if diff or hps.model.vol_embedding:
