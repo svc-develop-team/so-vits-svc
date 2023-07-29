@@ -335,6 +335,12 @@ python preprocess_hubert_f0.py --speech_encoder vec768l12 --vol_aug --num_proces
 ```
 All the worker will be assigned to different GPU if you have more than one GPUs.
 
+**Automatic Cache Clearing**
+Enabling automatic cache clearing will significantly reduce GPUs memory usage. If your configuration file has a large `batch_size` or if you want to further save GPUs memory, you can choose to enable the `--automatic_cache_clearing` parameter (without affecting the results):
+```shell
+python reprocess_hubert_f0.py --f0_predictor dio --automatic_cache_clearing True
+```
+
 After completing the above steps, the dataset directory will contain the preprocessed data, and the dataset_raw folder can be deleted.
 
 ## 🏋️‍ Training
