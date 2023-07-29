@@ -149,10 +149,14 @@ if __name__ == "__main__":
         '--num_processes', type=int, default=1,
         help='You are advised to set the number of processes to the same as the number of CPU cores'
     )
+    parser.add_argument(
+        "--automatic_cache_clearing", type=bool, default=True,
+        help='Automatic cache clearing can reduce GPU memory usage and unleash greater performance. This setting will not affect the results'
+    )
     args = parser.parse_args()
     f0p = args.f0_predictor
     device = args.device
-    autocc = True
+    autocc = args.automatic_cache_clearing
     if device is None:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
