@@ -28,7 +28,7 @@ hop_length = hps.data.hop_length
 speech_encoder = hps["model"]["speech_encoder"]
 
 
-def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
+def process_one(filename, hmodel, f0p, device, autocc, diff=False, mel_extractor=None):
     wav, sr = librosa.load(filename, sr=sampling_rate)
     audio_norm = torch.FloatTensor(wav)
     audio_norm = audio_norm.unsqueeze(0)
@@ -41,12 +41,12 @@ def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
 
     f0_path = filename + ".f0.npy"
     if not os.path.exists(f0_path):
-        f0_predictor = utils.get_f0_predictor(f0p,sampling_rate=sampling_rate, hop_length=hop_length,device=None,threshold=0.05)
-        f0,uv = f0_predictor.compute_f0_uv(
+        f0_predictor = utils.get_f0_predictor(f0p, sampling_rate=sampling_rate, hop_length=hop_length, device=None,
+                                              threshold=0.05)
+        f0, uv = f0_predictor.compute_f0_uv(
             wav
         )
-        np.save(f0_path, np.asanyarray((f0,uv),dtype=object))
-
+        np.save(f0_path, np.asanyarray((f0, uv), dtype=object))
 
     spec_path = filename.replace(".wav", ".spec.pt")
     if not os.path.exists(spec_path):
@@ -61,7 +61,7 @@ def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
                 )
             )
 
-        #audio_norm = audio / hps.data.max_wav_value
+        # audio_norm = audio / hps.data.max_wav_value
 
         spec = spectrogram_torch(
             audio_norm,
@@ -73,6 +73,11 @@ def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
         )
         spec = torch.squeeze(spec, 0)
         torch.save(spec, spec_path)
+
+        if autocc:
+            # Automatic cache clearing
+            del audio_norm, spec
+            torch.cuda.empty_cache()
 
     if diff or hps.model.vol_embedding:
         volume_path = filename + ".vol.npy"
@@ -90,20 +95,20 @@ def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
         aug_mel_path = filename + ".aug_mel.npy"
         aug_vol_path = filename + ".aug_vol.npy"
         max_amp = float(torch.max(torch.abs(audio_norm))) + 1e-5
-        max_shift = min(1, np.log10(1/max_amp))
+        max_shift = min(1, np.log10(1 / max_amp))
         log10_vol_shift = random.uniform(-1, max_shift)
         keyshift = random.uniform(-5, 5)
         if mel_extractor is not None:
-            aug_mel_t = mel_extractor.extract(audio_norm * (10 ** log10_vol_shift), sampling_rate, keyshift = keyshift)
+            aug_mel_t = mel_extractor.extract(audio_norm * (10 ** log10_vol_shift), sampling_rate, keyshift=keyshift)
         aug_mel = aug_mel_t.squeeze().to('cpu').numpy()
         aug_vol = volume_extractor.extract(audio_norm * (10 ** log10_vol_shift))
         if not os.path.exists(aug_mel_path):
-            np.save(aug_mel_path,np.asanyarray((aug_mel,keyshift),dtype=object))
+            np.save(aug_mel_path, np.asanyarray((aug_mel, keyshift), dtype=object))
         if not os.path.exists(aug_vol_path):
-            np.save(aug_vol_path,aug_vol.to('cpu').numpy())
+            np.save(aug_vol_path, aug_vol.to('cpu').numpy())
 
 
-def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu"):
+def process_batch(file_chunk, f0p, autocc, diff=False, mel_extractor=None, device="cpu"):
     logger.info("Loading speech encoder for content...")
     rank = mp.current_process()._identity
     rank = rank[0] if len(rank) > 0 else 0
@@ -114,16 +119,17 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu")
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     logger.info(f"Loaded speech encoder for rank {rank}")
     for filename in tqdm(file_chunk):
-        process_one(filename, hmodel, f0p, device, diff, mel_extractor)
+        process_one(filename, hmodel, f0p, device, diff, mel_extractor, autocc)
 
-def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device):
+
+def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device, autocc):
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
         tasks = []
         for i in range(num_processes):
             start = int(i * len(filenames) / num_processes)
             end = int((i + 1) * len(filenames) / num_processes)
             file_chunk = filenames[start:end]
-            tasks.append(executor.submit(process_batch, file_chunk, f0p, diff, mel_extractor, device=device))
+            tasks.append(executor.submit(process_batch, file_chunk, f0p, autocc, diff, mel_extractor, device=device))
         for task in tqdm(tasks):
             task.result()
 
@@ -134,17 +140,24 @@ if __name__ == "__main__":
         "--in_dir", type=str, default="dataset/44k", help="path to input dir"
     )
     parser.add_argument(
-        '--use_diff',action='store_true', help='Whether to use the diffusion model'
+        '--use_diff', action='store_true', help='Whether to use the diffusion model'
     )
     parser.add_argument(
-        '--f0_predictor', type=str, default="dio", help='Select F0 predictor, can select crepe,pm,dio,harvest,rmvpe,fcpe|default: pm(note: crepe is original F0 using mean filter)'
+        '--f0_predictor', type=str, default="dio",
+        help='Select F0 predictor, can select crepe,pm,dio,harvest,rmvpe,fcpe|default: pm(note: crepe is original F0 using mean filter)'
     )
     parser.add_argument(
-        '--num_processes', type=int, default=1, help='You are advised to set the number of processes to the same as the number of CPU cores'
+        '--num_processes', type=int, default=1,
+        help='You are advised to set the number of processes to the same as the number of CPU cores'
+    )
+    parser.add_argument(
+        "--automatic_cache_clearing", type=bool, default=False,
+        help='Automatic cache clearing can reduce GPU memory usage and unleash greater performance. This setting will not affect the results'
     )
     args = parser.parse_args()
     f0p = args.f0_predictor
     device = args.device
+    autocc = args.automatic_cache_clearing
     if device is None:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -152,7 +165,8 @@ if __name__ == "__main__":
     logger.info("Using device: ", device)
     logger.info("Using SpeechEncoder: " + speech_encoder)
     logger.info("Using extractor: " + f0p)
-    logger.info("Using diff Mode: " + str( args.use_diff))
+    logger.info("Using diff Mode: " + str(args.use_diff))
+    logger.info("Using Automatic cache clearing: " + str(autocc))
 
     if args.use_diff:
         print("use_diff")
@@ -169,4 +183,4 @@ if __name__ == "__main__":
     if num_processes == 0:
         num_processes = os.cpu_count()
 
-    parallel_process(filenames, num_processes, f0p, args.use_diff, mel_extractor, device)
+    parallel_process(filenames, num_processes, f0p, args.use_diff, mel_extractor, device, autocc)
