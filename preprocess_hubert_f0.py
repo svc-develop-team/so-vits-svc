@@ -113,7 +113,7 @@ def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu")
     logger.info(f"Rank {rank} uses device {device}")
     hmodel = utils.get_speech_encoder(speech_encoder, device=device)
     logger.info(f"Loaded speech encoder for rank {rank}")
-    for filename in tqdm(file_chunk):
+    for filename in tqdm(file_chunk, position = rank):
         process_one(filename, hmodel, f0p, device, diff, mel_extractor)
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device):
@@ -124,7 +124,7 @@ def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device)
             end = int((i + 1) * len(filenames) / num_processes)
             file_chunk = filenames[start:end]
             tasks.append(executor.submit(process_batch, file_chunk, f0p, diff, mel_extractor, device=device))
-        for task in tqdm(tasks):
+        for task in tqdm(tasks, position = 0):
             task.result()
 
 if __name__ == "__main__":
@@ -149,10 +149,10 @@ if __name__ == "__main__":
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print(speech_encoder)
-    logger.info("Using device: ", device)
+    logger.info("Using device: " + str(device))
     logger.info("Using SpeechEncoder: " + speech_encoder)
     logger.info("Using extractor: " + f0p)
-    logger.info("Using diff Mode: " + str( args.use_diff))
+    logger.info("Using diff Mode: " + str(args.use_diff))
 
     if args.use_diff:
         print("use_diff")
