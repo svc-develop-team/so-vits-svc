@@ -21,6 +21,7 @@ from models import (
 )
 from modules.losses import discriminator_loss, feature_loss, generator_loss, kl_loss
 from modules.mel_processing import mel_spectrogram_torch, spec_to_mel_torch
+from datetime import datetime
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('numba').setLevel(logging.WARNING)
@@ -269,7 +270,8 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
         global start_time
         now = time.time()
         durtaion = format(now - start_time, '.2f')
-        logger.info(f'====> Epoch: {epoch}, cost {durtaion} s')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f'{current_time} ====> Epoch: {epoch}, cost {durtaion} s')
         start_time = now
 
 
