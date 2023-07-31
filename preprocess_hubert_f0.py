@@ -150,7 +150,7 @@ if __name__ == "__main__":
         help='You are advised to set the number of processes to the same as the number of CPU cores'
     )
     parser.add_argument(
-        "--automatic_cache_clearing", type=bool, default=True,
+        "--automatic_cache_clearing", type=bool, default=False,
         help='Automatic cache clearing can reduce GPU memory usage and unleash greater performance. This setting will not affect the results'
     )
     args = parser.parse_args()
