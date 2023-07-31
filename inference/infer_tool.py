@@ -445,6 +445,12 @@ class Svc(object):
         audio = []
         for (slice_tag, data) in audio_data:
             print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
+            print(f"sovuefy->{json.dumps({
+                'action': 'svc-audio-slice',
+                'data': {
+                    'duration': len(data) / audio_sr
+                }
+            })}")
             # padd
             length = int(np.ceil(len(data) / audio_sr * self.target_sample))
             if slice_tag:
@@ -461,6 +467,7 @@ class Svc(object):
                 per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
                 if clip_seconds!=0: 
                     print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
+                    print()
                 # padd
                 pad_len = int(audio_sr * pad_seconds)
                 dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])

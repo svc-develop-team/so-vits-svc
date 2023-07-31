@@ -31,6 +31,7 @@ start_time = time.time()
 
 # os.environ['TORCH_DISTRIBUTED_DEBUG'] = 'INFO'
 
+SOVUEFY_PROTOCOL = os.environ['SOVUEFY_PROTOCOL']
 
 def main():
     """Assume Single Node Multi GPUs Training Only"""
