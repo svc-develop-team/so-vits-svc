@@ -339,7 +339,7 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff --num_processes 8
 所有的Workers会被自动分配到多个线程上
 
 **自动缓存清理**
-开启自动缓存清理后，GPU内存会显著下降，如若您的配置文件的`batch_size`较大或想进一步节省显存可以选择开启`--automatic_cache_clearing`参数（不影响结果）：
+如果您想提升显存利用率或同时进行多个GPU任务，可以开启`--automatic_cache_clearing`（不推荐同时执行多个GPU任务）
 ```shell
 python reprocess_hubert_f0.py --f0_predictor dio --automatic_cache_clearing True
 ```

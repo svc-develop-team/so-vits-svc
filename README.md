@@ -336,7 +336,7 @@ python preprocess_hubert_f0.py --speech_encoder vec768l12 --vol_aug --num_proces
 All the worker will be assigned to different GPU if you have more than one GPUs.
 
 **Automatic Cache Clearing**
-Enabling automatic cache clearing will significantly reduce GPUs memory usage. If your configuration file has a large `batch_size` or if you want to further save GPUs memory, you can choose to enable the `--automatic_cache_clearing` parameter (without affecting the results):
+If you want to improve GPU memory utilization or perform multiple GPU tasks simultaneously. You can try usage `--automatic_cache_clearing` argument(It's not recommended to execute multiple GPU tasks simultaneously)
 ```shell
 python reprocess_hubert_f0.py --f0_predictor dio --automatic_cache_clearing True
 ```
