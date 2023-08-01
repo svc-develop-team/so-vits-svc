@@ -318,7 +318,7 @@ fcpe
 
 If the training set is too noisy,it is recommended to use `crepe` to handle f0
 
-If the f0_predictor parameter is omitted, the default value is `dio`
+If the f0_predictor parameter is omitted, the default value is `rmvpe`
 
 If you want shallow diffusion (optional), you need to add the `--use_diff` parameter, for example:
 
