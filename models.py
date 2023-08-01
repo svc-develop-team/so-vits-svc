@@ -51,6 +51,46 @@ class ResidualCouplingBlock(nn.Module):
                 x = flow(x, x_mask, g=g, reverse=reverse)
         return x
 
+class TransformerCouplingBlock(nn.Module):
+    def __init__(self,
+                 channels,
+                 hidden_channels,
+                 filter_channels,
+                 n_heads,
+                 n_layers,
+                 kernel_size,
+                 p_dropout,
+                 n_flows=4,
+                 gin_channels=0,
+                 share_parameter=False
+                 ):
+            
+        super().__init__()
+        self.channels = channels
+        self.hidden_channels = hidden_channels
+        self.kernel_size = kernel_size
+        self.n_layers = n_layers
+        self.n_flows = n_flows
+        self.gin_channels = gin_channels
+
+        self.flows = nn.ModuleList()
+
+        self.wn = attentions.FFT(hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout, isflow = True, gin_channels = self.gin_channels) if share_parameter else None
+
+        for i in range(n_flows):
+            self.flows.append(
+                modules.TransformerCouplingLayer(channels, hidden_channels, kernel_size, n_layers, n_heads, p_dropout, filter_channels, mean_only=True, wn_sharing_parameter=self.wn, gin_channels = self.gin_channels))
+            self.flows.append(modules.Flip())
+
+    def forward(self, x, x_mask, g=None, reverse=False):
+        if not reverse:
+            for flow in self.flows:
+                x, _ = flow(x, x_mask, g=g, reverse=reverse)
+        else:
+            for flow in reversed(self.flows):
+                x = flow(x, x_mask, g=g, reverse=reverse)
+        return x
+
 
 class Encoder(nn.Module):
     def __init__(self,
@@ -327,6 +367,8 @@ class SynthesizerTrn(nn.Module):
                  use_automatic_f0_prediction = True,
                  flow_share_parameter = False,
                  n_flow_layer = 4,
+                 n_layers_trans_flow = 3,
+                 use_transformer_flow = False,
                  **kwargs):
 
         super().__init__()
@@ -351,6 +393,7 @@ class SynthesizerTrn(nn.Module):
         self.emb_g = nn.Embedding(n_speakers, gin_channels)
         self.use_depthwise_conv = use_depthwise_conv
         self.use_automatic_f0_prediction = use_automatic_f0_prediction
+        self.n_layers_trans_flow = n_layers_trans_flow
         if vol_embedding:
            self.emb_vol = nn.Linear(1, hidden_channels)
 
@@ -392,7 +435,10 @@ class SynthesizerTrn(nn.Module):
             self.dec = Generator(h=hps)
 
         self.enc_q = Encoder(spec_channels, inter_channels, hidden_channels, 5, 1, 16, gin_channels=gin_channels)
-        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, n_flow_layer, gin_channels=gin_channels, share_parameter= flow_share_parameter)
+        if use_transformer_flow:
+            self.flow = TransformerCouplingBlock(inter_channels, hidden_channels, filter_channels, n_heads, n_layers_trans_flow, 5, p_dropout, n_flow_layer,  gin_channels=gin_channels, share_parameter= flow_share_parameter)
+        else:
+            self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, n_flow_layer, gin_channels=gin_channels, share_parameter= flow_share_parameter)
         if self.use_automatic_f0_prediction:
             self.f0_decoder = F0Decoder(
                 1,
