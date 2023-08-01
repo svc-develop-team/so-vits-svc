@@ -323,7 +323,7 @@ fcpe
 
 如果训练集过于嘈杂，请使用 crepe 处理 f0
 
-如果省略 f0_predictor 参数，默认值为 dio
+如果省略 f0_predictor 参数，默认值为 rmvpe
 
 尚若需要浅扩散功能（可选），需要增加--use_diff 参数，比如
 
