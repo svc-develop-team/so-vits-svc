@@ -331,7 +331,7 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 If your dataset is pretty large,you can increase the param `--num_processes` like that:
 
 ```shell
-python preprocess_hubert_f0.py --speech_encoder vec768l12 --vol_aug --num_processes 8
+python preprocess_hubert_f0.py --f0_predictor dio --num_processes 8
 ```
 All the worker will be assigned to different GPU if you have more than one GPUs.
 
