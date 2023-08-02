@@ -1,14 +1,11 @@
 import json
-
 import torch
-
 import utils
 from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
+import argparse
+parser = argparse.ArgumentParser(description='SoVitsSvc OnnxExport')
 
-
-def main():
-    path = "crs"
-
+def OnnxExport(path=None):
     device = torch.device("cpu")
     hps = utils.get_hparams_from_file(f"checkpoints/{path}/config.json")
     SVCVITS = SynthesizerTrn(
@@ -129,7 +126,8 @@ def main():
         "CharaMix": export_mix,
         "Volume": SVCVITS.vol_embedding,
         "HiddenSize": SVCVITS.gin_channels,
-        "Characters": spklist
+        "Characters": spklist,
+        "Cluster": ""
     }
 
     with open(f"checkpoints/{path}.json", 'w') as MoeVsConfFile:
@@ -137,4 +135,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser.add_argument('-n', '--model_name', type=str, default="TransformerFlow", help='模型文件夹名（根目录下新建ckeckpoints文件夹，在此文件夹下建立一个新的文件夹，放置模型，该文件夹名即为此项）')
+    args = parser.parse_args()
+    path = args.model_name
+    OnnxExport(path)
