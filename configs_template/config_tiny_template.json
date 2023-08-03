@@ -54,6 +54,7 @@
     "upsample_initial_channel": 400,
     "upsample_kernel_sizes": [16,16, 4, 4, 4],
     "n_layers_q": 3,
+    "n_layers_trans_flow": 3,
     "n_flow_layer": 4,
     "use_spectral_norm": false,
     "gin_channels": 768,
@@ -65,7 +66,8 @@
     "vol_embedding":false,
     "use_depthwise_conv":true,
     "flow_share_parameter": true,
-    "use_automatic_f0_prediction": true
+    "use_automatic_f0_prediction": true,
+    "use_transformer_flow": false
   },
   "spk": {
     "nyaru": 0,

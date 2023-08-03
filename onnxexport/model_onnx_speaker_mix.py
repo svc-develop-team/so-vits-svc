@@ -1,6 +1,8 @@
 import torch
 from torch import nn
+from torch.nn import Conv1d, Conv2d
 from torch.nn import functional as F
+from torch.nn.utils import spectral_norm, weight_norm
 
 import modules.attentions as attentions
 import modules.commons as commons

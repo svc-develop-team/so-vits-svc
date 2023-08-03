@@ -5,12 +5,13 @@ from torch import nn
 from torch.nn import functional as F
 
 import modules.commons as commons
+from modules.DSConv import weight_norm_modules
 from modules.modules import LayerNorm
 
 
 class FFT(nn.Module):
   def __init__(self, hidden_channels, filter_channels, n_heads, n_layers=1, kernel_size=1, p_dropout=0.,
-               proximal_bias=False, proximal_init=True, **kwargs):
+               proximal_bias=False, proximal_init=True, isflow = False, **kwargs):
     super().__init__()
     self.hidden_channels = hidden_channels
     self.filter_channels = filter_channels
@@ -20,7 +21,11 @@ class FFT(nn.Module):
     self.p_dropout = p_dropout
     self.proximal_bias = proximal_bias
     self.proximal_init = proximal_init
-
+    if isflow:
+      cond_layer = torch.nn.Conv1d(kwargs["gin_channels"], 2*hidden_channels*n_layers, 1)
+      self.cond_pre = torch.nn.Conv1d(hidden_channels, 2*hidden_channels, 1)
+      self.cond_layer = weight_norm_modules(cond_layer, name='weight')
+      self.gin_channels = kwargs["gin_channels"]
     self.drop = nn.Dropout(p_dropout)
     self.self_attn_layers = nn.ModuleList()
     self.norm_layers_0 = nn.ModuleList()
@@ -35,14 +40,25 @@ class FFT(nn.Module):
         FFN(hidden_channels, hidden_channels, filter_channels, kernel_size, p_dropout=p_dropout, causal=True))
       self.norm_layers_1.append(LayerNorm(hidden_channels))
 
-  def forward(self, x, x_mask):
+  def forward(self, x, x_mask, g = None):
     """
     x: decoder input
     h: encoder output
     """
+    if g is not None:
+      g = self.cond_layer(g)
+
     self_attn_mask = commons.subsequent_mask(x_mask.size(2)).to(device=x.device, dtype=x.dtype)
     x = x * x_mask
     for i in range(self.n_layers):
+      if g is not None:
+        x = self.cond_pre(x)
+        cond_offset = i * 2 * self.hidden_channels
+        g_l = g[:,cond_offset:cond_offset+2*self.hidden_channels,:]
+        x = commons.fused_add_tanh_sigmoid_multiply(
+          x,
+          g_l,
+          torch.IntTensor([self.hidden_channels]))
       y = self.self_attn_layers[i](x, x, self_attn_mask)
       y = self.drop(y)
       x = self.norm_layers_0[i](x + y)
