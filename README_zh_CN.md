@@ -8,6 +8,8 @@
 [![在Google Cloab中打开](https://img.shields.io/badge/Colab-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 [![LICENSE](https://img.shields.io/badge/LICENSE-AGPL3.0-green.svg?style=for-the-badge)](https://github.com/svc-develop-team/so-vits-svc/blob/4.1-Stable/LICENSE)
 
+本轮限时更新即将结束，仓库将进入Archieve状态，望周知
+
 </div>
 
 
@@ -323,7 +325,7 @@ fcpe
 
 如果训练集过于嘈杂，请使用 crepe 处理 f0
 
-如果省略 f0_predictor 参数，默认值为 dio
+如果省略 f0_predictor 参数，默认值为 rmvpe
 
 尚若需要浅扩散功能（可选），需要增加--use_diff 参数，比如
 

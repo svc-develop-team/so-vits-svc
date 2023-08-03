@@ -1,8 +1,11 @@
+import argparse
 import json
+
 import torch
+
 import utils
 from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
-import argparse
+
 parser = argparse.ArgumentParser(description='SoVitsSvc OnnxExport')
 
 def OnnxExport(path=None):

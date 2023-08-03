@@ -8,6 +8,8 @@
 [![Open In Colab](https://img.shields.io/badge/Colab-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/svc-develop-team/so-vits-svc/blob/4.1-Stable/sovits4_for_colab.ipynb)
 [![Licence](https://img.shields.io/badge/LICENSE-AGPL3.0-green.svg?style=for-the-badge)](https://github.com/svc-develop-team/so-vits-svc/blob/4.1-Stable/LICENSE)
 
+This round of limited time update is coming to an end, the warehouse will enter the Archieve state, please know
+
 </div>
 
 > ✨ A studio that contains visible f0 editor, speaker mix timeline editor and other features (Where the Onnx models are used) : [MoeVoiceStudio](https://github.com/NaruseMioShirakana/MoeVoiceStudio)
@@ -318,7 +320,7 @@ fcpe
 
 If the training set is too noisy,it is recommended to use `crepe` to handle f0
 
-If the f0_predictor parameter is omitted, the default value is `dio`
+If the f0_predictor parameter is omitted, the default value is `rmvpe`
 
 If you want shallow diffusion (optional), you need to add the `--use_diff` parameter, for example:
 
@@ -331,7 +333,7 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff
 If your dataset is pretty large,you can increase the param `--num_processes` like that:
 
 ```shell
-python preprocess_hubert_f0.py --speech_encoder vec768l12 --vol_aug --num_processes 8
+python preprocess_hubert_f0.py --f0_predictor dio --num_processes 8
 ```
 All the worker will be assigned to different GPU if you have more than one GPUs.
 

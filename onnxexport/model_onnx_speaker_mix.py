@@ -8,7 +8,6 @@ import modules.attentions as attentions
 import modules.commons as commons
 import modules.modules as modules
 import utils
-from modules.commons import get_padding
 from utils import f0_to_coarse
 
 
