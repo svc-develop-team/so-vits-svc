@@ -15,6 +15,7 @@ import numpy as np
 import soundfile
 import torch
 import torchaudio
+torchaudio.set_audio_backend("soundfile")
 
 import cluster
 import utils
@@ -267,11 +268,13 @@ class Svc(object):
               second_encoding = False,
               loudness_envelope_adjustment = 1
               ):
-        torchaudio.set_audio_backend("soundfile")
-        wav, sr = torchaudio.load(raw_path)
-        if not hasattr(self,"audio_resample_transform") or self.audio16k_resample_transform.orig_freq != sr:
-            self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)
-        wav = self.audio_resample_transform(wav).numpy()[0]
+        if isinstance(raw_path, str):
+            wav, sr = torchaudio.load(raw_path)
+            if not hasattr(self,"audio_resample_transform") or self.audio16k_resample_transform.orig_freq != sr:
+                self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)
+            wav = self.audio_resample_transform(wav).numpy()[0]
+        else:
+            wav = raw_path
         if spk_mix:
             c, f0, uv = self.get_unit_f0(wav, tran, 0, None, f0_filter,f0_predictor,cr_threshold=cr_threshold)
             n_frames = f0.size(1)
