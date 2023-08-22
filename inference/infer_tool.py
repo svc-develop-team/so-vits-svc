@@ -6,6 +6,7 @@ import logging
 import os
 import pickle
 import time
+import typing
 from pathlib import Path
 
 import librosa
@@ -199,6 +200,7 @@ class Svc(object):
             _ = self.net_g_ms.half().eval().to(self.dev)
         else:
             _ = self.net_g_ms.eval().to(self.dev)
+        del self.net_g_ms.enc_q
         if spk_mix_enable:
             self.net_g_ms.EnableCharacterMix(len(self.spk2id), self.dev)
 
@@ -268,7 +270,7 @@ class Svc(object):
               second_encoding = False,
               loudness_envelope_adjustment = 1
               ):
-        if isinstance(raw_path, str):
+        if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
             wav, sr = torchaudio.load(raw_path)
             if not hasattr(self,"audio_resample_transform") or self.audio16k_resample_transform.orig_freq != sr:
                 self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)

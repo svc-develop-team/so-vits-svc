@@ -523,7 +523,7 @@ class SynthesizerTrn(nn.Module):
         if self.use_automatic_f0_prediction and predict_f0:
             lf0 = 2595. * torch.log10(1. + f0.unsqueeze(1) / 700.) / 500
             norm_lf0 = utils.normalize_f0(lf0, x_mask, uv, random_scale=False)
-            pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g)
+            pred_lf0 = self.f0_decoder(x, norm_lf0, x_mask, spk_emb=g).to(f0)
             f0 = (700 * (torch.pow(10, pred_lf0 * 500 / 2595) - 1)).squeeze(1)
         
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0), noice_scale=noice_scale)
