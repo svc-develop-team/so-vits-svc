@@ -270,7 +270,8 @@ class Svc(object):
               spk_mix = False,
               second_encoding = False,
               loudness_envelope_adjustment = 1,
-              vol = None
+              vol = None,
+              start_frame = None
               ):
         if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
             wav, sr = torchaudio.load(raw_path)
@@ -296,6 +297,10 @@ class Svc(object):
         c = c.to(self.dtype)
         f0 = f0.to(self.dtype)
         uv = uv.to(self.dtype)
+        if start_frame is not None:
+            c = c[:,:,start_frame:]
+            f0 = f0[:,start_frame:]
+            uv = uv[:,start_frame:]
         with torch.no_grad():
             start = time.time()
             if not self.only_diffusion:

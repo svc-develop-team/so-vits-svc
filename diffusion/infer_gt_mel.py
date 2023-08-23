@@ -18,19 +18,10 @@ class DiffGtMel:
     def flush_model(self, project_path, ddsp_config=None):
         if (self.model is None) or (project_path != self.project_path):
             model, vocoder, args = load_model_vocoder(project_path, device=self.device)
-            if self.check_args(ddsp_config, args):
-                self.model = model
-                self.vocoder = vocoder
-                self.args = args
+            self.model = model
+            self.vocoder = vocoder
+            self.args = args
 
-    def check_args(self, args1, args2):
-        if args1.data.block_size != args2.data.block_size:
-            raise ValueError("DDSP与DIFF模型的block_size不一致")
-        if args1.data.sampling_rate != args2.data.sampling_rate:
-            raise ValueError("DDSP与DIFF模型的sampling_rate不一致")
-        if args1.data.encoder != args2.data.encoder:
-            raise ValueError("DDSP与DIFF模型的encoder不一致")
-        return True
 
     def __call__(self, audio, f0, hubert, volume, acc=1, spk_id=1, k_step=0, method='pndm',
                  spk_mix_dict=None, start_frame=0):

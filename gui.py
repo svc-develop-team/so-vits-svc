@@ -356,7 +356,15 @@ class GUI:
         print("\nStarting callback")
         self.input_wav[:] = np.roll(self.input_wav, -self.block_frame)
         self.input_wav[-self.block_frame:] = librosa.to_mono(indata.T)
-        vol = self.svc_model.volume_extractor.extract(torch.FloatTensor(self.input_wav)[None,:].to(self.device))[None,:]
+
+        if self.config.diff_silence:
+            start_frame = int(self.f_safe_prefix_pad_length * self.svc_model.target_sample / self.svc_model.hop_size)
+            audio = self.input_wav[start_frame * self.svc_model.hop_size:]
+        else:
+            start_frame = None
+            audio = self.input_wav
+
+        vol = self.svc_model.volume_extractor.extract(torch.FloatTensor(audio)[None,:].to(self.device))[None,:]
         vol_mask = (vol > 10 ** (float(self.config.threhold) / 20)).to(torch.float) #[1, T]
         vol_mask = torch.max_pool1d(vol_mask, kernel_size=8, stride=1, padding= 4)
         # infer
@@ -376,10 +384,14 @@ class GUI:
             False,
             self.config.second_encoding,
             1,
-            vol
+            vol,
+            start_frame
         )
         vol_mask = torch.nn.functional.interpolate(vol_mask[:,None,:], size=_audio.shape[-1], mode='linear')[0,0,:]
         _audio *= vol_mask
+
+        if self.config.diff_silence and start_frame is not None and start_frame > 0:
+            _audio = F.pad(_audio, (start_frame * self.svc_model.hop_size, 0))
 
         _model_sr = self.svc_model.target_sample
 
@@ -419,7 +431,7 @@ class GUI:
         end_time = time.perf_counter()
         print('infer_time: ' + str(end_time - start_time))
         self.window['infer_time'].update(int((end_time - start_time) * 1000))
-
+        
     def get_devices(self, update: bool = True):
         '''获取设备列表'''
         if update:
@@ -479,7 +491,7 @@ class GUI:
                                 )
             self.svc_model.net_g_ms.dec.onnx = True
             self.svc_model.net_g_ms.dec.m_source.l_sin_gen.onnx = True
-            
+
 if __name__ == "__main__":
     i18n = I18nAuto()
     gui = GUI()
