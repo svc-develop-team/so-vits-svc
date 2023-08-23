@@ -477,7 +477,9 @@ class GUI:
                                 spk_mix_enable=False,
                                 feature_retrieval=self.config.use_feature_retrieval,
                                 )
-
+            self.svc_model.net_g_ms.dec.onnx = True
+            self.svc_model.net_g_ms.dec.m_source.l_sin_gen.onnx = True
+            
 if __name__ == "__main__":
     i18n = I18nAuto()
     gui = GUI()
