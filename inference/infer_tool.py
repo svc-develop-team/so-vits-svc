@@ -169,7 +169,9 @@ class Svc(object):
         else:
             self.hubert_model = utils.get_speech_encoder(self.diffusion_args.data.encoder,device=self.dev)
             self.volume_extractor = utils.Volume_Extractor(self.diffusion_args.data.block_size)
-            
+        
+        self.hubert_model.model = self.hubert_model.model.to(self.dtype)
+
         if os.path.exists(cluster_model_path):
             if self.feature_retrieval:
                 with open(cluster_model_path,"rb") as f:
@@ -218,9 +220,9 @@ class Svc(object):
         f0 = f0.unsqueeze(0)
         uv = uv.unsqueeze(0)
 
-        wav = torch.from_numpy(wav).to(self.dev)
+        wav = torch.from_numpy(wav).to(self.dev).to(self.dtype)
         if not hasattr(self,"audio16k_resample_transform"):
-            self.audio16k_resample_transform = torchaudio.transforms.Resample(self.target_sample, 16000).to(self.dev)
+            self.audio16k_resample_transform = torchaudio.transforms.Resample(self.target_sample, 16000).to(self.dtype).to(self.dev)
         wav16k = self.audio16k_resample_transform(wav[None,:])[0]
         
         c = self.hubert_model.encoder(wav16k)
