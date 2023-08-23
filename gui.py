@@ -356,7 +356,9 @@ class GUI:
         print("\nStarting callback")
         self.input_wav[:] = np.roll(self.input_wav, -self.block_frame)
         self.input_wav[-self.block_frame:] = librosa.to_mono(indata.T)
-
+        vol = self.svc_model.volume_extractor.extract(torch.FloatTensor(self.input_wav)[None,:].to(self.device))[None,:]
+        vol_mask = (vol > 10 ** (float(self.config.threhold) / 20)).to(torch.float) #[1, T]
+        vol_mask = torch.max_pool1d(vol_mask, kernel_size=8, stride=1, padding= 4)
         # infer
         _audio, _audio_len, n_frames = self.svc_model.infer(
             self.config.spk_id,
@@ -373,8 +375,11 @@ class GUI:
             0,
             False,
             self.config.second_encoding,
-            1
+            1,
+            vol
         )
+        vol_mask = torch.nn.functional.interpolate(vol_mask[:,None,:], size=_audio.shape[-1], mode='linear')[0,0,:]
+        _audio *= vol_mask
 
         _model_sr = self.svc_model.target_sample
 

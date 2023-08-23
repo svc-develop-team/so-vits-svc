@@ -6,7 +6,6 @@ import logging
 import os
 import pickle
 import time
-import typing
 from pathlib import Path
 
 import librosa
@@ -268,7 +267,8 @@ class Svc(object):
               frame = 0,
               spk_mix = False,
               second_encoding = False,
-              loudness_envelope_adjustment = 1
+              loudness_envelope_adjustment = 1,
+              vol = None
               ):
         if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
             wav, sr = torchaudio.load(raw_path)
@@ -296,9 +296,8 @@ class Svc(object):
         uv = uv.to(self.dtype)
         with torch.no_grad():
             start = time.time()
-            vol = None
             if not self.only_diffusion:
-                vol = self.volume_extractor.extract(torch.FloatTensor(wav).to(self.dev)[None,:])[None,:].to(self.dev) if self.vol_embedding else None
+                vol = self.volume_extractor.extract(torch.FloatTensor(wav).to(self.dev)[None,:])[None,:].to(self.dev) if self.vol_embedding and vol is None else vol
                 audio,f0 = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale,vol=vol)
                 audio = audio[0,0].data.float()
                 audio_mel = self.vocoder.extract(audio[None,:],self.target_sample) if self.shallow_diffusion else None
