@@ -11,6 +11,7 @@ import time
 from gui_i18 import I18nAuto
 from inference.infer_tool import Svc
 import os
+import json
 
 class Config:
     def __init__(self) -> None:
@@ -65,7 +66,7 @@ class GUI:
         self.block_frame = 0
         self.crossfade_frame = 0
         self.sola_search_frame = 0
-        self.device = 'cpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svc_model = None
         self.fade_in_window: np.ndarray = None  # crossfade计算用numpy数组
         self.fade_out_window: np.ndarray = None  # crossfade计算用numpy数组
@@ -88,7 +89,7 @@ class GUI:
         # 界面布局
         layout = [
             [sg.Frame(layout=[
-                [sg.Input(key='sg_model', default_text='logs\\44k\\G_30000.pth'),
+                [sg.Input(key='sg_model', default_text='logs\\44k\\G_30000.pth', enable_events=True),
                  sg.FileBrowse(i18n('选择模型文件'), key='choose_model')]
             ], title=i18n('模型：.pth格式(自动识别同目录下config.json)')),
                 sg.Frame(layout=[
@@ -112,7 +113,7 @@ class GUI:
             ], title="选择聚类或特征检索文件"),
             ],
             [sg.Frame(layout=[
-                [sg.Text(i18n("说话人")), sg.Combo(self.config.spk_list, key='spk_id', default_value=self.config.spk_id, size=8)],
+                [sg.Text(i18n("说话人")), sg.Combo(self.config.spk_list, key='spk_id', default_value=self.config.spk_id, size=25)],
                 [sg.Text(i18n("响应阈值")),
                  sg.Slider(range=(-65, 0), orientation='h', key='threhold', resolution=1, default_value=-45,
                            enable_events=True)],
@@ -223,6 +224,17 @@ class GUI:
                     self.svc_model.diffusion_args.infer.method = self.config.diff_method
             elif event == 'spk_id':
                 self.config.spk_id = values['spk_id']
+            elif event == 'sg_model':
+                model_config_path = os.path.join(os.path.dirname(values["sg_model"]), 'config.json')
+                print("model_config_path:", model_config_path)
+                try:
+                    config = json.load(open(model_config_path))
+                    self.config.spk_list = list(config['spk'].keys())
+                    self.config.spk_id = self.config.spk_list[0]
+                    self.window['spk_id'].update(values = self.config.spk_list, value = self.config.spk_id)
+                except Exception as e:
+                    print("This is a error path or config!")
+                    print(f"detail:{e}")
             elif event == 'threhold':
                 self.config.threhold = values['threhold']
             elif event == 'pitch':
