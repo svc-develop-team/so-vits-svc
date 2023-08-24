@@ -18,7 +18,8 @@ class Config:
         self.samplerate = 44100  # Hz
         self.block_time = 1.5  # s
         self.f_pitch_change: float = 0.0  # float(request_form.get("fPitchChange", 0))
-        self.spk_id = 1  # 默认说话人。
+        self.spk_id = 0  # 默认说话人。
+        self.spk_list = [0]
         # self.spk_mix_dict = None  # {1:0.5, 2:0.5} 表示1号说话人和2号说话人的音色按照0.5:0.5的比例混合
         self.use_vocoder_based_enhancer = True
         self.use_feature_retrieval = False
@@ -36,7 +37,6 @@ class Config:
         self.auto_F0 = False
         self.diff_project = ''
         self.diff_acc = 10
-        self.diff_spk_id = 0
         self.k_step = 100
         self.diff_method = 'pndm'
         self.diff_silence = False
@@ -114,9 +114,9 @@ class GUI:
             ], title="选择聚类或特征检索文件"),
             ],
             [sg.Frame(layout=[
-                [sg.Text(i18n("说话人id")), sg.Input(key='spk_id', default_text='0', size=8)],
+                [sg.Text(i18n("说话人")), sg.Combo(self.config.spk_list, key='spk_id', default_value=self.config.spk_id, size=8)],
                 [sg.Text(i18n("响应阈值")),
-                 sg.Slider(range=(-60, 0), orientation='h', key='threhold', resolution=1, default_value=-45,
+                 sg.Slider(range=(-65, 0), orientation='h', key='threhold', resolution=1, default_value=-45,
                            enable_events=True)],
                 [sg.Text("特征检索/聚类比例"),
                  sg.Slider(range=(0, 1), orientation='h', key='cluster_infer_ratio', resolution=0.01, default_value=0,
@@ -155,7 +155,6 @@ class GUI:
                     [sg.Text(i18n("扩散模型文件"))],
                     [sg.Input(key='diff_project', default_text='logs\\44k\\diffusion\\model_400000.pt'),
                      sg.FileBrowse(i18n('选择模型文件'), key='choose_model')],
-                    [sg.Text(i18n("扩散说话人id")), sg.Input(key='diff_spk_id', default_text='1', size=18)],
                     [sg.Text(i18n("扩散深度")), sg.Input(key='k_step', default_text='100', size=18)],
                     [sg.Text(i18n("扩散加速")), sg.Input(key='diff_acc', default_text='10', size=18)],
                     [sg.Text(i18n("扩散算法")),
@@ -172,9 +171,7 @@ class GUI:
 
         # 创造窗口
         self.window = sg.Window('SOVITS - REAL - TIME - GUI', layout, finalize=True)
-        self.window['spk_id'].bind('<Return>', '')
         self.window['samplerate'].bind('<Return>', '')
-        self.window['diff_spk_id'].bind('<Return>', '')
         self.window['k_step'].bind('<Return>', '')
         self.window['diff_acc'].bind('<Return>', '')
         self.event_handler()
@@ -212,8 +209,6 @@ class GUI:
                     self.config.diff_acc = int(self.config.k_step / 4)
                 else:
                     self.config.diff_acc = int(values['diff_acc'])
-            elif event == 'diff_spk_id':
-                self.config.diff_spk_id = int(values['diff_spk_id'])
             elif event == 'diff_use':
                 self.config.diff_use = values['diff_use']
                 self.window['use_enhancer'].update(False)
@@ -223,7 +218,7 @@ class GUI:
             elif event == 'diff_method':
                 self.config.diff_method = values['diff_method']
             elif event == 'spk_id':
-                self.config.spk_id = int(values['spk_id'])
+                self.config.spk_id = values['spk_id']
             elif event == 'threhold':
                 self.config.threhold = values['threhold']
             elif event == 'pitch':
@@ -263,7 +258,7 @@ class GUI:
         self.set_devices(values["sg_input_device"], values['sg_output_device'])
         self.config.sounddevices = [values["sg_input_device"], values['sg_output_device']]
         self.config.checkpoint_path = values['sg_model']
-        self.config.spk_id = int(values['spk_id'])
+        self.config.spk_id = values['spk_id']
         self.config.threhold = values['threhold']
         self.config.f_pitch_change = values['pitch']
         self.config.samplerate = int(values['samplerate'])
@@ -284,7 +279,6 @@ class GUI:
         self.config.diff_method = values['diff_method']
         self.config.diff_project = values['diff_project']
         self.config.diff_acc = int(values['diff_acc'])
-        self.config.diff_spk_id = int(values['diff_spk_id'])
         self.config.k_step = int(values['k_step'])
         self.block_frame = int(self.config.block_time * self.config.samplerate)
         self.crossfade_frame = int(self.config.crossfade_time * self.config.samplerate)
@@ -299,7 +293,7 @@ class GUI:
         self.window['sg_model'].update(self.config.checkpoint_path)
         self.window['sg_input_device'].update(self.config.sounddevices[0])
         self.window['sg_output_device'].update(self.config.sounddevices[1])
-        self.window['spk_id'].update(self.config.spk_id)
+        self.window['spk_id'].update(values = self.config.spk_list, value = self.config.spk_id)
         self.window['threhold'].update(self.config.threhold)
         self.window['pitch'].update(self.config.f_pitch_change)
         self.window['auto_F0'].update(self.config.auto_F0)
@@ -319,7 +313,6 @@ class GUI:
         self.window['diff_method'].update(self.config.diff_method)
         self.window['diff_project'].update(self.config.diff_project)
         self.window['diff_acc'].update(self.config.diff_acc)
-        self.window['diff_spk_id'].update(self.config.diff_spk_id)
         self.window['k_step'].update(self.config.k_step)
 
     def start_vc(self):
@@ -491,6 +484,10 @@ class GUI:
                                 )
             self.svc_model.net_g_ms.dec.onnx = True
             self.svc_model.net_g_ms.dec.m_source.l_sin_gen.onnx = True
+            self.config.samplerate = self.svc_model.target_sample
+            self.config.spk_list= list(self.svc_model.spk2id.keys())
+            self.config.spk_id = self.config.spk_list[0]
+            self.update_values()
 
 if __name__ == "__main__":
     i18n = I18nAuto()
