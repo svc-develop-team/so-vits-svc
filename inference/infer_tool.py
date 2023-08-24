@@ -271,7 +271,8 @@ class Svc(object):
               second_encoding = False,
               loudness_envelope_adjustment = 1,
               vol = None,
-              start_frame = None
+              start_frame = None,
+              use_tqdm = True
               ):
         if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
             wav, sr = torchaudio.load(raw_path)
@@ -335,7 +336,9 @@ class Svc(object):
                 infer=True, 
                 infer_speedup=self.diffusion_args.infer.speedup, 
                 method=self.diffusion_args.infer.method,
-                k_step=k_step)
+                k_step=k_step,
+                use_tqdm = use_tqdm
+                )
                 audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
                 audio, _ = self.enhancer.enhance(

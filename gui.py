@@ -9,7 +9,6 @@ from torchaudio.transforms import Resample
 # from ddsp.core import upsample
 import time
 from gui_i18 import I18nAuto
-from diffusion.infer_gt_mel import DiffGtMel
 from inference.infer_tool import Svc
 import os
 
@@ -68,14 +67,13 @@ class GUI:
         self.sola_search_frame = 0
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svc_model = None
-        self.diff_model: DiffGtMel = DiffGtMel()
         self.fade_in_window: np.ndarray = None  # crossfade计算用numpy数组
         self.fade_out_window: np.ndarray = None  # crossfade计算用numpy数组
         self.input_wav: np.ndarray = None  # 输入音频规范化后的保存地址
         self.output_wav: np.ndarray = None  # 输出音频规范化后的保存地址
         self.sola_buffer: torch.Tensor = None  # 保存上一个output的crossfade
         self.f0_mode_list = ["pm", "dio", "harvest", "crepe" ,"rmvpe","fcpe"]  # F0预测器
-        self.diff_method_list = ["ddim", "pndm", "dpm-solver++", "unipc"] # 加速采样方法
+        self.diff_method_list = ["ddim", "pndm", "dpm-solver++", "dpm-solver", "unipc"] 
         self.f_safe_prefix_pad_length: float = 0.0
         self.resample_kernel = {}
         self.launcher()  # start
@@ -209,14 +207,20 @@ class GUI:
                     self.config.diff_acc = int(self.config.k_step / 4)
                 else:
                     self.config.diff_acc = int(values['diff_acc'])
+                if self.svc_model != None and hasattr(self.svc_model, "diffusion_model"):
+                    self.svc_model.diffusion_args.infer.speedup = self.config.diff_acc
             elif event == 'diff_use':
                 self.config.diff_use = values['diff_use']
                 self.window['use_enhancer'].update(False)
                 self.config.use_vocoder_based_enhancer=False
+                if self.svc_model != None:
+                    self.svc_model.shallow_diffusion = self.config.diff_use
             elif event == 'diff_silence':
                 self.config.diff_silence = values['diff_silence']
             elif event == 'diff_method':
                 self.config.diff_method = values['diff_method']
+                if self.svc_model != None and hasattr(self.svc_model, "diffusion_model"):
+                    self.svc_model.diffusion_args.infer.method = self.config.diff_method
             elif event == 'spk_id':
                 self.config.spk_id = values['spk_id']
             elif event == 'threhold':
@@ -237,8 +241,6 @@ class GUI:
             #         self.config.spk_mix_dict = eval("{" + spk_mix.replace('，', ',').replace('：', ':') + "}")
             elif event == 'spk_mix':
                 self.config.use_spk_mix = values['spk_mix']
-            elif event == 'use_feature_retrieval':
-                self.config.use_feature_retrieval = values['use_feature_retrieval']
             elif event == 'use_feature_retrieval':
                 self.config.use_feature_retrieval = values['use_feature_retrieval']
             elif event == 'use_enhancer':
@@ -325,8 +327,6 @@ class GUI:
             np.pi * torch.arange(0, 1, 1 / self.crossfade_frame, device=self.device) / 2) ** 2
         self.fade_out_window = 1 - self.fade_in_window
         self.update_model(self.config.checkpoint_path)
-        if self.config.diff_use:
-            self.diff_model.flush_model(self.config.diff_project, ddsp_config=self.svc_model.args)
         thread_vc = threading.Thread(target=self.soundinput)
         thread_vc.start()
 
@@ -356,7 +356,7 @@ class GUI:
         else:
             start_frame = None
             audio = self.input_wav
-
+            
         vol = self.svc_model.volume_extractor.extract(torch.FloatTensor(audio)[None,:].to(self.device))[None,:]
         vol_mask = (vol > 10 ** (float(self.config.threhold) / 20)).to(torch.float) #[1, T]
         vol_mask = torch.max_pool1d(vol_mask, kernel_size=8, stride=1, padding= 4)
@@ -378,7 +378,8 @@ class GUI:
             self.config.second_encoding,
             1,
             vol,
-            start_frame
+            start_frame,
+            False
         )
         vol_mask = torch.nn.functional.interpolate(vol_mask[:,None,:], size=_audio.shape[-1], mode='linear')[0,0,:]
         _audio *= vol_mask
@@ -487,6 +488,9 @@ class GUI:
             self.config.samplerate = self.svc_model.target_sample
             self.config.spk_list= list(self.svc_model.spk2id.keys())
             self.config.spk_id = self.config.spk_list[0]
+            if hasattr(self.svc_model, "diffusion_model"):
+                self.svc_model.diffusion_args.infer.speedup = self.config.diff_acc
+                self.svc_model.diffusion_args.infer.method = self.config.diff_method
             self.update_values()
 
 if __name__ == "__main__":
