@@ -66,7 +66,7 @@ class GUI:
         self.block_frame = 0
         self.crossfade_frame = 0
         self.sola_search_frame = 0
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cpu' if torch.cuda.is_available() else 'cpu'
         self.svc_model = None
         self.diff_model: DiffGtMel = DiffGtMel()
         self.fade_in_window: np.ndarray = None  # crossfade计算用numpy数组
