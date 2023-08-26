@@ -498,8 +498,8 @@ class GUI:
             self.svc_model.net_g_ms.dec.onnx = True
             self.svc_model.net_g_ms.dec.m_source.l_sin_gen.onnx = True
             self.config.samplerate = self.svc_model.target_sample
-            self.config.spk_list= list(self.svc_model.spk2id.keys())
-            self.config.spk_id = self.config.spk_list[0]
+            # self.config.spk_list= list(self.svc_model.spk2id.keys())
+            # self.config.spk_id = self.config.spk_list[0]
             if hasattr(self.svc_model, "diffusion_model"):
                 self.svc_model.diffusion_args.infer.speedup = self.config.diff_acc
                 self.svc_model.diffusion_args.infer.method = self.config.diff_method
