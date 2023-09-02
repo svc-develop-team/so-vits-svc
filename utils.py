@@ -566,7 +566,6 @@ class Volume_Extractor:
            audio = torch.Tensor(audio)
         n_frames = int(audio.size(-1) // self.hop_size)
         audio2 = audio ** 2
-        audio2 = torch.nn.functional.pad(audio2, (int(self.hop_size // 2), int((self.hop_size + 1) // 2)), mode = 'reflect')
         volume = torch.nn.functional.unfold(audio2[:,None,None,:],(1,self.hop_size),stride=self.hop_size)[:,:,:n_frames].mean(dim=1)[0]
         volume = torch.sqrt(volume)
         return volume
