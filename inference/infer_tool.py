@@ -15,13 +15,14 @@ import numpy as np
 import soundfile
 import torch
 import torchaudio
-torchaudio.set_audio_backend("soundfile")
 
 import cluster
 import utils
 from diffusion.unit2mel import load_model_vocoder
 from inference import slicer
 from models import SynthesizerTrn
+
+torchaudio.set_audio_backend("soundfile")
 
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
@@ -231,7 +232,7 @@ class Svc(object):
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
                 speaker_id = self.spk2id.get(speaker)
-                if not speaker_id and type(speaker) is int:
+                if not speaker_id and type(speaker) is int:  # noqa: E721
                     if len(self.spk2id.__dict__) >= speaker:
                         speaker_id = speaker
                 if speaker_id is None:
@@ -287,7 +288,7 @@ class Svc(object):
             sid = speaker[:, frame:frame+n_frames].transpose(0,1)
         else:
             speaker_id = self.spk2id.get(speaker)
-            if not speaker_id and type(speaker) is int:
+            if not speaker_id and type(speaker) is int: # noqa: E721
                 if len(self.spk2id.__dict__) >= speaker:
                     speaker_id = speaker
             if speaker_id is None:

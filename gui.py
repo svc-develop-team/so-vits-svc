@@ -1,17 +1,23 @@
-import PySimpleGUI as sg
-import sounddevice as sd
-import torch, librosa, threading, pickle
-from modules.enhancer import Enhancer
-import numpy as np
-from torch.nn import functional as F
-from torchaudio.transforms import Resample
+import json
+import os
+import pickle
+import threading
+
 # from ddsp.vocoder import load_model, F0_Extractor, Volume_Extractor, Units_Encoder
 # from ddsp.core import upsample
 import time
+
+import librosa
+import numpy as np
+import PySimpleGUI as sg
+import sounddevice as sd
+import torch
+from torch.nn import functional as F
+from torchaudio.transforms import Resample
+
 from gui_i18 import I18nAuto
 from inference.infer_tool import Svc
-import os
-import json
+
 
 class Config:
     def __init__(self) -> None:
@@ -51,7 +57,7 @@ class Config:
             with open(path + '\\config.pkl', 'rb') as f:
                 self.update(pickle.load(f))
             return True
-        except:
+        except:  # noqa: E722
             print('config.pkl does not exist')
             return False
     
@@ -185,7 +191,7 @@ class GUI:
             
             print('event: ' + event)
             
-            if event == 'start_vc' and self.flag_vc == False:
+            if event == 'start_vc' and self.flag_vc is False:
                 # set values 和界面布局layout顺序一一对应
                 self.set_values(values)
                 print('crossfade_time:' + str(self.config.crossfade_time))
@@ -208,19 +214,19 @@ class GUI:
                     self.config.diff_acc = int(self.config.k_step / 4)
                 else:
                     self.config.diff_acc = int(values['diff_acc'])
-                if self.svc_model != None and hasattr(self.svc_model, "diffusion_model"):
+                if self.svc_model is not None and hasattr(self.svc_model, "diffusion_model"):
                     self.svc_model.diffusion_args.infer.speedup = self.config.diff_acc
             elif event == 'diff_use':
                 self.config.diff_use = values['diff_use']
                 self.window['use_enhancer'].update(False)
                 self.config.use_vocoder_based_enhancer=False
-                if self.svc_model != None:
+                if self.svc_model is not None:
                     self.svc_model.shallow_diffusion = self.config.diff_use
             elif event == 'diff_silence':
                 self.config.diff_silence = values['diff_silence']
             elif event == 'diff_method':
                 self.config.diff_method = values['diff_method']
-                if self.svc_model != None and hasattr(self.svc_model, "diffusion_model"):
+                if self.svc_model is not None and hasattr(self.svc_model, "diffusion_model"):
                     self.svc_model.diffusion_args.infer.method = self.config.diff_method
             elif event == 'spk_id':
                 self.config.spk_id = values['spk_id']
@@ -259,13 +265,13 @@ class GUI:
                 self.config.use_vocoder_based_enhancer = values['use_enhancer']
                 self.window['diff_use'].update(False)
                 self.config.diff_use = False
-            elif event == 'load_config' and self.flag_vc == False:
+            elif event == 'load_config' and self.flag_vc is False:
                 if self.config.load(values['config_file_dir']):
                     self.update_values()
-            elif event == 'save_config' and self.flag_vc == False:
+            elif event == 'save_config' and self.flag_vc is False:
                 self.set_values(values)
                 self.config.save(values['config_file_dir'])
-            elif event != 'start_vc' and self.flag_vc == True:
+            elif event != 'start_vc' and self.flag_vc is True:
                 self.flag_vc = False
 
     def set_values(self, values):
