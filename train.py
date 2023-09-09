@@ -146,7 +146,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
     global global_step
 
     net_g.train()
-    net_d.train()
+    net_d.train()   
     for batch_idx, items in enumerate(train_loader):
         c, f0, spec, y, spk, lengths, uv,volume = items
         g = spk.cuda(rank, non_blocking=True)
@@ -252,8 +252,10 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                     images=image_dict,
                     scalars=scalar_dict
                 )
-
-            if global_step % hps.train.eval_interval == 0:
+            # 达到保存步数或者 stop 文件存在
+            if global_step % hps.train.eval_interval == 0 or os.path.exists("stop.txt"):
+                if os.path.exists("stop.txt"):
+                    logger.info("stop.txt found, stop training")
                 evaluate(hps, net_g, eval_loader, writer_eval)
                 utils.save_checkpoint(net_g, optim_g, hps.train.learning_rate, epoch,
                                       os.path.join(hps.model_dir, "G_{}.pth".format(global_step)))
@@ -262,7 +264,10 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 keep_ckpts = getattr(hps.train, 'keep_ckpts', 0)
                 if keep_ckpts > 0:
                     utils.clean_checkpoints(path_to_models=hps.model_dir, n_ckpts_to_keep=keep_ckpts, sort_by_time=True)
-
+                if os.path.exists("stop.txt"):
+                    logger.info("good bye!")
+                    os.remove("stop.txt")
+                    os._exit(0)
         global_step += 1
 
     if rank == 0:

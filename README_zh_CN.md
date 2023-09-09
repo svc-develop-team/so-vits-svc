@@ -350,6 +350,8 @@ python preprocess_hubert_f0.py --f0_predictor dio --use_diff --num_processes 8
 python train.py -c configs/config.json -m 44k
 ```
 
+这里提供了一个可以随时暂停训练并保存模型的方法，在运行目录下面新建一个 `stop.txt` 即可，训练会在下一个 step 结束后停止并保存模型
+
 ### 扩散模型（可选）
 
 尚若需要浅扩散功能，需要训练扩散模型，扩散模型训练方法为：

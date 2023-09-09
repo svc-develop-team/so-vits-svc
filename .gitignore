@@ -165,3 +165,7 @@ pretrain/
 .vscode/launch.json
 
 trained/**/
+
+configs/
+filelists/
+filelists/val.txt
