@@ -277,7 +277,7 @@ class Svc(object):
               ):
         if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
             wav, sr = torchaudio.load(raw_path)
-            if not hasattr(self,"audio_resample_transform") or self.audio16k_resample_transform.orig_freq != sr:
+            if not hasattr(self,"audio_resample_transform") or self.audio_resample_transform.orig_freq != sr:
                 self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)
             wav = self.audio_resample_transform(wav).numpy()[0]
         else:
