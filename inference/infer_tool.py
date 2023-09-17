@@ -22,6 +22,8 @@ from diffusion.unit2mel import load_model_vocoder
 from inference import slicer
 from models import SynthesizerTrn
 
+torchaudio.set_audio_backend("soundfile")
+
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 
@@ -168,7 +170,9 @@ class Svc(object):
         else:
             self.hubert_model = utils.get_speech_encoder(self.diffusion_args.data.encoder,device=self.dev)
             self.volume_extractor = utils.Volume_Extractor(self.diffusion_args.data.block_size)
-            
+        
+        self.hubert_model.model = self.hubert_model.model.to(self.dtype)
+
         if os.path.exists(cluster_model_path):
             if self.feature_retrieval:
                 with open(cluster_model_path,"rb") as f:
@@ -198,6 +202,7 @@ class Svc(object):
             _ = self.net_g_ms.half().eval().to(self.dev)
         else:
             _ = self.net_g_ms.eval().to(self.dev)
+        del self.net_g_ms.enc_q
         if spk_mix_enable:
             self.net_g_ms.EnableCharacterMix(len(self.spk2id), self.dev)
 
@@ -216,9 +221,9 @@ class Svc(object):
         f0 = f0.unsqueeze(0)
         uv = uv.unsqueeze(0)
 
-        wav = torch.from_numpy(wav).to(self.dev)
+        wav = torch.from_numpy(wav).to(self.dev).to(self.dtype)
         if not hasattr(self,"audio16k_resample_transform"):
-            self.audio16k_resample_transform = torchaudio.transforms.Resample(self.target_sample, 16000).to(self.dev)
+            self.audio16k_resample_transform = torchaudio.transforms.Resample(self.target_sample, 16000).to(self.dtype).to(self.dev)
         wav16k = self.audio16k_resample_transform(wav[None,:])[0]
         
         c = self.hubert_model.encoder(wav16k)
@@ -227,7 +232,7 @@ class Svc(object):
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
                 speaker_id = self.spk2id.get(speaker)
-                if not speaker_id and type(speaker) is int:
+                if not speaker_id and type(speaker) is int:  # noqa: E721
                     if len(self.spk2id.__dict__) >= speaker:
                         speaker_id = speaker
                 if speaker_id is None:
@@ -265,20 +270,25 @@ class Svc(object):
               frame = 0,
               spk_mix = False,
               second_encoding = False,
-              loudness_envelope_adjustment = 1
+              loudness_envelope_adjustment = 1,
+              vol = None,
+              start_frame = None,
+              use_tqdm = True
               ):
-        torchaudio.set_audio_backend("soundfile")
-        wav, sr = torchaudio.load(raw_path)
-        if not hasattr(self,"audio_resample_transform") or self.audio16k_resample_transform.orig_freq != sr:
-            self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)
-        wav = self.audio_resample_transform(wav).numpy()[0]
+        if isinstance(raw_path, str) or isinstance(raw_path, io.BytesIO):
+            wav, sr = torchaudio.load(raw_path)
+            if not hasattr(self,"audio_resample_transform") or self.audio_resample_transform.orig_freq != sr:
+                self.audio_resample_transform = torchaudio.transforms.Resample(sr,self.target_sample)
+            wav = self.audio_resample_transform(wav).numpy()[0]
+        else:
+            wav = raw_path
         if spk_mix:
             c, f0, uv = self.get_unit_f0(wav, tran, 0, None, f0_filter,f0_predictor,cr_threshold=cr_threshold)
             n_frames = f0.size(1)
             sid = speaker[:, frame:frame+n_frames].transpose(0,1)
         else:
             speaker_id = self.spk2id.get(speaker)
-            if not speaker_id and type(speaker) is int:
+            if not speaker_id and type(speaker) is int: # noqa: E721
                 if len(self.spk2id.__dict__) >= speaker:
                     speaker_id = speaker
             if speaker_id is None:
@@ -289,11 +299,15 @@ class Svc(object):
         c = c.to(self.dtype)
         f0 = f0.to(self.dtype)
         uv = uv.to(self.dtype)
+        if start_frame is not None:
+            c = c[:,:,start_frame:]
+            f0 = f0[:,start_frame:]
+            uv = uv[:,start_frame:]
         with torch.no_grad():
             start = time.time()
-            vol = None
             if not self.only_diffusion:
-                vol = self.volume_extractor.extract(torch.FloatTensor(wav).to(self.dev)[None,:])[None,:].to(self.dev) if self.vol_embedding else None
+                vol = self.volume_extractor.extract(torch.FloatTensor(wav).to(self.dev)[None,:])[None,:].to(self.dev) if self.vol_embedding and vol is None else vol
+                vol = vol.to(self.dtype) if vol is not None else vol
                 audio,f0 = self.net_g_ms.infer(c, f0=f0, g=sid, uv=uv, predict_f0=auto_predict_f0, noice_scale=noice_scale,vol=vol)
                 audio = audio[0,0].data.float()
                 audio_mel = self.vocoder.extract(audio[None,:],self.target_sample) if self.shallow_diffusion else None
@@ -324,7 +338,9 @@ class Svc(object):
                 infer=True, 
                 infer_speedup=self.diffusion_args.infer.speedup, 
                 method=self.diffusion_args.infer.method,
-                k_step=k_step)
+                k_step=k_step,
+                use_tqdm = use_tqdm
+                )
                 audio = self.vocoder.infer(audio_mel, f0).squeeze()
             if self.nsf_hifigan_enhance:
                 audio, _ = self.enhancer.enhance(
