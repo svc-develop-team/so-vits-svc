@@ -1,3 +1,4 @@
+import argparse
 import glob
 import json
 import logging
@@ -21,6 +22,47 @@ from compress_model import removeOptimizer
 from edgetts.tts_voices import SUPPORTED_LANGUAGES
 from inference.infer_tool import Svc
 from utils import mix_model
+
+
+
+#获取WebUI.py的选项                    
+def add_code_generation_args(parser):
+    group = parser.add_argument_group(title="So-vits-svc WEBUI")
+    group.add_argument(
+        "--listen",
+        type=str,
+        default="127.0.0.1",
+    )
+    group.add_argument(
+        "--port",
+        type=int,
+        default=7860,
+    )
+    group.add_argument(
+        "--username",
+        type=str,
+        default=None,
+    )
+    group.add_argument(
+        "--password",
+        type=str,
+        default=None,
+    )
+    group.add_argument(
+        "--auth",
+        action="store_true",
+    )
+    group.add_argument(
+        "--webuihelp",
+        action="store_true",
+    )
+    
+    
+    return parser
+                   
+parser = argparse.ArgumentParser()
+parser = add_code_generation_args(parser)
+args, _ = parser.parse_known_args()
 
 logging.getLogger('numba').setLevel(logging.WARNING)
 logging.getLogger('markdown_it').setLevel(logging.WARNING)
@@ -268,6 +310,8 @@ def local_model_refresh_fn():
     choices = scan_local_models()
     return gr.Dropdown.update(choices=choices)
 
+
+ 
 def debug_change():
     global debug
     debug = debug_button.value
@@ -279,6 +323,7 @@ with gr.Blocks(
         font_mono=['JetBrains mono', "Consolas", 'Courier New']
     ),
 ) as app:
+    
     with gr.Tabs():
         with gr.TabItem("推理"):
             gr.Markdown(value="""
@@ -402,29 +447,31 @@ with gr.Blocks(
                     compress_model_output = gr.Textbox(label="输出信息", value="")
 
                     compress_model_btn.click(model_compression, [model_to_compress], [compress_model_output])
-                    
-                    
-    with gr.Tabs():
-        with gr.Row(variant="panel"):
-            with gr.Column():
-                gr.Markdown(value="""
-                    <font size=2> WebUI设置</font>
-                    """)
-                debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
-        # refresh local model list
-        local_model_refresh_btn.click(local_model_refresh_fn, outputs=local_model_selection)
-        # set local enabled/disabled on tab switch
-        local_model_tab_upload.select(lambda: False, outputs=local_model_enabled)
-        local_model_tab_local.select(lambda: True, outputs=local_model_enabled)
+    if not args.webuihelp:
+        with gr.Tabs():
+            with gr.Row(variant="panel"):
+                with gr.Column():
+                    gr.Markdown(value="""
+                        <font size=2> WebUI设置</font>
+                        """)
+                    debug_button = gr.Checkbox(label="Debug模式，如果向社区反馈BUG需要打开，打开后控制台可以显示具体错误提示", value=debug)
+            # refresh local model list
+            local_model_refresh_btn.click(local_model_refresh_fn, outputs=local_model_selection)
+            # set local enabled/disabled on tab switch
+            local_model_tab_upload.select(lambda: False, outputs=local_model_enabled)
+            local_model_tab_local.select(lambda: True, outputs=local_model_enabled)
+            
+            vc_submit.click(vc_fn, [sid, vc_input3, output_format, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
+            vc_submit2.click(vc_fn2, [text2tts, tts_lang, tts_gender, tts_rate, tts_volume, sid, output_format, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
+
+            debug_button.change(debug_change,[],[])
+            model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix,local_model_enabled,local_model_selection],[sid,sid_output])
+            model_unload_button.click(modelUnload,[],[sid,sid_output])
         
-        vc_submit.click(vc_fn, [sid, vc_input3, output_format, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
-        vc_submit2.click(vc_fn2, [text2tts, tts_lang, tts_gender, tts_rate, tts_volume, sid, output_format, vc_transform,auto_f0,cluster_ratio, slice_db, noise_scale,pad_seconds,cl_num,lg_num,lgr_num,f0_predictor,enhancer_adaptive_key,cr_threshold,k_step,use_spk_mix,second_encoding,loudness_envelope_adjustment], [vc_output1, vc_output2])
-
-        debug_button.change(debug_change,[],[])
-        model_load_button.click(modelAnalysis,[model_path,config_path,cluster_model_path,device,enhance,diff_model_path,diff_config_path,only_diffusion,use_spk_mix,local_model_enabled,local_model_selection],[sid,sid_output])
-        model_unload_button.click(modelUnload,[],[sid,sid_output])
-    os.system("start http://127.0.0.1:7860")
-    app.launch()
-
-
- 
+        os.system("start http://127.0.0.1:7860")
+        if not args.auth:
+            app.launch(server_name=args.listen, server_port=args.port)
+        else:
+            app.launch(server_name=args.listen, server_port=args.port, auth=(args.username, args.password))
+    else:
+        print("WebUI.py usage: --help --auth --username --password --listen ADDRESS --port PORT")
