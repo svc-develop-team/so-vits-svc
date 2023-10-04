@@ -1,7 +1,7 @@
 <div align="center">
 <img alt="LOGO" src="https://avatars.githubusercontent.com/u/127122328?s=400&u=5395a98a4f945a3a50cb0cc96c2747505d190dbc&v=4" width="300" height="300" />
 
-# SoftVC VITS Singing Voice Conversion
+# SoftVC VITS Singing Voice Conversion(HuanLin Ver)
 
 [**English**](./README.md) | [**中文简体**](./README_zh_CN.md)
 
@@ -372,14 +372,14 @@ python inference_main.py -m "logs/44k/G_30400.pth" -c "configs/config.json" -n "
 ```
 
 必填项部分：
-+ `-m` | `--model_path`：模型路径
-+ `-c` | `--config_path`：配置文件路径
-+ `-n` | `--clean_names`：wav 文件名列表，放在 raw 文件夹下
++ `-m` | `--model_path`：模型路径 (接受参数 `{lastest}`，示例: `"logs/44k/{lastest}"`，将获取最新保存点)
++ `-c` | `--config_path`：配置文件路径，缺省时使用 `logs/44k/config.json`
 + `-t` | `--trans`：音高调整，支持正负（半音）
-+ `-s` | `--spk_list`：合成目标说话人名称
-+ `-cl` | `--clip`：音频强制切片，默认 0 为自动切片，单位为秒/s
++ `-s` | `--spk_list`：合成目标说话人名称，缺省时我也不知道怎么干
++ `-n` | `--clean_names`：wav 文件名列表，放在 raw 文件夹下，缺省时 fallback 到 raw 文件夹中所有 wav 文件 
 
 可选项部分：部分具体见下一节
++ `-cl` | `--clip`：音频强制切片，默认 0 为自动切片，单位为秒/s
 + `-lg` | `--linear_gradient`：两段音频切片的交叉淡入长度，如果强制切片后出现人声不连贯可调整该数值，如果连贯建议采用默认值 0，单位为秒
 + `-f0p` | `--f0_predictor`：选择 F0 预测器，可选择 crepe,pm,dio,harvest,rmvpe,fcpe, 默认为 pm（注意：crepe 为原 F0 使用均值滤波器）
 + `-a` | `--auto_predict_f0`：语音转换自动预测音高，转换歌声时不要打开这个会严重跑调
