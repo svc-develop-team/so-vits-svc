@@ -185,7 +185,13 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 
 > 你说的对,但是[FCPE](https://github.com/CNChTu/MelPE)是由svc-develop-team自主研发的一款全新的F0预测器，后面忘了
 
-[FCPE(Fast Context-base Pitch Estimator)](https://github.com/CNChTu/MelPE)是一个为实时语音转换所设计的专用F0预测器，他将在未来成为Sovits实时语音转换的首选F0预测器.（论文未来会有的）
+[FCPE(Fast Context-base Pitch Estimator)](https://github.com/CNChTu/MelPE)是一个为实时语音转换所设计的专用F0预测器，他是Sovits实时语音转换的首选F0预测器.（论文未来会有的）
+
+实时语音转换的gui是`gui.py`
+
+```shell
+python gui.py
+```
 
 如果使用 `fcpe` F0预测器的话，需要下载预训练的 FCPE 模型
 

@@ -31,3 +31,5 @@ langdetect
 pyyaml
 pynvml
 faiss-cpu
+PySimpleGUI
+sounddevice

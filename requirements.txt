@@ -29,3 +29,5 @@ pynvml
 faiss-cpu
 einops
 local_attention
+PySimpleGUI
+sounddevice
