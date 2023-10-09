@@ -2,9 +2,6 @@ import json
 import os
 import pickle
 import threading
-
-# from ddsp.vocoder import load_model, F0_Extractor, Volume_Extractor, Units_Encoder
-# from ddsp.core import upsample
 import time
 
 import librosa
