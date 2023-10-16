@@ -18,8 +18,6 @@ from sklearn.cluster import MiniBatchKMeans
 from torch.nn import functional as F
 
 MATPLOTLIB_FLAG = False
-
-logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logger = logging
 
 f0_bin = 256
