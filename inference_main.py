@@ -1,5 +1,9 @@
 import logging
 
+# from loguru import logger
+import logger
+
+
 import os
 
 import soundfile
@@ -18,7 +22,7 @@ def isWavFile(file_name):
 def getLastestCheckpoint(path):
     files = [ f for f in os.listdir(path) if f.endswith('.pth') and f.startswith('G_')]
     if len(files) == 0:
-        logging.error(f"no checkpoint in {path}")
+        logger.error(f"no checkpoint in {path}")
         return None
     latest_file = max(files)
     return os.path.join(path, latest_file)
@@ -99,7 +103,7 @@ def main():
 
     if "{lastest}" in model_path:
         model_path = getLastestCheckpoint(model_path[:model_path.find("{lastest}")])
-        logging.info("Auto choose {}", model_path)
+        logger.info("Auto choose {}", model_path)
 
     if cluster_infer_ratio != 0:
         if args.cluster_model_path == "":
@@ -156,7 +160,12 @@ def main():
                 "second_encoding":second_encoding,
                 "loudness_envelope_adjustment":loudness_envelope_adjustment
             }
-            audio = svc_model.slice_inference(**kwarg)
+            try:
+                audio = svc_model.slice_inference(**kwarg)
+            except Exception as e:
+                logger.error(f"Error in {clean_name} {spk} {tran}")
+                logger.error(e)
+                return
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             isdiffusion = "sovits"
