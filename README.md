@@ -174,8 +174,11 @@ unzip -od pretrain/nsf_hifigan pretrain/nsf_hifigan_20221211.zip
 
 If you are using the `rmvpe` F0 Predictor, you will need to download the pre-trained RMVPE model.
 
-- download model at [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)
-  - Place it under the `pretrain` directory
++ download model at [rmvpe.zip](https://github.com/yxlllc/RMVPE/releases/download/230917/rmvpe.zip), this weight is recommended.
+  + unzip `rmvpe.zip`，and rename the `model.pt` file to `rmvpe.pt` and place it under the `pretrain` directory.
+
+- ~~download model at [rmvpe.pt](https://huggingface.co/datasets/ylzz1997/rmvpe_pretrain_model/resolve/main/rmvpe.pt)~~
+  - ~~Place it under the `pretrain` directory~~
 
 ##### FCPE(Preview version)
 
