@@ -17,10 +17,12 @@ from scipy.io.wavfile import read
 from sklearn.cluster import MiniBatchKMeans
 from torch.nn import functional as F
 
+import logger
+
 MATPLOTLIB_FLAG = False
 
 logging.basicConfig(stream=sys.stdout, level=logging.WARN)
-logger = logging
+# logger = logging
 
 f0_bin = 256
 f0_max = 1100.0
@@ -174,14 +176,13 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
             assert saved_state_dict[k].shape == v.shape, (saved_state_dict[k].shape, v.shape)
         except Exception:
             if "enc_q" not in k or "emb_g" not in k:
-              print("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
+              logger.error("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
               logger.info("%s is not in the checkpoint" % k)
               new_state_dict[k] = v
     if hasattr(model, 'module'):
         model.module.load_state_dict(new_state_dict)
     else:
         model.load_state_dict(new_state_dict)
-    print("load ")
     logger.info("Loaded checkpoint '{}' (iteration {})".format(
         checkpoint_path, iteration))
     return model, optimizer, learning_rate, iteration
@@ -379,17 +380,18 @@ def check_git_hash(model_dir):
 
 
 def get_logger(model_dir, filename="train.log"):
-  global logger
-  logger = logging.getLogger(os.path.basename(model_dir))
-  logger.setLevel(logging.DEBUG)
+  import logger
+  logger.addLogger(os.path.join(model_dir, filename))
+  # logger = logging.getLogger(os.path.basename(model_dir))
+  # logger.setLevel(logging.DEBUG)
 
-  formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
-  if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
-  h = logging.FileHandler(os.path.join(model_dir, filename))
-  h.setLevel(logging.DEBUG)
-  h.setFormatter(formatter)
-  logger.addHandler(h)
+  # formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
+  # if not os.path.exists(model_dir):
+  #   os.makedirs(model_dir)
+  # h = logging.FileHandler(os.path.join(model_dir, filename))
+  # h.setLevel(logging.DEBUG)
+  # h.setFormatter(formatter)
+  # logger.addHandler(h)
   return logger
 
 

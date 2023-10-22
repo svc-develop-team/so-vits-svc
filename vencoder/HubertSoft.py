@@ -7,7 +7,8 @@ from vencoder.hubert import hubert_model
 class HubertSoft(SpeechEncoder):
     def __init__(self, vec_path="pretrain/hubert-soft-0d54a1f4.pt", device=None):
         super().__init__()
-        print("load model(s) from {}".format(vec_path))
+        import logger
+        logger.info("load model(s) from {}".format(vec_path))
         hubert_soft = hubert_model.hubert_soft(vec_path)
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")

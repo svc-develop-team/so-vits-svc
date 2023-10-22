@@ -5,7 +5,7 @@ import re
 import wave
 from random import shuffle
 
-from loguru import logger
+import logger
 from tqdm import tqdm
 
 import diffusion.logger.utils as du
@@ -73,15 +73,17 @@ if __name__ == "__main__":
 
     logger.info("Writing " + args.train_list)
     with open(args.train_list, "w") as f:
-        for fname in tqdm(train):
-            wavpath = fname
-            f.write(wavpath + "\n")
+        with logger.Progress() as progress:
+            for fname in progress.track(train):
+                wavpath = fname
+                f.write(wavpath + "\n")
 
     logger.info("Writing " + args.val_list)
     with open(args.val_list, "w") as f:
-        for fname in tqdm(val):
-            wavpath = fname
-            f.write(wavpath + "\n")
+        with logger.Progress() as progress:
+            for fname in progress.track(val):
+                wavpath = fname
+                f.write(wavpath + "\n")
 
 
     d_config_template = du.load_config("configs_template/diffusion_template.yaml")

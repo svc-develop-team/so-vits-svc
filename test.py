@@ -2,7 +2,7 @@ import time
 import logger
 
 def work(i):
-    logger.info("[red]Working[/red]: {}", i)
+    # logger.info("[red]Working[/red]: {}", i)
     time.sleep(0.05)
 
 def main():

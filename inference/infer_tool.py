@@ -448,7 +448,7 @@ class Svc(object):
         audio = []
         with logger.Progress() as progress:
             for (slice_tag, data) in progress.track(audio_data):
-                logger.info(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
+                logger.info(f'segment start, {round(len(data) / audio_sr, 3)}s')
                 # padd
                 length = int(np.ceil(len(data) / audio_sr * self.target_sample))
                 if slice_tag:
@@ -464,7 +464,7 @@ class Svc(object):
                 for k,dat in enumerate(datas):
                     per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
                     if clip_seconds!=0: 
-                        logger.info(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
+                        logger.info(f'segment clip start, {round(len(dat) / audio_sr, 3)}s')
                     # padd
                     pad_len = int(audio_sr * pad_seconds)
                     dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])
