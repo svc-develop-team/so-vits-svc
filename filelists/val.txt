@@ -1,2 +1,2 @@
-./dataset/44k/TEST/vo_tips_TCG001_37_littlePrince_01.wav
-./dataset/44k/TEST/vo_tips_TCG001_4_littlePrince_01.wav
+./dataset/44k/TEST/354440190 (3).wav
+./dataset/44k/TEST/354440190 (8).wav
