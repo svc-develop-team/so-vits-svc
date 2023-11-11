@@ -5,10 +5,11 @@ from vencoder.encoder import SpeechEncoder
 
 
 class HubertSoft_Onnx(SpeechEncoder):
-    def __init__(self, vec_path="pretrain/hubert-soft.onnx", device=None):
+    def __init__(self, vec_path="pretrain/hubert-soft.onnx", device=None, log=True):
         super().__init__()
         import logger
-        logger.info("load model(s) from {}".format(vec_path))
+        if log:
+            logger.info("load model(s) from {}".format(vec_path))
         self.hidden_dim = 256
         if device is None:
             self.dev = torch.device("cpu")

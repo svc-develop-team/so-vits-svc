@@ -169,3 +169,5 @@ trained/**/
 configs/
 filelists/*
 filelists/val.txt
+test_pipe.py
+test_queue.py

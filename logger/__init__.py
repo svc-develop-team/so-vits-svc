@@ -38,7 +38,6 @@ def format_level(str, length):
     return str
 
 def default_format(record):
-    print(record)
     return f"[green]{record['time'].strftime('%Y-%m-%d %H:%M:%S')}[/green] | [level]{format_level(record['level'].name,7)}[/level] | [cyan]{record['file'].path.replace(os.getcwd()+os.sep,'')}:{record['line']}[/cyan] - [level]{record['message']}[/level]\n"
 
 

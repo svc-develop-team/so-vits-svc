@@ -110,46 +110,46 @@ def get_f0_predictor(f0_predictor,hop_length,sampling_rate,**kargs):
         raise Exception("Unknown f0 predictor")
     return f0_predictor_object
 
-def get_speech_encoder(speech_encoder,device=None,**kargs):
+def get_speech_encoder(speech_encoder,device=None,log=True,**kargs):
     if speech_encoder == "vec768l12":
         from vencoder.ContentVec768L12 import ContentVec768L12
-        speech_encoder_object = ContentVec768L12(device = device)
+        speech_encoder_object = ContentVec768L12(device = device,log=log)
     elif speech_encoder == "vec256l9":
         from vencoder.ContentVec256L9 import ContentVec256L9
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec256L9(device = device,log=log)
     elif speech_encoder == "vec256l9-onnx":
         from vencoder.ContentVec256L9_Onnx import ContentVec256L9_Onnx
-        speech_encoder_object = ContentVec256L9_Onnx(device = device)
+        speech_encoder_object = ContentVec256L9_Onnx(device = device,log=log)
     elif speech_encoder == "vec256l12-onnx":
         from vencoder.ContentVec256L12_Onnx import ContentVec256L12_Onnx
-        speech_encoder_object = ContentVec256L12_Onnx(device = device)
+        speech_encoder_object = ContentVec256L12_Onnx(device = device,log=log)
     elif speech_encoder == "vec768l9-onnx":
         from vencoder.ContentVec768L9_Onnx import ContentVec768L9_Onnx
-        speech_encoder_object = ContentVec768L9_Onnx(device = device)
+        speech_encoder_object = ContentVec768L9_Onnx(device = device,log=log)
     elif speech_encoder == "vec768l12-onnx":
         from vencoder.ContentVec768L12_Onnx import ContentVec768L12_Onnx
-        speech_encoder_object = ContentVec768L12_Onnx(device = device)
+        speech_encoder_object = ContentVec768L12_Onnx(device = device,log=log)
     elif speech_encoder == "hubertsoft-onnx":
         from vencoder.HubertSoft_Onnx import HubertSoft_Onnx
-        speech_encoder_object = HubertSoft_Onnx(device = device)
+        speech_encoder_object = HubertSoft_Onnx(device = device,log=log)
     elif speech_encoder == "hubertsoft":
         from vencoder.HubertSoft import HubertSoft
-        speech_encoder_object = HubertSoft(device = device)
+        speech_encoder_object = HubertSoft(device = device,log=log)
     elif speech_encoder == "whisper-ppg":
         from vencoder.WhisperPPG import WhisperPPG
-        speech_encoder_object = WhisperPPG(device = device)
+        speech_encoder_object = WhisperPPG(device = device,log=log)
     elif speech_encoder == "cnhubertlarge":
         from vencoder.CNHubertLarge import CNHubertLarge
-        speech_encoder_object = CNHubertLarge(device = device)
+        speech_encoder_object = CNHubertLarge(device = device,log=log)
     elif speech_encoder == "dphubert":
         from vencoder.DPHubert import DPHubert
-        speech_encoder_object = DPHubert(device = device)
+        speech_encoder_object = DPHubert(device = device,log=log)
     elif speech_encoder == "whisper-ppg-large":
         from vencoder.WhisperPPGLarge import WhisperPPGLarge
-        speech_encoder_object = WhisperPPGLarge(device = device)
+        speech_encoder_object = WhisperPPGLarge(device = device,log=log)
     elif speech_encoder == "wavlmbase+":
         from vencoder.WavLMBasePlus import WavLMBasePlus
-        speech_encoder_object = WavLMBasePlus(device = device)
+        speech_encoder_object = WavLMBasePlus(device = device,log=log)
     else:
         raise Exception("Unknown speech encoder")
     return speech_encoder_object 

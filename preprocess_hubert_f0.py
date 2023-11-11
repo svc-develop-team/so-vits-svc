@@ -1,5 +1,6 @@
 import argparse
 import logging
+from multiprocessing import Pipe
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
@@ -103,30 +104,47 @@ def process_one(filename, hmodel, f0p, device, diff=False, mel_extractor=None):
             np.save(aug_vol_path,aug_vol.to('cpu').numpy())
 
 
-def process_batch(file_chunk, f0p, diff=False, mel_extractor=None, device="cpu"):
-    logger.info("Loading speech encoder for content...")
+def process_batch(pipe, file_chunk, f0p, diff=False, mel_extractor=None, device="cpu"):
+    # logger.info("Loading speech encoder for content...")
     rank = mp.current_process()._identity
     rank = rank[0] if len(rank) > 0 else 0
     if torch.cuda.is_available():
         gpu_id = rank % torch.cuda.device_count()
         device = torch.device(f"cuda:{gpu_id}")
-    logger.info(f"Rank {rank} uses device {device}")
-    hmodel = utils.get_speech_encoder(speech_encoder, device=device)
-    logger.info(f"Loaded speech encoder for rank {rank}")
-    for filename in tqdm(file_chunk, position = rank):
+    # logger.info(f"Rank {rank} uses device {device}")
+    hmodel = utils.get_speech_encoder(speech_encoder, device=device, log=False)
+    # logger.info(f"Loaded speech encoder for rank {rank}")
+    # for filename in tqdm(file_chunk, position = rank):
+    #     process_one(filename, hmodel, f0p, device, diff, mel_extractor)
+    for filename in file_chunk:
         process_one(filename, hmodel, f0p, device, diff, mel_extractor)
+        pipe.send(1)
+        # logger.info(f"Rank {rank} finished {filename}")
 
 def parallel_process(filenames, num_processes, f0p, diff, mel_extractor, device):
-    with ProcessPoolExecutor(max_workers=num_processes) as executor:
-        tasks = []
-        for i in range(num_processes):
-            start = int(i * len(filenames) / num_processes)
-            end = int((i + 1) * len(filenames) / num_processes)
-            file_chunk = filenames[start:end]
-            tasks.append(executor.submit(process_batch, file_chunk, f0p, diff, mel_extractor, device=device))
-        for task in tqdm(tasks, position = 0):
-            task.result()
-
+    with logger.Progress() as progress:
+        task = progress.add_task("Preprocessing", total=len(filenames))
+        with ProcessPoolExecutor(max_workers=num_processes) as executor:
+            tasks = []
+            pipes = []
+            for i in range(num_processes):
+                start = int(i * len(filenames) / num_processes)
+                end = int((i + 1) * len(filenames) / num_processes)
+                file_chunk = filenames[start:end]
+                parent_conn, child_conn = Pipe()
+                pipes.append((parent_conn, child_conn))   
+                tasks.append(executor.submit(process_batch, child_conn, file_chunk, f0p, diff, mel_extractor, device=device))
+            while True:
+                # if all([task.done() for task in tasks]):
+                #     break
+                for parent_conn, child_conn in pipes:
+                    # if not parent_conn.empty():
+                    parent_conn.recv()
+                    # logger.debug("Received message")
+                    progress.advance(task)
+                    # progress.refresh()
+                if progress.finished:
+                    break
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--device', type=str, default=None)

@@ -5,10 +5,11 @@ from vencoder.encoder import SpeechEncoder
 
 
 class DPHubert(SpeechEncoder):
-    def __init__(self, vec_path="pretrain/DPHuBERT-sp0.75.pth", device=None):
+    def __init__(self, vec_path="pretrain/DPHuBERT-sp0.75.pth", device=None, log=True):
         super().__init__()
         import logger
-        logger.info("load model(s) from {}".format(vec_path))
+        if log:
+            logger.info("load model(s) from {}".format(vec_path))
         if device is None:
             self.dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:

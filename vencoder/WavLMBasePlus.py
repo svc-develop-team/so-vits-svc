@@ -5,10 +5,11 @@ from vencoder.wavlm.WavLM import WavLM, WavLMConfig
 
 
 class WavLMBasePlus(SpeechEncoder):
-    def __init__(self, vec_path="pretrain/WavLM-Base+.pt", device=None):
+    def __init__(self, vec_path="pretrain/WavLM-Base+.pt", device=None, log=True):
         super().__init__()
         import logger
-        logger.info("load model(s) from {}".format(vec_path))
+        if log:
+            logger.info("load model(s) from {}".format(vec_path))
         checkpoint = torch.load(vec_path)
         self.cfg = WavLMConfig(checkpoint['cfg'])
         if device is None:
