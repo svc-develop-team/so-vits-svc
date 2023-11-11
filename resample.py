@@ -6,9 +6,9 @@ from multiprocessing import cpu_count
 
 import librosa
 import numpy as np
-from rich.progress import track
 from scipy.io import wavfile
 
+import logger
 
 def load_wav(wav_path):
     return librosa.load(wav_path, sr=None)
@@ -76,13 +76,14 @@ def process_all_speakers():
 def process_all_speakers():
     process_count = 30 if os.cpu_count() > 60 else (os.cpu_count() - 2 if os.cpu_count() > 4 else 1)
     with ProcessPoolExecutor(max_workers=process_count) as executor:
-        for speaker in speakers:
-            spk_dir = os.path.join(args.in_dir, speaker)
-            if os.path.isdir(spk_dir):
-                print(spk_dir)
-                futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
-                for _ in track(concurrent.futures.as_completed(futures), total=len(futures), description="resampling:"):
-                    pass
+        with logger.Progress() as progress:
+            for speaker in speakers:
+                spk_dir = os.path.join(args.in_dir, speaker)
+                if os.path.isdir(spk_dir):
+                    print(spk_dir)
+                    futures = [executor.submit(process, (spk_dir, i, args)) for i in os.listdir(spk_dir) if i.endswith("wav")]
+                    for _ in progress.track(concurrent.futures.as_completed(futures), total=len(futures), description="resampling:"):
+                        pass
 
 
 if __name__ == "__main__":

@@ -167,5 +167,5 @@ pretrain/
 trained/**/
 
 configs/
-filelists/
+filelists/*
 filelists/val.txt

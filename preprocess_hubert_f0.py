@@ -10,7 +10,7 @@ import librosa
 import numpy as np
 import torch
 import torch.multiprocessing as mp
-from loguru import logger
+import logger
 from tqdm import tqdm
 
 import diffusion.logger.utils as du

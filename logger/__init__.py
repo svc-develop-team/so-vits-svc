@@ -39,7 +39,7 @@ def format_level(str, length):
 
 def default_format(record):
     # print(record)
-    return f"[green]{record['time'].strftime('%Y-%m-%d %H:%M:%S')}[/green] | [level]{format_level(record['level'].name,7)}[/level] | [cyan]{record['file'].path.replace(os.getcwd()+os.sep,'')}[/cyan] - [level]{record['message']}[/level]\n"
+    return f"[green]{record['time'].strftime('%Y-%m-%d %H:%M:%S')}[/green] | [level]{format_level(record['level'].name,7)}[/level] | [cyan]{record['file'].path.replace(os.getcwd()+os.sep,'')}:{record['line']}[/cyan] - [level]{record['message']}[/level]\n"
 
 
 logger.add(lambda m: console.print(m, end=""), format=default_format, colorize=True)
@@ -58,6 +58,7 @@ def addLogger(path):
 info = logger.info
 error = logger.error
 warning = logger.warning
+warn = logger.warning
 debug = logger.debug
 
 
