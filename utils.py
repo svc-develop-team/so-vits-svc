@@ -17,10 +17,12 @@ from scipy.io.wavfile import read
 from sklearn.cluster import MiniBatchKMeans
 from torch.nn import functional as F
 
+import logger
+
 MATPLOTLIB_FLAG = False
 
 logging.basicConfig(stream=sys.stdout, level=logging.WARN)
-logger = logging
+# logger = logging
 
 f0_bin = 256
 f0_max = 1100.0
@@ -108,46 +110,46 @@ def get_f0_predictor(f0_predictor,hop_length,sampling_rate,**kargs):
         raise Exception("Unknown f0 predictor")
     return f0_predictor_object
 
-def get_speech_encoder(speech_encoder,device=None,**kargs):
+def get_speech_encoder(speech_encoder,device=None,log=True,**kargs):
     if speech_encoder == "vec768l12":
         from vencoder.ContentVec768L12 import ContentVec768L12
-        speech_encoder_object = ContentVec768L12(device = device)
+        speech_encoder_object = ContentVec768L12(device = device,log=log)
     elif speech_encoder == "vec256l9":
         from vencoder.ContentVec256L9 import ContentVec256L9
-        speech_encoder_object = ContentVec256L9(device = device)
+        speech_encoder_object = ContentVec256L9(device = device,log=log)
     elif speech_encoder == "vec256l9-onnx":
         from vencoder.ContentVec256L9_Onnx import ContentVec256L9_Onnx
-        speech_encoder_object = ContentVec256L9_Onnx(device = device)
+        speech_encoder_object = ContentVec256L9_Onnx(device = device,log=log)
     elif speech_encoder == "vec256l12-onnx":
         from vencoder.ContentVec256L12_Onnx import ContentVec256L12_Onnx
-        speech_encoder_object = ContentVec256L12_Onnx(device = device)
+        speech_encoder_object = ContentVec256L12_Onnx(device = device,log=log)
     elif speech_encoder == "vec768l9-onnx":
         from vencoder.ContentVec768L9_Onnx import ContentVec768L9_Onnx
-        speech_encoder_object = ContentVec768L9_Onnx(device = device)
+        speech_encoder_object = ContentVec768L9_Onnx(device = device,log=log)
     elif speech_encoder == "vec768l12-onnx":
         from vencoder.ContentVec768L12_Onnx import ContentVec768L12_Onnx
-        speech_encoder_object = ContentVec768L12_Onnx(device = device)
+        speech_encoder_object = ContentVec768L12_Onnx(device = device,log=log)
     elif speech_encoder == "hubertsoft-onnx":
         from vencoder.HubertSoft_Onnx import HubertSoft_Onnx
-        speech_encoder_object = HubertSoft_Onnx(device = device)
+        speech_encoder_object = HubertSoft_Onnx(device = device,log=log)
     elif speech_encoder == "hubertsoft":
         from vencoder.HubertSoft import HubertSoft
-        speech_encoder_object = HubertSoft(device = device)
+        speech_encoder_object = HubertSoft(device = device,log=log)
     elif speech_encoder == "whisper-ppg":
         from vencoder.WhisperPPG import WhisperPPG
-        speech_encoder_object = WhisperPPG(device = device)
+        speech_encoder_object = WhisperPPG(device = device,log=log)
     elif speech_encoder == "cnhubertlarge":
         from vencoder.CNHubertLarge import CNHubertLarge
-        speech_encoder_object = CNHubertLarge(device = device)
+        speech_encoder_object = CNHubertLarge(device = device,log=log)
     elif speech_encoder == "dphubert":
         from vencoder.DPHubert import DPHubert
-        speech_encoder_object = DPHubert(device = device)
+        speech_encoder_object = DPHubert(device = device,log=log)
     elif speech_encoder == "whisper-ppg-large":
         from vencoder.WhisperPPGLarge import WhisperPPGLarge
-        speech_encoder_object = WhisperPPGLarge(device = device)
+        speech_encoder_object = WhisperPPGLarge(device = device,log=log)
     elif speech_encoder == "wavlmbase+":
         from vencoder.WavLMBasePlus import WavLMBasePlus
-        speech_encoder_object = WavLMBasePlus(device = device)
+        speech_encoder_object = WavLMBasePlus(device = device,log=log)
     else:
         raise Exception("Unknown speech encoder")
     return speech_encoder_object 
@@ -174,14 +176,13 @@ def load_checkpoint(checkpoint_path, model, optimizer=None, skip_optimizer=False
             assert saved_state_dict[k].shape == v.shape, (saved_state_dict[k].shape, v.shape)
         except Exception:
             if "enc_q" not in k or "emb_g" not in k:
-              print("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
+              logger.error("%s is not in the checkpoint,please check your checkpoint.If you're using pretrain model,just ignore this warning." % k)
               logger.info("%s is not in the checkpoint" % k)
               new_state_dict[k] = v
     if hasattr(model, 'module'):
         model.module.load_state_dict(new_state_dict)
     else:
         model.load_state_dict(new_state_dict)
-    print("load ")
     logger.info("Loaded checkpoint '{}' (iteration {})".format(
         checkpoint_path, iteration))
     return model, optimizer, learning_rate, iteration
@@ -379,17 +380,18 @@ def check_git_hash(model_dir):
 
 
 def get_logger(model_dir, filename="train.log"):
-  global logger
-  logger = logging.getLogger(os.path.basename(model_dir))
-  logger.setLevel(logging.DEBUG)
+  import logger
+  logger.addLogger(os.path.join(model_dir, filename))
+  # logger = logging.getLogger(os.path.basename(model_dir))
+  # logger.setLevel(logging.DEBUG)
 
-  formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
-  if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
-  h = logging.FileHandler(os.path.join(model_dir, filename))
-  h.setLevel(logging.DEBUG)
-  h.setFormatter(formatter)
-  logger.addHandler(h)
+  # formatter = logging.Formatter("%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
+  # if not os.path.exists(model_dir):
+  #   os.makedirs(model_dir)
+  # h = logging.FileHandler(os.path.join(model_dir, filename))
+  # h.setLevel(logging.DEBUG)
+  # h.setFormatter(formatter)
+  # logger.addHandler(h)
   return logger
 
 

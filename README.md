@@ -350,6 +350,8 @@ After completing the above steps, the dataset directory will contain the preproc
 python train.py -c configs/config.json -m 44k
 ```
 
+Here is a method that allows you to pause training and save the model at any time. Simply create a `stop.txt` file in the running directory, and the training will stop and save the model after the next step.
+
 ### Diffusion Model (optional)
 
 If the shallow diffusion function is needed, the diffusion model needs to be trained. The diffusion model training method is as follows:

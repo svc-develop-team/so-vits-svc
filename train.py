@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import os
 import time
+from rich import progress
 
 import torch
 import torch.distributed as dist
@@ -48,7 +49,7 @@ def run(rank, n_gpus, hps):
     global global_step
     if rank == 0:
         logger = utils.get_logger(hps.model_dir)
-        logger.info(hps)
+        logger.hps(hps)
         utils.check_git_hash(hps.model_dir)
         writer = SummaryWriter(log_dir=hps.model_dir)
         writer_eval = SummaryWriter(log_dir=os.path.join(hps.model_dir, "eval"))
@@ -112,27 +113,27 @@ def run(rank, n_gpus, hps):
     scheduler_d = torch.optim.lr_scheduler.ExponentialLR(optim_d, gamma=hps.train.lr_decay, last_epoch=epoch_str - 2)
 
     scaler = GradScaler(enabled=hps.train.fp16_run)
+    with logger.Progress() as progress:
+        for epoch in range(epoch_str, hps.train.epochs + 1):
+            # set up warm-up learning rate
+            if epoch <= warmup_epoch:
+                for param_group in optim_g.param_groups:
+                    param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
+                for param_group in optim_d.param_groups:
+                    param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
+            # training
+            if rank == 0:
+                train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
+                                [train_loader, eval_loader], logger, [writer, writer_eval], progress)
+            else:
+                train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
+                                [train_loader, None], None, None, progress)
+            # update learning rate
+            scheduler_g.step()
+            scheduler_d.step()
 
-    for epoch in range(epoch_str, hps.train.epochs + 1):
-        # set up warm-up learning rate
-        if epoch <= warmup_epoch:
-            for param_group in optim_g.param_groups:
-                param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
-            for param_group in optim_d.param_groups:
-                param_group['lr'] = hps.train.learning_rate / warmup_epoch * epoch
-        # training
-        if rank == 0:
-            train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
-                               [train_loader, eval_loader], logger, [writer, writer_eval])
-        else:
-            train_and_evaluate(rank, epoch, hps, [net_g, net_d], [optim_g, optim_d], [scheduler_g, scheduler_d], scaler,
-                               [train_loader, None], None, None)
-        # update learning rate
-        scheduler_g.step()
-        scheduler_d.step()
 
-
-def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loaders, logger, writers):
+def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loaders, logger, writers, progress: progress.Progress):
     net_g, net_d = nets
     optim_g, optim_d = optims
     scheduler_g, scheduler_d = schedulers
@@ -146,8 +147,13 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
     global global_step
 
     net_g.train()
-    net_d.train()
-    for batch_idx, items in enumerate(train_loader):
+    net_d.train()   
+    enumerated_train_loader = enumerate(train_loader)
+    # logger.info(f"enumerated_train_loader len: {len(enumerated_train_loader)}")
+    # "Epoch {}".format(epoch)
+    task = progress.add_task(f"Epoch {epoch}", total=len(train_loader))
+    for batch_idx, items in enumerated_train_loader:
+        # logger.info(f"finish {progress.} ")
         c, f0, spec, y, spk, lengths, uv,volume = items
         g = spk.cuda(rank, non_blocking=True)
         spec, y = spec.cuda(rank, non_blocking=True), y.cuda(rank, non_blocking=True)
@@ -225,7 +231,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 logger.info(f"Losses: {[x.item() for x in losses]}, step: {global_step}, lr: {lr}, reference_loss: {reference_loss}")
 
                 scalar_dict = {"loss/g/total": loss_gen_all, "loss/d/total": loss_disc_all, "learning_rate": lr,
-                               "grad_norm_d": grad_norm_d, "grad_norm_g": grad_norm_g}
+                            "grad_norm_d": grad_norm_d, "grad_norm_g": grad_norm_g}
                 scalar_dict.update({"loss/g/fm": loss_fm, "loss/g/mel": loss_mel, "loss/g/kl": loss_kl,
                                     "loss/g/lf0": loss_lf0})
 
@@ -241,9 +247,9 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 if net_g.module.use_automatic_f0_prediction:
                     image_dict.update({
                         "all/lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
-                                                              pred_lf0[0, 0, :].detach().cpu().numpy()),
+                                                            pred_lf0[0, 0, :].detach().cpu().numpy()),
                         "all/norm_lf0": utils.plot_data_to_numpy(lf0[0, 0, :].cpu().numpy(),
-                                                                   norm_lf0[0, 0, :].detach().cpu().numpy())
+                                                                norm_lf0[0, 0, :].detach().cpu().numpy())
                     })
 
                 utils.summarize(
@@ -252,24 +258,30 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                     images=image_dict,
                     scalars=scalar_dict
                 )
-
-            if global_step % hps.train.eval_interval == 0:
+            # 达到保存步数或者 stop 文件存在
+            if global_step % hps.train.eval_interval == 0 or os.path.exists("stop.txt"):
+                if os.path.exists("stop.txt"):
+                    logger.info("stop.txt found, stop training")
                 evaluate(hps, net_g, eval_loader, writer_eval)
                 utils.save_checkpoint(net_g, optim_g, hps.train.learning_rate, epoch,
-                                      os.path.join(hps.model_dir, "G_{}.pth".format(global_step)))
+                                    os.path.join(hps.model_dir, "G_{}.pth".format(global_step)))
                 utils.save_checkpoint(net_d, optim_d, hps.train.learning_rate, epoch,
-                                      os.path.join(hps.model_dir, "D_{}.pth".format(global_step)))
+                                    os.path.join(hps.model_dir, "D_{}.pth".format(global_step)))
                 keep_ckpts = getattr(hps.train, 'keep_ckpts', 0)
                 if keep_ckpts > 0:
                     utils.clean_checkpoints(path_to_models=hps.model_dir, n_ckpts_to_keep=keep_ckpts, sort_by_time=True)
-
+                if os.path.exists("stop.txt"):
+                    logger.info("good bye!")
+                    os.remove("stop.txt")
+                    os._exit(0)
         global_step += 1
-
+        progress.advance(task)
+    progress.remove_task(task)
     if rank == 0:
         global start_time
         now = time.time()
-        durtaion = format(now - start_time, '.2f')
-        logger.info(f'====> Epoch: {epoch}, cost {durtaion} s')
+        duration = format(now - start_time, '.2f') # 这里原本是 durtaion，让我看看是谁拼错了（
+        logger.info(f'Epoch: {epoch} finished, cost {duration} s, {round(float(duration)/len(train_loader),3)}s per batch')
         start_time = now
 
 

@@ -22,6 +22,8 @@ from diffusion.unit2mel import load_model_vocoder
 from inference import slicer
 from models import SynthesizerTrn
 
+import logger
+
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 
@@ -67,6 +69,7 @@ def format_wav(audio_path):
     if Path(audio_path).suffix == '.wav':
         return
     raw_audio, raw_sample_rate = librosa.load(audio_path, mono=True, sr=None)
+    
     soundfile.write(Path(audio_path).with_suffix(".wav"), raw_audio, raw_sample_rate)
 
 
@@ -443,56 +446,58 @@ class Svc(object):
 
         global_frame = 0
         audio = []
-        for (slice_tag, data) in audio_data:
-            print(f'#=====segment start, {round(len(data) / audio_sr, 3)}s======')
-            # padd
-            length = int(np.ceil(len(data) / audio_sr * self.target_sample))
-            if slice_tag:
-                print('jump empty segment')
-                _audio = np.zeros(length)
-                audio.extend(list(pad_array(_audio, length)))
-                global_frame += length // self.hop_size
-                continue
-            if per_size != 0:
-                datas = split_list_by_n(data, per_size,lg_size)
-            else:
-                datas = [data]
-            for k,dat in enumerate(datas):
-                per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
-                if clip_seconds!=0: 
-                    print(f'###=====segment clip start, {round(len(dat) / audio_sr, 3)}s======')
+        with logger.Progress() as progress:
+            for (slice_tag, data) in progress.track(audio_data):
+                logger.info(f'segment start, {round(len(data) / audio_sr, 3)}s')
                 # padd
-                pad_len = int(audio_sr * pad_seconds)
-                dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])
-                raw_path = io.BytesIO()
-                soundfile.write(raw_path, dat, audio_sr, format="wav")
-                raw_path.seek(0)
-                out_audio, out_sr, out_frame = self.infer(spk, tran, raw_path,
-                                                    cluster_infer_ratio=cluster_infer_ratio,
-                                                    auto_predict_f0=auto_predict_f0,
-                                                    noice_scale=noice_scale,
-                                                    f0_predictor = f0_predictor,
-                                                    enhancer_adaptive_key = enhancer_adaptive_key,
-                                                    cr_threshold = cr_threshold,
-                                                    k_step = k_step,
-                                                    frame = global_frame,
-                                                    spk_mix = use_spk_mix,
-                                                    second_encoding = second_encoding,
-                                                    loudness_envelope_adjustment = loudness_envelope_adjustment
-                                                    )
-                global_frame += out_frame
-                _audio = out_audio.cpu().numpy()
-                pad_len = int(self.target_sample * pad_seconds)
-                _audio = _audio[pad_len:-pad_len]
-                _audio = pad_array(_audio, per_length)
-                if lg_size!=0 and k!=0:
-                    lg1 = audio[-(lg_size_r+lg_size_c_r):-lg_size_c_r] if lgr_num != 1 else audio[-lg_size:]
-                    lg2 = _audio[lg_size_c_l:lg_size_c_l+lg_size_r]  if lgr_num != 1 else _audio[0:lg_size]
-                    lg_pre = lg1*(1-lg)+lg2*lg
-                    audio = audio[0:-(lg_size_r+lg_size_c_r)] if lgr_num != 1 else audio[0:-lg_size]
-                    audio.extend(lg_pre)
-                    _audio = _audio[lg_size_c_l+lg_size_r:] if lgr_num != 1 else _audio[lg_size:]
-                audio.extend(list(_audio))
+                length = int(np.ceil(len(data) / audio_sr * self.target_sample))
+                if slice_tag:
+                    logger.info('jump empty segment')
+                    _audio = np.zeros(length)
+                    audio.extend(list(pad_array(_audio, length)))
+                    global_frame += length // self.hop_size
+                    continue
+                if per_size != 0:
+                    datas = split_list_by_n(data, per_size,lg_size)
+                else:
+                    datas = [data]
+                for k,dat in enumerate(datas):
+                    per_length = int(np.ceil(len(dat) / audio_sr * self.target_sample)) if clip_seconds!=0 else length
+                    if clip_seconds!=0: 
+                        logger.info(f'segment clip start, {round(len(dat) / audio_sr, 3)}s')
+                    # padd
+                    pad_len = int(audio_sr * pad_seconds)
+                    dat = np.concatenate([np.zeros([pad_len]), dat, np.zeros([pad_len])])
+                    raw_path = io.BytesIO()
+                    soundfile.write(raw_path, dat, audio_sr, format="wav")
+                    raw_path.seek(0)
+                    out_audio, out_sr, out_frame = self.infer(spk, tran, raw_path,
+                                                        cluster_infer_ratio=cluster_infer_ratio,
+                                                        auto_predict_f0=auto_predict_f0,
+                                                        noice_scale=noice_scale,
+                                                        f0_predictor = f0_predictor,
+                                                        enhancer_adaptive_key = enhancer_adaptive_key,
+                                                        cr_threshold = cr_threshold,
+                                                        k_step = k_step,
+                                                        frame = global_frame,
+                                                        spk_mix = use_spk_mix,
+                                                        second_encoding = second_encoding,
+                                                        loudness_envelope_adjustment = loudness_envelope_adjustment
+                                                        )
+                    global_frame += out_frame
+                    _audio = out_audio.cpu().numpy()
+                    pad_len = int(self.target_sample * pad_seconds)
+                    _audio = _audio[pad_len:-pad_len]
+                    _audio = pad_array(_audio, per_length)
+                    if lg_size!=0 and k!=0:
+                        lg1 = audio[-(lg_size_r+lg_size_c_r):-lg_size_c_r] if lgr_num != 1 else audio[-lg_size:]
+                        lg2 = _audio[lg_size_c_l:lg_size_c_l+lg_size_r]  if lgr_num != 1 else _audio[0:lg_size]
+                        lg_pre = lg1*(1-lg)+lg2*lg
+                        audio = audio[0:-(lg_size_r+lg_size_c_r)] if lgr_num != 1 else audio[0:-lg_size]
+                        audio.extend(lg_pre)
+                        _audio = _audio[lg_size_c_l+lg_size_r:] if lgr_num != 1 else _audio[lg_size:]
+                    audio.extend(list(_audio))
+            
         return np.array(audio)
 
 class RealTimeVC:

@@ -1,5 +1,11 @@
 import logging
 
+# from loguru import logger
+import logger
+
+
+import os
+
 import soundfile
 
 from inference import infer_tool
@@ -10,6 +16,17 @@ logging.getLogger('numba').setLevel(logging.WARNING)
 chunks_dict = infer_tool.read_temp("inference/chunks_temp.json")
 
 
+def isWavFile(file_name):
+    return file_name.endswith('.wav')
+
+def getLastestCheckpoint(path):
+    files = [ f for f in os.listdir(path) if f.endswith('.pth') and f.startswith('G_')]
+    if len(files) == 0:
+        logger.error(f"no checkpoint in {path}")
+        return None
+    latest_file = max(files)
+    return os.path.join(path, latest_file)
+
 
 def main():
     import argparse
@@ -17,14 +34,14 @@ def main():
     parser = argparse.ArgumentParser(description='sovits4 inference')
 
     # 一定要设置的部分
-    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/G_37600.pth", help='模型路径')
+    parser.add_argument('-m', '--model_path', type=str, default="logs/44k/{lastest}", help='模型路径')
     parser.add_argument('-c', '--config_path', type=str, default="logs/44k/config.json", help='配置文件路径')
-    parser.add_argument('-cl', '--clip', type=float, default=0, help='音频强制切片，默认0为自动切片，单位为秒/s')
-    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=["君の知らない物語-src.wav"], help='wav文件名列表，放在raw文件夹下')
     parser.add_argument('-t', '--trans', type=int, nargs='+', default=[0], help='音高调整，支持正负（半音）')
     parser.add_argument('-s', '--spk_list', type=str, nargs='+', default=['buyizi'], help='合成目标说话人名称')
     
     # 可选项部分
+    parser.add_argument('-n', '--clean_names', type=str, nargs='+', default=[f for f in os.listdir("raw") if isWavFile(f)], help='wav文件名列表，放在raw文件夹下且后缀为.wav')
+    parser.add_argument('-cl', '--clip', type=float, default=0, help='音频强制切片，默认0为自动切片，单位为秒/s')
     parser.add_argument('-a', '--auto_predict_f0', action='store_true', default=False, help='语音转换自动预测音高，转换歌声时不要打开这个会严重跑调')
     parser.add_argument('-cm', '--cluster_model_path', type=str, default="", help='聚类模型或特征检索索引路径，留空则自动设为各方案模型的默认路径，如果没有训练聚类或特征检索则随便填')
     parser.add_argument('-cr', '--cluster_infer_ratio', type=float, default=0, help='聚类方案或特征检索占比，范围0-1，若没有训练聚类模型或特征检索则默认0即可')
@@ -82,6 +99,12 @@ def main():
     second_encoding = args.second_encoding
     loudness_envelope_adjustment = args.loudness_envelope_adjustment
 
+    model_path = args.model_path
+
+    if "{lastest}" in model_path:
+        model_path = getLastestCheckpoint(model_path[:model_path.find("{lastest}")])
+        logger.info("Auto choose {}", model_path)
+
     if cluster_infer_ratio != 0:
         if args.cluster_model_path == "":
             if args.feature_retrieval:  # 若指定了占比但没有指定模型路径，则按是否使用特征检索分配默认的模型路径
@@ -91,7 +114,7 @@ def main():
     else:  # 若未指定占比，则无论是否指定模型路径，都将其置空以避免之后的模型加载
         args.cluster_model_path = ""
 
-    svc_model = Svc(args.model_path,
+    svc_model = Svc(model_path,
                     args.config_path,
                     args.device,
                     args.cluster_model_path,
@@ -137,7 +160,12 @@ def main():
                 "second_encoding":second_encoding,
                 "loudness_envelope_adjustment":loudness_envelope_adjustment
             }
-            audio = svc_model.slice_inference(**kwarg)
+            try:
+                audio = svc_model.slice_inference(**kwarg)
+            except Exception as e:
+                logger.error(f"Error in {clean_name} {spk} {tran}")
+                logger.error(e)
+                return
             key = "auto" if auto_predict_f0 else f"{tran}key"
             cluster_name = "" if cluster_infer_ratio == 0 else f"_{cluster_infer_ratio}"
             isdiffusion = "sovits"
